@@ -1,0 +1,17 @@
+#ifndef PARSEAPI_H
+  #define PARSEAPI_H
+  
+  #define MAX_WORD_LEN 128
+
+  typedef struct STRUCT_WORDLIST {
+    char pszDefaultWord[MAX_WORD_LEN];
+    char pszParsedWord[MAX_WORD_LEN];
+    
+    struct STRUCT_WORDLIST *pstNext;
+  } STRUCT_WORDLIST, *PSTRUCT_WORDLIST;
+
+  PSTRUCT_WORDLIST pstParseApi(char *pszApiContent);
+  void vParseWordList(PSTRUCT_WORDLIST pstList);
+  void vFreeList(PSTRUCT_WORDLIST pstList);
+  void vOutputWordList(PSTRUCT_WORDLIST pstList);
+#endif
