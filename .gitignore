@@ -1,12 +1,10 @@
 .vscode/
 
 obj/
-obj/api/
 bin/
 
 *.o
 **/*.o
-**/**/*.o
 
 *.exe
 **/*.exe
