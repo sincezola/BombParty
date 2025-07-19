@@ -2,14 +2,11 @@
 #include <string.h>
 #include <parse_api.h>
 #include <stdlib.h>
+#include <config.h>
 
-char *pszRemoveWordAccents(const char *pszInput) {
+void vRemoveWordAccents(char *pszInput) {
   const unsigned char *pucSrc = (const unsigned char *)pszInput;
-  size_t uLen = strlen(pszInput);
-  char *pszDest = (char *)malloc(uLen + 1);
-  if (!pszDest) return NULL;
-  memset(pszDest, 0, uLen + 1);
-  char *pszPtr = pszDest;
+  char *pszPtr = pszInput;
 
   while (*pucSrc) {
     if (*pucSrc == 0xC3) {
@@ -30,23 +27,34 @@ char *pszRemoveWordAccents(const char *pszInput) {
     pszPtr++;
   }
   *pszPtr = '\0';
-  return pszDest;
 }
 
-void vParseWordList(PSTRUCT_WORDLIST pstList){
-  PSTRUCT_WORDLIST pstCurrentNode;
-  char *pszCrrWord;
+// void vParseWordList(PSTRUCT_WORDLIST pstList){
+//   PSTRUCT_WORDLIST pstCurrentNode;
+//   char *pszCrrWord;
 
-  for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext) {
-    pszCrrWord = pszRemoveWordAccents(pstCurrentNode->pszDefaultWord);
-    strcpy(pstCurrentNode->pszParsedWord, pszCrrWord);
-    free(pszCrrWord);
-  }
+//   for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext) {
+//     pszCrrWord = pszRemoveWordAccents(pstCurrentNode->pszDefaultWord);
+//     strcpy(pstCurrentNode->pszParsedWord, pszCrrWord);
+//     free(pszCrrWord);
+//   }
 
-  vOutputWordList(pstList);
+//   // vOutputWordList(pstList);
 
-  return;
-}
+//   return;
+// }
+
+// bool bIsCorrectWord(char *pszWord, PSTRUCT_WORDLIST pstWordList) {
+//   PSTRUCT_WORDLIST pstPointer;
+// 
+//   for (pstPointer = pstWordList; pstPointer != NULL; pstPointer = pstPointer->pstNext) {
+//      printf("\nPSZWORD: %s PSZPARSED WORD: %s", pszWord, pstPointer->pszParsedWord);
+// 
+//     if (strcmp(pszWord, pstPointer->pszParsedWord) == 0) return TRUE;
+//   }
+// 
+//   return FALSE;
+// }
 
 void vFreeList(PSTRUCT_WORDLIST pstList) {
   PSTRUCT_WORDLIST pstLastNode;
@@ -65,6 +73,14 @@ void vOutputWordList(PSTRUCT_WORDLIST pstList) {
 
   for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext)
     printf("[%-30.30s] -> [%-30.30s]\n", pstCurrentNode->pszDefaultWord, pstCurrentNode->pszParsedWord);
+}
+
+void vOutputRawWordList(PSTRUCT_WORDLIST pstList) {
+  PSTRUCT_WORDLIST pstCurrentNode;
+
+  for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext) {
+    printf("%s\n", pstCurrentNode->pszParsedWord);
+  }
 }
 
 PSTRUCT_WORDLIST pstParseApi(char *pszApiContent) {
@@ -102,5 +118,6 @@ PSTRUCT_WORDLIST pstParseApi(char *pszApiContent) {
     pszWordToken = strstr(pszWordToken, "\"word\":\"");
   }
 
+  free(pszApiContent);  // Dá fre no ponteiro de ApiResult
   return pstFirst;
 }

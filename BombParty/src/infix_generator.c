@@ -1,5 +1,7 @@
 #include <time.h>
 #include <infix_generator.h>
+#include <parse_api.h>
+#include <dicion_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,39 +13,71 @@ int iRandomBetween(int min, int max, int iSeed) {
 
   return rand() % (max - min + 1) + min;
 }
-void vInfixGeneratorBase(char *pszInfixBuffer){
-  if (!g_iDifficulty) return;
+// void vInfixGeneratorBase(char *pszInfixBuffer){
+//   if (!giDifficulty) return;
 
-  int iRand;
-  int ii;
-  char *pTok = NULL;
+//   int iRand;
+//   int ii;
+//   char *pTok = NULL;
   
-  srand(time(NULL));
-  iRand = rand() % 60;
-  for (ii = 0; ii < iRand; ii++ ){
-    pTok = pszGetNextWord();
-  }
-  // if ( pTok != NULL )
-  //   strcpy(pszInfixBuffer, pTok);
-  // else 
-  //   strcpy(pszInfixBuffer, pszGetFirstWord());
-  iRand = iRandomBetween(1, strlen(pTok-4), 5);
-  pTok += iRand;
-  sprintf(pszInfixBuffer, "%4.4s", pTok);
+//   srand(time(NULL));
+//   iRand = rand() % 60;
+//   for (ii = 0; ii < iRand; ii++ ){
+//     pTok = pszGetNextWord();
+//   }
+//   // if ( pTok != NULL )
+//   //   strcpy(pszInfixBuffer, pTok);
+//   // else 
+//   //   strcpy(pszInfixBuffer, pszGetFirstWord());
+//   iRand = iRandomBetween(1, strlen(pTok-4), 5);
+//   pTok += iRand;
+//   sprintf(pszInfixBuffer, "%4.4s", pTok);
 
-  if ( g_iDifficulty == 1 )
-    sprintf(pszInfixBuffer, "%3.3s", pTok);
-}
-void vInfixGeneratorRandom(char *pszInfixBuffer) {
-  if ( pszInfixBuffer != NULL)
-    return ;
-  return;
-  // if (g_iDifficulty) {
+//   if ( giDifficulty == 1 )
+//     // sprintf(pszInfixBuffer, "%3.3s", pTok);
+
+//     strcpy(pszInfixBuffer, "odo");
+// }
+  // if (giDifficulty) {
   //   int i = 1;
 
   //   sprintf(pszInfixBuffer, "%c%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
     
-  //   if (g_iDifficulty == 1)
+  //   if (giDifficulty == 1)
   //     sprintf(pszInfixBuffer, "%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
   // }
+void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize){
+  int iRand;
+  char szWord2Infix[256];
+  int iInfixMaxSize;
+  
+  srand(time(NULL));
+  iRand = rand() % 200000;
+
+  memset(szWord2Infix,0,sizeof(szWord2Infix));
+  vGetWordFromDb(szWord2Infix, sizeof(szWord2Infix), iRand);
+
+  iInfixMaxSize = strlen(szWord2Infix) - 4; // Hard
+  if ( giDifficulty == EASY )
+    iInfixMaxSize = strlen(szWord2Infix) - 2;
+  else if ( giDifficulty == MEDIUM )
+    iInfixMaxSize = strlen(szWord2Infix) - 3;
+
+  if ( iInfixMaxSize <= 0 ) {
+    sprintf(pszInfixBuffer, "%.*s", (int)iInfixBufferSize, szWord2Infix);
+    return;
+  }
+
+  iRand = iRandomBetween(1, strlen(szWord2Infix) - iInfixMaxSize, 5);
+  if ( strlen(szWord2Infix) > 3 ){
+    sprintf(pszInfixBuffer, "%.*s", (int)(strlen(szWord2Infix) - iInfixMaxSize), &szWord2Infix[iRand]);
+  }
+   
+
 }
+// void vInfixGeneratorRandom(char *pszInfixBuffer) {
+//   if ( pszInfixBuffer != NULL)
+//     return ;
+  
+//   return;
+// }

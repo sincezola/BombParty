@@ -1,4 +1,12 @@
-.vscode
+.vscode/
 
-# BombParty Dir
-BombParty/bin/bombparty
+obj/
+obj/api/
+bin/
+
+*.o
+**/*.o
+**/**/*.o
+
+*.exe
+**/*.exe

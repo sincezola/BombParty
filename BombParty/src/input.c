@@ -32,6 +32,12 @@ void vFlushInput() {
   while ((c = getchar()) != '\n' && c != EOF) {}
 }
 
+void vToLower(char *pszBuf) {
+  for (char *p = pszBuf; *p; ++p)
+  if (*p >= 'A' && *p <= 'Z')
+    *p += 32; /* 'A'(65)+32 = 'a'(97) */
+}
+
 bool bIsOnlySpaces(const char *str) {
   while (*str) {
     if (!((unsigned char)*str == ' '))
@@ -61,8 +67,11 @@ char *cCatchInput() {
 
     printf("Você deve digitar uma palavra!\n");
     vSleepSeconds(1.5f);
-    vClearTerminal();
+    // vClearTerminal();
   }
 
+  vToLower(buffer); // Changes buff to lowercase
+  vRemoveWordAccents(buffer); // Remove buff accents
+  
   return buffer;
 }

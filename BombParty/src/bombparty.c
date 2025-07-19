@@ -8,21 +8,21 @@
 #include <infix_generator.h>
 #include <config.h>
 
-int g_iDifficulty = 0;
+int giDifficulty = 0;
 
 int main() {
     char szInput[MAX_WORD_LEN];
     char szDifficulty[8];
-    char *pszRsl;
     char szInfixBuffer[8];
-    PSTRUCT_WORDLIST pstWordList;
+    // char *pszRsl;
+    // PSTRUCT_WORDLIST pstWordList;
     
     while ( TRUE ) {
         memset(szInput, 0, sizeof(szInput));
         memset(szInfixBuffer, 0, sizeof(szInfixBuffer));    
         memset(szDifficulty, 0, sizeof(szDifficulty));
 
-        if (!g_iDifficulty) {  // Catch difficulty
+        if (!giDifficulty) {  // Catch difficulty
             do {
                 // vClearTerminal();
                 printf("[1] Easy\n[2] Medium\n[3] Hard\n");
@@ -37,30 +37,45 @@ int main() {
                 }
             } while (szDifficulty[0] != '1' && szDifficulty[0] != '2' && szDifficulty[0] != '3');
             
-            g_iDifficulty = szDifficulty[0] - '0';
+            giDifficulty = szDifficulty[0] - '0';
         }
         
-        vInfixGeneratorBase(szInfixBuffer);
+        vInfixGeneratorDb(szInfixBuffer, sizeof(szInfixBuffer));
         
         do { 
             // vClearTerminal();
             printf("Words with: (%s)\n\t", szInfixBuffer);    
             char *pszDyn = cCatchInput();
             if (pszDyn) {
-                strncpy(szInput, pszDyn, sizeof(szInput)-1);
+                strncpy(szInput, pszDyn, sizeof(szInput) -1 );
                 szInput[sizeof(szInput)-1] = '\0';
                 free(pszDyn);
             }
         } while ( strstr(szInput, szInfixBuffer) == NULL );
 
-        pszRsl = pszDICION_BrowseInfix(szInput);
-        if (pszRsl == NULL) 
-            return 0;
-            
-        pstWordList = pstParseApi(pszRsl);
-        vParseWordList(pstWordList);
-        free(pszRsl);
-        vFreeList(pstWordList);
+        // pszRsl = pszDICION_BrowseInfix(szInfixBuffer);
+        // if (pszRsl == NULL) {
+        //     printf("pszRsl == NULL!!!!\n");
+        //     return 0;
+        // }
+
+        // pstWordList = pstParseApi(pszRsl);
+        
+        // vParseWordList(pstWordList);
+        
+        // vOutputRawWordList(pstWordList);
+
+        printf("INPUT: %s\n", szInput);
+
+        printf("INPUT: %s\n", szInput);
+
+        if (bSearchWordDb(szInput)) {
+            printf("\nUHUUU ACERTO\n");
+        } else {
+            printf("\nAHHHH ERRO\n");
+        }
+
+        // vFreeList(pstWordList);
     }
 
     return 0;

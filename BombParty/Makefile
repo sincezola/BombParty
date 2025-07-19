@@ -6,8 +6,6 @@
 
 UNAME_S := $(shell uname -s)
 
-UNAME_S := $(shell uname -s)
-
 ifneq ($(findstring _NT-, $(UNAME_S)),)
   _WIN32 = 1
 else
@@ -16,10 +14,10 @@ endif
 
 CC            = gcc
 SRC_PATH      = src
+API_PATH      = $(SRC_PATH)/api
 INCLUDE_PATH  = include
 OBJ_DIR       = obj
 BIN_DIR       = bin
-BOMB_EXEC     = bombparty
 
 CCOPT   = -Wall -Wextra
 INCDIR  = -I. -I$(SRC_PATH) -I$(INCLUDE_PATH)
@@ -41,24 +39,32 @@ ifdef DEBUG
   DEBUG_ADD_FLAGS = -g -ggdb
 endif
 
-SRCS := $(shell find $(SRC_PATH) -name '*.c')
+BOMB_EXEC = bombparty
 
-OBJS := $(patsubst $(SRC_PATH)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+OBJS = \
+	$(OBJ_DIR)/bombparty.o \
+	$(OBJ_DIR)/infix_generator.o \
+	$(OBJ_DIR)/input.o \
+	$(OBJ_DIR)/wordbase.o \
+	$(OBJ_DIR)/dicion_api.o \
+	$(OBJ_DIR)/parse_api.o
 
-all: directories $(BIN_DIR)/$(BOMB_EXEC)
+all: clean directories $(BIN_DIR)/$(BOMB_EXEC)
+
+clean:
+	rm -rf $(OBJ_DIR) $(BIN_DIR) *.log
+
+directories:
+	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
 
 $(BIN_DIR)/$(BOMB_EXEC): $(OBJS)
 	$(CC) $(LDOPT) $(INCDIR) -o $@ $(OBJS) $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_PATH)/%.c
-	@mkdir -p $(dir $@)
 	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INCDIR) $< -o $@
-
-directories:
-	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
-
-clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) *.log
+	
+$(OBJ_DIR)/%.o: $(API_PATH)/%.c
+	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INCDIR) $< -o $@
 
 distclean: clean
 
