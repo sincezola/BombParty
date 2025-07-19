@@ -10,5 +10,6 @@
   #define EASY   1
   #define MEDIUM 2
   #define HARD   3
-  
+  #define PATH_TO_DB "db"
+  #define _MAX_PATH 256
 #endif

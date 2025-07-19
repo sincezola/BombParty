@@ -1,0 +1,5 @@
+Cronometro da bomba por dificuldade
+ - 7s easy
+ - 5s medium
+ - 3s hard
+

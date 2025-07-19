@@ -1,19 +1,19 @@
 #include <time.h>
 #include <infix_generator.h>
 #include <parse_api.h>
-#include <dicion_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wordbase.h>
 #include <config.h>
+#include <word_db.h>
+
 
 int iRandomBetween(int min, int max, int iSeed) {
   srand(time(NULL) * iSeed);
 
   return rand() % (max - min + 1) + min;
 }
-// void vInfixGeneratorBase(char *pszInfixBuffer){
+// void vInfixGeneratorBase(char *pszInfixBuffer) {
 //   if (!giDifficulty) return;
 
 //   int iRand;
@@ -22,7 +22,7 @@ int iRandomBetween(int min, int max, int iSeed) {
   
 //   srand(time(NULL));
 //   iRand = rand() % 60;
-//   for (ii = 0; ii < iRand; ii++ ){
+//   for (ii = 0; ii < iRand; ii++ ) {
 //     pTok = pszGetNextWord();
 //   }
 //   // if ( pTok != NULL )
@@ -46,7 +46,7 @@ int iRandomBetween(int min, int max, int iSeed) {
   //   if (giDifficulty == 1)
   //     sprintf(pszInfixBuffer, "%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
   // }
-void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize){
+void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
   int iRand;
   char szWord2Infix[256];
   int iInfixMaxSize;
@@ -69,7 +69,7 @@ void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize){
   }
 
   iRand = iRandomBetween(1, strlen(szWord2Infix) - iInfixMaxSize, 5);
-  if ( strlen(szWord2Infix) > 3 ){
+  if ( strlen(szWord2Infix) > 3 ) {
     sprintf(pszInfixBuffer, "%.*s", (int)(strlen(szWord2Infix) - iInfixMaxSize), &szWord2Infix[iRand]);
   }
    

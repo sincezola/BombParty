@@ -29,7 +29,7 @@ void vRemoveWordAccents(char *pszInput) {
   *pszPtr = '\0';
 }
 
-// void vParseWordList(PSTRUCT_WORDLIST pstList){
+// void vParseWordList(PSTRUCT_WORDLIST pstList) {
 //   PSTRUCT_WORDLIST pstCurrentNode;
 //   char *pszCrrWord;
 
@@ -39,7 +39,7 @@ void vRemoveWordAccents(char *pszInput) {
 //     free(pszCrrWord);
 //   }
 
-//   // vOutputWordList(pstList);
+//    vOutputWordList(pstList);
 
 //   return;
 // }

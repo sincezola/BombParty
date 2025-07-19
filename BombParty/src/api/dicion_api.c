@@ -3,13 +3,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <config.h>
-#include <dicion_api.h>
 
-#define DIC_API_URL  "https://api.dicionario-aberto.net"
-#define WORD_ENDPOINT "word"
-#define INFIX_ENDPOINT "infix"
+// #define DIC_API_URL  "https://api.dicionario-aberto.net"
+// #define WORD_ENDPOINT "word"
+// #define INFIX_ENDPOINT "infix"
 
-// int bDICION_BrowseWord(char *pszWord){    
+// int bDICION_BrowseWord(char *pszWord) {    
 //     char *pszFullEndPoint;
 //     char szRsl[_MAX_RSL_BUFFER];
     
@@ -30,44 +29,7 @@
 //     return TRUE;
 // }
 
-bool bSearchWordDb(char *pszWord) {
-    FILE *pfDb;
-    char szSearch[1024];
-
-    if ((pfDb = fopen("db/word_db.txt", "r")) == NULL) return FALSE;
-
-    memset(szSearch, 0, sizeof(szSearch));
-    while (fgets(szSearch, sizeof(szSearch), pfDb)) {
-        strtok(szSearch, "\n");
-
-        if (!strcmp(szSearch, pszWord)) {
-            fclose(pfDb);
-            return TRUE;
-        }
-
-        memset(szSearch, 0, sizeof(szSearch));
-    }
-
-    fclose(pfDb);
-    return FALSE;
-}
-
-void vGetWordFromDb(char *pszWord, int iWordSz, int iLine) {
-    FILE *pfDb;
-    char szSearch[1024];
-    int ii = 0;
-    if ((pfDb = fopen("db/word_db.txt", "r")) == NULL) return ;
-
-    memset(szSearch, 0, sizeof(szSearch));
-    while (fgets(szSearch, sizeof(szSearch), pfDb) && ii++ < iLine );
-    
-    strtok(szSearch, "\n");
-    sprintf(pszWord, "%.*s", iWordSz, szSearch);
-    fclose(pfDb);
-    return ;
-}
-
-// char *pszDICION_BrowseInfix(char *pszInfix){    
+// char *pszDICION_BrowseInfix(char *pszInfix) {    
 //     char *pszRsl;
 //     char *pszFullEndPoint;
 //     char szRsl[_MAX_RSL_BUFFER];
@@ -84,7 +46,7 @@ void vGetWordFromDb(char *pszWord, int iWordSz, int iLine) {
 //         free(pszFullEndPoint);
 //         return NULL;
 //     }
-//     if ( !strcmp(szRsl, "[]") ){
+//     if ( !strcmp(szRsl, "[]") ) {
 //         free(pszFullEndPoint);
 //         return NULL;
 //     }
@@ -94,6 +56,6 @@ void vGetWordFromDb(char *pszWord, int iWordSz, int iLine) {
 
 //     strcpy(pszRsl, szRsl);
 //     free(pszFullEndPoint);
-//     // printf("%s\n", szRsl);
+//     printf("%s\n", szRsl);
 //     return pszRsl;
 // }

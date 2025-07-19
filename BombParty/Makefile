@@ -45,8 +45,8 @@ OBJS = \
 	$(OBJ_DIR)/bombparty.o \
 	$(OBJ_DIR)/infix_generator.o \
 	$(OBJ_DIR)/input.o \
-	$(OBJ_DIR)/wordbase.o \
-	$(OBJ_DIR)/dicion_api.o \
+	$(OBJ_DIR)/word_db.o \
+	$(OBJ_DIR)/bombtimer.o \
 	$(OBJ_DIR)/parse_api.o
 
 all: clean directories $(BIN_DIR)/$(BOMB_EXEC)

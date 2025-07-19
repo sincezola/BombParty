@@ -3,6 +3,7 @@
 #include <input.h>
 #include <string.h>
 #include <parse_api.h>
+#include <bombparty.h>
 
 #ifdef _WIN32      // Sleep includes
 #include <windows.h>
@@ -54,9 +55,11 @@ char *cCatchInput() {
   while (1) {
     printf("Digite sua palavra: ");
     if (!fgets(buffer, MAX_WORD_LEN, stdin)) {
+      printf("Timeout?=[%d]\n", gbBombTimeout);
       free(buffer);
       return NULL;
     }
+    printf("Timeout?=[%d]\n", gbBombTimeout);
 
     size_t len = strlen(buffer);
     if (len > 0 && buffer[len - 1] == '\n')
@@ -72,6 +75,6 @@ char *cCatchInput() {
 
   vToLower(buffer); // Changes buff to lowercase
   vRemoveWordAccents(buffer); // Remove buff accents
-  
+
   return buffer;
 }

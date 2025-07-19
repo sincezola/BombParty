@@ -19,13 +19,13 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ulWriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, szRsl);
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, pszMethod);
-    if ( !strcmp(pszMethod, "POST") ){
+    if ( !strcmp(pszMethod, "POST") ) {
       curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, iPayloadLen);
       curl_easy_setopt(curl, CURLOPT_POSTFIELDS, szPayload);
     }
     curlRes = curl_easy_perform(curl);
 
-    if (curlRes != CURLE_OK){
+    if (curlRes != CURLE_OK) {
       return -1;
     }
 

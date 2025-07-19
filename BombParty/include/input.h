@@ -5,7 +5,7 @@
 
   bool bIsOnlySpaces(const char *str);
   char *cCatchInput();
-
+  void vSleepSeconds(int iSeconds);
   void vClearTerminal();
   void vFlushInput();
 #endif
