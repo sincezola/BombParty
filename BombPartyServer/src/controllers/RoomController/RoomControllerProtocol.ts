@@ -1,0 +1,6 @@
+import { Request, Response } from "express";
+
+export abstract class RoomControllerProtocol {
+  protected abstract getAllRooms(_req: Request, res: Response): Promise<void>;
+  protected abstract getRoomById(req: Request, res: Response): Promise<void>;
+}

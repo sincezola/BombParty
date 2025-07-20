@@ -1,3 +1,5 @@
+# BombPartyClient
+
 .vscode/
 
 obj/
@@ -8,3 +10,8 @@ bin/
 
 *.exe
 **/*.exe
+
+# BombPartyServer
+
+BombPartyServer/.env
+BombPartyServer/node_modules

@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ======================
+// Lookup Tables
+// ======================
+model StatusType {
+  status_type_id   Int       @id @default(autoincrement())
+  code             String    @unique
+
+  rooms            Room[]    @relation("StatusToRooms")
+
+  @@map("status_type")
+}
+
+model LevelType {
+  level_type_id    Int       @id @default(autoincrement())
+  code             String    @unique
+
+  rooms            Room[]    @relation("LevelToRooms")
+
+  @@map("level_type")
+}
+
+model RoomPlayerType {
+  room_player_type_id Int        @id @default(autoincrement())
+  code                String     @unique
+
+  roomPlayers         RoomPlayer[]
+
+  @@map("room_player_type")
+}
+
+// ======================
+// Main Domain Models
+// ======================
+model Room {
+  room_key      Int          @id @default(autoincrement())
+
+  room_status   Int
+  status        StatusType   @relation("StatusToRooms", fields: [room_status], references: [status_type_id])
+
+  room_name     String
+  room_password String?
+  room_capacity Int
+
+  room_level    Int
+  level         LevelType    @relation("LevelToRooms", fields: [room_level], references: [level_type_id])
+
+  created_at    DateTime     @default(now())
+  last_changed  DateTime     @updatedAt
+
+  players       RoomPlayer[] @relation("RoomToPlayers")
+
+  @@map("room")
+}
+
+model Player {
+  player_key  Int           @id @default(autoincrement())
+  player_name String
+
+  roomLinks   RoomPlayer[]
+
+  @@map("player")
+}
+
+model RoomPlayer {
+  room_player_id   Int            @id @default(autoincrement())
+
+  room_id          Int
+  player_id        Int
+  room_player_type Int
+
+  room   Room           @relation("RoomToPlayers", fields: [room_id], references: [room_key], onDelete: Cascade)
+  player Player         @relation(fields: [player_id], references: [player_key], onDelete: Cascade)
+  type   RoomPlayerType @relation(fields: [room_player_type], references: [room_player_type_id])
+
+  @@unique([room_id, player_id])
+  @@map("room_player")
+}
