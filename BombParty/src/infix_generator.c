@@ -72,8 +72,6 @@ void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
   if ( strlen(szWord2Infix) > MEDIUM_INFIX ) {
     sprintf(pszInfixBuffer, "%.*s", (int)(strlen(szWord2Infix) - iInfixMaxSize), &szWord2Infix[iRand]);
   }
-   
-
 }
 // void vInfixGeneratorRandom(char *pszInfixBuffer) {
 //   if ( pszInfixBuffer != NULL)

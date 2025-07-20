@@ -57,11 +57,12 @@ int iSetDifficultyFromChar(int iCh){
 }
 
 char *cCatchInput() {
+  int iBufferLen;
   char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
   memset(pszBuffer, 0, MAX_WORD_LEN);
 
   while (1) {
-    printf("Digite sua palavra: \n"); // Precisamos desse \n
+    printf("\033[16;1H Digite sua palavra: \n"); // Precisamos desse \n
     if (!fgets(pszBuffer, MAX_WORD_LEN, stdin)) {
       if ( gbBombTimeout ){
         sprintf(pszBuffer, "%s", TIMEOUT_STR);
@@ -76,10 +77,17 @@ char *cCatchInput() {
       return pszBuffer;
     }
 
-    size_t len = strlen(pszBuffer);
-    if (len > 0 && pszBuffer[len - 1] == '\n')
-      pszBuffer[len - 1] = '\0';
-
+    iBufferLen = strlen(pszBuffer);
+    if ( iBufferLen < 1 ){
+      printf("Você deve digitar uma palavra!\n");
+      vSleepSeconds(1.5f);
+      // vClearTerminal();
+      continue;
+    }
+    
+    strtok(pszBuffer, "\n"); 
+    pszBuffer[iBufferLen - 1] = '\0';
+    
     if (pszBuffer[0] != '\0' && !bIsOnlySpaces(pszBuffer))
       break;
 

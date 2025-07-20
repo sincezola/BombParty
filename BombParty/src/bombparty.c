@@ -27,75 +27,78 @@ int main() {
   int iCh;
   char szInput[MAX_WORD_LEN];
   char szDifficulty[8];
-  char szInfixBuffer[8];
+  char szInfix[8];
   int iPid;
   struct sigaction stSigAct;
   int bRestart = FALSE;
 
-  // Processo principal
-  while ( TRUE )
-  {
+  /** Difficulty choice */
+  while ( TRUE ) {
     memset(szInput, 0, sizeof(szInput));
-    memset(szInfixBuffer, 0, sizeof(szInfixBuffer));
+    memset(szInfix, 0, sizeof(szInfix));
     memset(szDifficulty, 0, sizeof(szDifficulty));
 
     if (!giDifficulty) {
-      do
-      {
-        vClearTerminal();
+      do {
+        // vClearTerminal();
         
         printf("\nEscolha sua a dificuldade :\n");
-        printf("\t[E] Easy   (%d letras por palavra)\n"  , EASY_INFIX);
-        printf("\t[M] Medium (%d letras por palavra)\n"  , MEDIUM_INFIX);
+        printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
+        printf("\t[M] Medium (%d letras por palavra)\n", MEDIUM_INFIX);
         printf("\t[H] Hard   (%d letras por palavra)\n", HARD_INFIX);
         printf("  Resposta: ");
-        char *pszRet = fgets(szDifficulty, sizeof(szDifficulty), stdin);
-        if (pszRet) {
-          if (strchr(szDifficulty, '\n') == NULL)
-          {
-            vFlushInput(); // Avoid multiple questions (Line 28)
-          }
+
+        if ( fgets(szDifficulty, sizeof(szDifficulty), stdin) ) {
+          // Flush inputs greater than sizeof(szDifficulty)
+          if ( strchr(szDifficulty, '\n') == NULL ) vFlushInput(); 
         }
+        
         iCh = tolower(szDifficulty[0]);
       } while (iCh != 'e' && iCh != 'm' && iCh != 'h');
-      printf("\n\n");
+      
       giDifficulty = iSetDifficultyFromChar(iCh);
+      printf("\n\n");
     }
+
+    /** Bomb Timeout setup */
     memset(&stSigAct, 0, sizeof(stSigAct));
     stSigAct.sa_handler = vTimerAction;    
     sigemptyset(&stSigAct.sa_mask);
     stSigAct.sa_flags = 0;
     sigaction(SIGUSR1, &stSigAct, NULL);
-
     if ( (iPid = fork()) == 0 ) {
-      // Processo da bomba
       vHandleBombTimer();
       return 0;
     }
 
-    vInfixGeneratorDb(szInfixBuffer, sizeof(szInfixBuffer));
-
+    vInfixGeneratorDb(szInfix, sizeof(szInfix));
     do {
+      char *pszUserInput;
       vClearTerminal();
-      printf("Encontre uma palavra que tenha: (%s)\n", szInfixBuffer);
-      char *pszDyn = cCatchInput();
-      if ( !strcmp(pszDyn, TIMEOUT_STR) ){
-        char szInput[_MAX_PATH];
-        free(pszDyn);
 
-        printf("\n\t PERDEU!!!\n");
-        printf("Pressione qualquer tecla para continuar...\n");
-        fgets(szInput, sizeof(szInput), stdin);
+      printf("\n\n");
+      printf("\033[15;1H Encontre uma palavra que tenha: (%s)\n", szInfix);
+      pszUserInput = cCatchInput();
+      if ( !strcmp(pszUserInput, TIMEOUT_STR) ){
+        char szInput[_MAX_PATH];
+        
+        gbBombTimeout = FALSE;
+        free(pszUserInput);
+
+        printf("\n\tA BOMBA EXPLODIU!!!\n");
+        printf("Pressione enter para continuar...\n");
+
+        if (fgets(szInput, sizeof(szInput), stdin) == NULL) break;
         
         bRestart = TRUE;
         break;
       }
-      if (pszDyn) {
-        strncpy(szInput, pszDyn, sizeof(szInput) - 1);
+      if (pszUserInput) {
+        strncpy(szInput, pszUserInput, sizeof(szInput) - 1);
         szInput[sizeof(szInput) - 1] = '\0';
-        free(pszDyn);
+        free(pszUserInput);
       }
-    } while (strstr(szInput, szInfixBuffer) == NULL);
+    } while (strstr(szInput, szInfix) == NULL);
 
     wait(NULL); // Catch child
 
@@ -106,9 +109,9 @@ int main() {
     }
 
     if (bSearchWordDb(szInput))
-        printf("\nUHUUU ACERTO\n");
+      printf("\nUHUUU ACERTO\n");
     else
-        printf("\nAHHHH ERRO\n");
+      printf("\nAHHHH ERRO\n");
   }
 
   return 0;
