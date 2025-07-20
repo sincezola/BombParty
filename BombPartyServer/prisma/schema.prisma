@@ -62,7 +62,7 @@ model Room {
 }
 
 model Player {
-  player_key  Int           @id @default(autoincrement())
+  player_key  Int            @id @default(autoincrement())
   player_name String
 
   roomLinks   RoomPlayer[]

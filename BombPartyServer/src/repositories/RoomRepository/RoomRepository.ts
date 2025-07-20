@@ -31,6 +31,33 @@ class RoomRepository implements RoomRepositoryProtocol {
     }
   }
 
+  async getRoomsByStatus(room_status: number): Promise<Room[] | null> {
+    try {
+      const receivedRooms = await this.prisma.room.findMany({
+        where: { room_status },
+        include: {
+          status: true,
+          level: true,
+          players: {
+            include: { player: true, type: true },
+          },
+        },
+      });
+
+      if (!receivedRooms) return null;
+
+      const retArr = receivedRooms.map((room) => {
+        return new Room(room);
+      });
+
+      return retArr;
+    } catch (err) {
+      console.error(err);
+
+      return null;
+    }
+  }
+
   async getRoomById(room_key: number): Promise<Room | null> {
     try {
       const receivedRoom = await this.prisma.room.findFirst({
