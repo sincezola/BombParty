@@ -1,2 +1,2 @@
 # BombParty
-A fun words game made in C.
+A fun words game made. Made with my friend Tezin!
