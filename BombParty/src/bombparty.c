@@ -7,6 +7,8 @@
 #include <sys/wait.h>
 #include <input.h>
 #include <config.h>
+#include <errno.h>
+#include <ctype.h>
 #include <parse_api.h>
 #include <word_db.h>
 #include <infix_generator.h>
@@ -14,18 +16,21 @@
 
 int giDifficulty = 0;
 int gbBombTimeout = FALSE;
-void vTimerAction() {
+void vTimerAction(int iSig) {
+  int ii = iSig;
+  ii++;
   gbBombTimeout = TRUE;
-  printf("Timer esgotado\n");
   return;
 }
 
 int main() {
+  int iCh;
   char szInput[MAX_WORD_LEN];
   char szDifficulty[8];
   char szInfixBuffer[8];
   int iPid;
   struct sigaction stSigAct;
+  int bRestart = FALSE;
 
   // Processo principal
   while ( TRUE )
@@ -37,11 +42,13 @@ int main() {
     if (!giDifficulty) {
       do
       {
-        // vClearTerminal();
-        printf("[1] Easy\n[2] Medium\n[3] Hard\n");
-
-        printf("\nWhich difficulty do you want? ");
-
+        vClearTerminal();
+        
+        printf("\nEscolha sua a dificuldade :\n");
+        printf("\t[E] Easy   (%d letras por palavra)\n"  , EASY_INFIX);
+        printf("\t[M] Medium (%d letras por palavra)\n"  , MEDIUM_INFIX);
+        printf("\t[H] Hard   (%d letras por palavra)\n", HARD_INFIX);
+        printf("  Resposta: ");
         char *pszRet = fgets(szDifficulty, sizeof(szDifficulty), stdin);
         if (pszRet) {
           if (strchr(szDifficulty, '\n') == NULL)
@@ -49,12 +56,15 @@ int main() {
             vFlushInput(); // Avoid multiple questions (Line 28)
           }
         }
-      } while (szDifficulty[0] != '1' && szDifficulty[0] != '2' && szDifficulty[0] != '3');
-
-      giDifficulty = szDifficulty[0] - '0';
+        iCh = tolower(szDifficulty[0]);
+      } while (iCh != 'e' && iCh != 'm' && iCh != 'h');
+      printf("\n\n");
+      giDifficulty = iSetDifficultyFromChar(iCh);
     }
-    
-    stSigAct.sa_handler = vTimerAction;
+    memset(&stSigAct, 0, sizeof(stSigAct));
+    stSigAct.sa_handler = vTimerAction;    
+    sigemptyset(&stSigAct.sa_mask);
+    stSigAct.sa_flags = 0;
     sigaction(SIGUSR1, &stSigAct, NULL);
 
     if ( (iPid = fork()) == 0 ) {
@@ -66,9 +76,20 @@ int main() {
     vInfixGeneratorDb(szInfixBuffer, sizeof(szInfixBuffer));
 
     do {
-      // vClearTerminal();
-      printf("Words with: (%s)\n\t", szInfixBuffer);
+      vClearTerminal();
+      printf("Encontre uma palavra que tenha: (%s)\n", szInfixBuffer);
       char *pszDyn = cCatchInput();
+      if ( !strcmp(pszDyn, TIMEOUT_STR) ){
+        char szInput[_MAX_PATH];
+        free(pszDyn);
+
+        printf("\n\t PERDEU!!!\n");
+        printf("Pressione qualquer tecla para continuar...\n");
+        fgets(szInput, sizeof(szInput), stdin);
+        
+        bRestart = TRUE;
+        break;
+      }
       if (pszDyn) {
         strncpy(szInput, pszDyn, sizeof(szInput) - 1);
         szInput[sizeof(szInput) - 1] = '\0';
@@ -77,6 +98,12 @@ int main() {
     } while (strstr(szInput, szInfixBuffer) == NULL);
 
     wait(NULL); // Catch child
+
+    if ( bRestart ){
+      giDifficulty = 0;
+      bRestart = FALSE;
+      continue;
+    }
 
     if (bSearchWordDb(szInput))
         printf("\nUHUUU ACERTO\n");

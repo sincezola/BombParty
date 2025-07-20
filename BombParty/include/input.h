@@ -2,10 +2,11 @@
 
 #ifndef INPUT_H
   #define INPUT_H
-
-  bool bIsOnlySpaces(const char *str);
+  #define TIMEOUT_STR "XXXXTIMEOUTXXX"
+  int bIsOnlySpaces(const char *str);
   char *cCatchInput();
   void vSleepSeconds(int iSeconds);
   void vClearTerminal();
   void vFlushInput();
+  int iSetDifficultyFromChar(int iCh);
 #endif

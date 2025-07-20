@@ -39,7 +39,7 @@ void vToLower(char *pszBuf) {
     *p += 32; /* 'A'(65)+32 = 'a'(97) */
 }
 
-bool bIsOnlySpaces(const char *str) {
+int bIsOnlySpaces(const char *str) {
   while (*str) {
     if (!((unsigned char)*str == ' '))
       return FALSE;
@@ -48,24 +48,39 @@ bool bIsOnlySpaces(const char *str) {
   return TRUE;
 }
 
+int iSetDifficultyFromChar(int iCh){
+  int iDifficulty = EASY;
+  if      ( iCh == 'e' ) iDifficulty = EASY;
+  else if ( iCh == 'm' ) iDifficulty = MEDIUM;
+  else if ( iCh == 'h' ) iDifficulty = HARD;
+  return iDifficulty;
+}
+
 char *cCatchInput() {
-  char *buffer = (char *)malloc(MAX_WORD_LEN);
-  memset(buffer, 0, MAX_WORD_LEN);
+  char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
+  memset(pszBuffer, 0, MAX_WORD_LEN);
 
   while (1) {
-    printf("Digite sua palavra: ");
-    if (!fgets(buffer, MAX_WORD_LEN, stdin)) {
-      printf("Timeout?=[%d]\n", gbBombTimeout);
-      free(buffer);
+    printf("Digite sua palavra: \n"); // Precisamos desse \n
+    if (!fgets(pszBuffer, MAX_WORD_LEN, stdin)) {
+      if ( gbBombTimeout ){
+        sprintf(pszBuffer, "%s", TIMEOUT_STR);
+        return pszBuffer;
+      }
+      free(pszBuffer);
       return NULL;
     }
-    printf("Timeout?=[%d]\n", gbBombTimeout);
 
-    size_t len = strlen(buffer);
-    if (len > 0 && buffer[len - 1] == '\n')
-      buffer[len - 1] = '\0';
+    if ( gbBombTimeout ){
+      sprintf(pszBuffer, "%s", TIMEOUT_STR);
+      return pszBuffer;
+    }
 
-    if (buffer[0] != '\0' && !bIsOnlySpaces(buffer))
+    size_t len = strlen(pszBuffer);
+    if (len > 0 && pszBuffer[len - 1] == '\n')
+      pszBuffer[len - 1] = '\0';
+
+    if (pszBuffer[0] != '\0' && !bIsOnlySpaces(pszBuffer))
       break;
 
     printf("Você deve digitar uma palavra!\n");
@@ -73,8 +88,8 @@ char *cCatchInput() {
     // vClearTerminal();
   }
 
-  vToLower(buffer); // Changes buff to lowercase
-  vRemoveWordAccents(buffer); // Remove buff accents
+  vToLower(pszBuffer); // Changes buff to lowercase
+  vRemoveWordAccents(pszBuffer); // Remove buff accents
 
-  return buffer;
+  return pszBuffer;
 }

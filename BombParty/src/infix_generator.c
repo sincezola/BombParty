@@ -57,11 +57,11 @@ void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
   memset(szWord2Infix,0,sizeof(szWord2Infix));
   vGetWordFromDb(szWord2Infix, sizeof(szWord2Infix), iRand);
 
-  iInfixMaxSize = strlen(szWord2Infix) - 4; // Hard
+  iInfixMaxSize = strlen(szWord2Infix) - HARD_INFIX; // Hard
   if ( giDifficulty == EASY )
-    iInfixMaxSize = strlen(szWord2Infix) - 2;
+    iInfixMaxSize = strlen(szWord2Infix) - EASY_INFIX;
   else if ( giDifficulty == MEDIUM )
-    iInfixMaxSize = strlen(szWord2Infix) - 3;
+    iInfixMaxSize = strlen(szWord2Infix) - MEDIUM_INFIX;
 
   if ( iInfixMaxSize <= 0 ) {
     sprintf(pszInfixBuffer, "%.*s", (int)iInfixBufferSize, szWord2Infix);
@@ -69,7 +69,7 @@ void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
   }
 
   iRand = iRandomBetween(1, strlen(szWord2Infix) - iInfixMaxSize, 5);
-  if ( strlen(szWord2Infix) > 3 ) {
+  if ( strlen(szWord2Infix) > MEDIUM_INFIX ) {
     sprintf(pszInfixBuffer, "%.*s", (int)(strlen(szWord2Infix) - iInfixMaxSize), &szWord2Infix[iRand]);
   }
    

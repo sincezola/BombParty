@@ -20,8 +20,12 @@ int iSetTimeFromDifficulty() {
 void vHandleBombTimer() {
   int iSeconds = iSetTimeFromDifficulty();
   
+  vSleepSeconds(2);
   while (iSeconds > 0) {
-    printf("Tempo: %d\n", iSeconds--);
+    
+    printf("\033[3A");
+    printf("\r\033[2KTempo restante: %2d", iSeconds--);
+    printf("\r\033[3B");
     fflush(stdout);
     vSleepSeconds(1);
   }

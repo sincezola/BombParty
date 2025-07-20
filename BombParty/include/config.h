@@ -3,7 +3,6 @@
 
   extern int giDifficulty;
 
-  typedef int bool; // Bool definition
   #define FALSE 0
   #define TRUE 1
 

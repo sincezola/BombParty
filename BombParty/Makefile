@@ -4,13 +4,6 @@
 #   Enzo Zamberlan <sincecontatodev@gmail.com>
 # in July 2025
 
-UNAME_S := $(shell uname -s)
-
-ifneq ($(findstring _NT-, $(UNAME_S)),)
-  _WIN32 = 1
-else
-  LINUX = 1
-endif
  
 CC            = gcc
 SRC_PATH      = src
@@ -18,15 +11,19 @@ API_PATH      = $(SRC_PATH)/api
 INCLUDE_PATH  = include
 OBJ_DIR       = obj
 BIN_DIR       = bin
+LIBS    = 
 
 CCOPT   = -Wall -Wextra
 INCDIR  = -I. -I$(SRC_PATH) -I$(INCLUDE_PATH)
 
-LIBS    = -lcurl
+GCC_TARGET := $(shell $(CC) -dumpmachine)
+
+ifeq ($(findstring mingw32, $(GCC_TARGET)), mingw32)
+  _WIN32 = 1
+endif
 
 ifdef _WIN32
-  CCOPT += -LD:/msys64/usr/lib -LD:/msys64/mingw64/lib -lmingw32 -mwindows -D_WIN32
-  LIBS  += -LD:/msys64/usr/lib -LD:/msys64/mingw64/lib -lmingw32 -mwindows -D_WIN32
+  CCOPT += -D_WIN32
 endif
 
 ifdef LINUX

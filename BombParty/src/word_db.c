@@ -2,7 +2,7 @@
 #include <string.h>
 #include <word_db.h>
 
-bool bSearchWordDb(char *pszWord) {
+int bSearchWordDb(char *pszWord) {
   FILE *pfDb;
   char szSearch[1024];
   char szFilePath[_MAX_PATH];
