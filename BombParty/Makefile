@@ -11,7 +11,7 @@ ifneq ($(findstring _NT-, $(UNAME_S)),)
 else
   LINUX = 1
 endif
-
+ 
 CC            = gcc
 SRC_PATH      = src
 API_PATH      = $(SRC_PATH)/api
