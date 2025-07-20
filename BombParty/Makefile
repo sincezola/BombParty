@@ -4,24 +4,23 @@
 #   Enzo Zamberlan <sincecontatodev@gmail.com>
 # in July 2025
 
- 
+
 CC            = gcc
-SRC_PATH      = src
-API_PATH      = $(SRC_PATH)/api
-INCLUDE_PATH  = include
-OBJ_DIR       = obj
-BIN_DIR       = bin
-LIBS    = 
-
-CCOPT   = -Wall -Wextra
-INCDIR  = -I. -I$(SRC_PATH) -I$(INCLUDE_PATH)
-
 GCC_TARGET := $(shell $(CC) -dumpmachine)
 
 ifeq ($(findstring mingw32, $(GCC_TARGET)), mingw32)
   _WIN32 = 1
 endif
 
+SRC_PATH      = src
+API_PATH      = $(SRC_PATH)/api
+INCLUDE_PATH  = include
+OBJ_DIR       = obj
+BIN_DIR       = bin
+INC_DIR       = -I. -I$(INCLUDE_PATH)
+LIBS          = 
+
+CCOPT         = -Wall -Wextra
 ifdef _WIN32
   CCOPT += -D_WIN32
 endif
@@ -55,13 +54,13 @@ directories:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
 
 $(BIN_DIR)/$(BOMB_EXEC): $(OBJS)
-	$(CC) $(LDOPT) $(INCDIR) -o $@ $(OBJS) $(LIBS)
+	$(CC) $(LDOPT) $(INC_DIR) -o $@ $(OBJS) $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_PATH)/%.c
-	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INCDIR) $< -o $@
+	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INC_DIR) $< -o $@
 	
 $(OBJ_DIR)/%.o: $(API_PATH)/%.c
-	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INCDIR) $< -o $@
+	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INC_DIR) $< -o $@
 
 distclean: clean
 
