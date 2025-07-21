@@ -6,9 +6,7 @@
 #include <fcntl.h>
 
 void vDrawBomb(int iTimeout) {
-  int iRow;
-  int iCol;
-
+  
   printf( "\033[3;10H           ░░  \n");
   printf( "\033[4;10H      ░░░░░░░  \n");
   printf( "\033[5;10H      ░░       \n");

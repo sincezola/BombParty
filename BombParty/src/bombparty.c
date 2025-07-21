@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <signal.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <input.h>
@@ -13,24 +12,25 @@
 #include <word_db.h>
 #include <infix_generator.h>
 #include <bombtimer.h>
+#include <sys_interface.h>
 
 int giDifficulty = 0;
 int gbBombTimeout = FALSE;
+
 void vTimerAction(int iSig) {
-  int ii = iSig;
-  ii++;
+  (void)iSig;
   gbBombTimeout = TRUE;
   return;
 }
 
 int main() {
+  int iPid;
   int iCh;
+  int bRestart = FALSE;
+  char szInfix[8];
   char szInput[MAX_WORD_LEN];
   char szDifficulty[DIFICULTY_LEN];
-  char szInfix[8];
-  int iPid;
   struct sigaction stSigAct;
-  int bRestart = FALSE;
 
   /** Difficulty choice */
   while ( TRUE ) {
@@ -63,12 +63,7 @@ int main() {
       printf("\n\n");
     }
 
-    /** Bomb Timeout setup */
-    memset(&stSigAct, 0, sizeof(stSigAct));
-    stSigAct.sa_handler = vTimerAction;    
-    sigemptyset(&stSigAct.sa_mask);
-    stSigAct.sa_flags = 0;
-    sigaction(SIGUSR1, &stSigAct, NULL);
+    vSetSigUsrHandler(&stSigAct, vTimerAction);
     if ( (iPid = fork()) == 0 ) {
       vHandleBombTimer();
       return 0;
