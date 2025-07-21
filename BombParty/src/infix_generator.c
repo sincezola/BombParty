@@ -13,39 +13,7 @@ int iRandomBetween(int min, int max, int iSeed) {
 
   return rand() % (max - min + 1) + min;
 }
-// void vInfixGeneratorBase(char *pszInfixBuffer) {
-//   if (!giDifficulty) return;
 
-//   int iRand;
-//   int ii;
-//   char *pTok = NULL;
-  
-//   srand(time(NULL));
-//   iRand = rand() % 60;
-//   for (ii = 0; ii < iRand; ii++ ) {
-//     pTok = pszGetNextWord();
-//   }
-//   // if ( pTok != NULL )
-//   //   strcpy(pszInfixBuffer, pTok);
-//   // else 
-//   //   strcpy(pszInfixBuffer, pszGetFirstWord());
-//   iRand = iRandomBetween(1, strlen(pTok-4), 5);
-//   pTok += iRand;
-//   sprintf(pszInfixBuffer, "%4.4s", pTok);
-
-//   if ( giDifficulty == 1 )
-//     // sprintf(pszInfixBuffer, "%3.3s", pTok);
-
-//     strcpy(pszInfixBuffer, "odo");
-// }
-  // if (giDifficulty) {
-  //   int i = 1;
-
-  //   sprintf(pszInfixBuffer, "%c%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
-    
-  //   if (giDifficulty == 1)
-  //     sprintf(pszInfixBuffer, "%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
-  // }
 void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
   int iRand;
   char szWord2Infix[256];
@@ -73,9 +41,51 @@ void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
     sprintf(pszInfixBuffer, "%.*s", (int)(strlen(szWord2Infix) - iInfixMaxSize), &szWord2Infix[iRand]);
   }
 }
-// void vInfixGeneratorRandom(char *pszInfixBuffer) {
-//   if ( pszInfixBuffer != NULL)
-//     return ;
+
+/** 
+ * Entre if 0 e endif era usado para Api dicionario aberto. 
+ * descontinuado... 
+ * */
+#if 0 
+void vInfixGeneratorRandom(char *pszInfixBuffer) {
+  if ( pszInfixBuffer != NULL)
+    return ;
   
-//   return;
-// }
+  return;
+}
+
+void vInfixGeneratorBase(char *pszInfixBuffer) {
+  if (!giDifficulty) return;
+
+  int iRand;
+  int ii;
+  char *pTok = NULL;
+  
+  srand(time(NULL));
+  iRand = rand() % 60;
+  for (ii = 0; ii < iRand; ii++ ) {
+    pTok = pszGetNextWord();
+  }
+  // if ( pTok != NULL )
+  //   strcpy(pszInfixBuffer, pTok);
+  // else 
+  //   strcpy(pszInfixBuffer, pszGetFirstWord());
+  iRand = iRandomBetween(1, strlen(pTok-4), 5);
+  pTok += iRand;
+  sprintf(pszInfixBuffer, "%4.4s", pTok);
+
+  if ( giDifficulty == 1 )
+    // sprintf(pszInfixBuffer, "%3.3s", pTok);
+
+    strcpy(pszInfixBuffer, "odo");
+}
+  if (giDifficulty) {
+    int i = 1;
+
+    sprintf(pszInfixBuffer, "%c%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
+    
+    if (giDifficulty == 1)
+      sprintf(pszInfixBuffer, "%c%c%c", iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i), iRandomBetween(97, 122, ++i)); 
+  }
+
+#endif

@@ -5,10 +5,10 @@
 #include <parse_api.h>
 #include <bombparty.h>
 
-#ifdef _WIN32      // Sleep includes
-#include <windows.h>
+#ifdef _WIN32
+  #include <windows.h>
 #else
-#include <unistd.h>
+  #include <unistd.h>
 #endif
 
 void vSleepSeconds(int seconds) {
@@ -59,10 +59,11 @@ int iSetDifficultyFromChar(int iCh){
 char *cCatchInput() {
   int iBufferLen;
   char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
-  memset(pszBuffer, 0, MAX_WORD_LEN);
 
-  while (1) {
-    printf("\033[16;1H Digite sua palavra: \n"); // Precisamos desse \n
+  memset(pszBuffer, 0, MAX_WORD_LEN);
+  while ( TRUE ) {
+    /* Nao retirar o \n */
+    printf("\033[16;1H Digite sua palavra: \n");
     if (!fgets(pszBuffer, MAX_WORD_LEN, stdin)) {
       if ( gbBombTimeout ){
         sprintf(pszBuffer, "%s", TIMEOUT_STR);
@@ -81,7 +82,7 @@ char *cCatchInput() {
     if ( iBufferLen < 1 ){
       printf("Você deve digitar uma palavra!\n");
       vSleepSeconds(1.5f);
-      // vClearTerminal();
+      /* vClearTerminal(); */
       continue;
     }
     
@@ -93,11 +94,11 @@ char *cCatchInput() {
 
     printf("Você deve digitar uma palavra!\n");
     vSleepSeconds(1.5f);
-    // vClearTerminal();
+    /* vClearTerminal(); */
   }
 
-  vToLower(pszBuffer); // Changes buff to lowercase
-  vRemoveWordAccents(pszBuffer); // Remove buff accents
+  vToLower(pszBuffer); /* Changes buff to lowercase */
+  vRemoveWordAccents(pszBuffer); /* Remove buff accents */
 
   return pszBuffer;
 }

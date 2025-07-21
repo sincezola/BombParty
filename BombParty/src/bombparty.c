@@ -26,7 +26,7 @@ void vTimerAction(int iSig) {
 int main() {
   int iCh;
   char szInput[MAX_WORD_LEN];
-  char szDifficulty[8];
+  char szDifficulty[DIFICULTY_LEN];
   char szInfix[8];
   int iPid;
   struct sigaction stSigAct;
@@ -40,7 +40,7 @@ int main() {
 
     if (!giDifficulty) {
       do {
-        // vClearTerminal();
+        /* vClearTerminal(); */
         
         printf("\nEscolha sua a dificuldade :\n");
         printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
@@ -49,7 +49,10 @@ int main() {
         printf("  Resposta: ");
 
         if ( fgets(szDifficulty, sizeof(szDifficulty), stdin) ) {
-          // Flush inputs greater than sizeof(szDifficulty)
+          /** 
+           * Flushes anything greater than sizeof(szDifficulty)
+           * to avoid overlapping readout
+           */
           if ( strchr(szDifficulty, '\n') == NULL ) vFlushInput(); 
         }
         
@@ -100,7 +103,7 @@ int main() {
       }
     } while (strstr(szInput, szInfix) == NULL);
 
-    wait(NULL); // Catch child
+    wait(NULL); /* Wait for child process */
 
     if ( bRestart ){
       giDifficulty = 0;

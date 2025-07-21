@@ -13,7 +13,7 @@
 
   PSTRUCT_WORDLIST pstParseApi(char *pszApiContent);
   // void vParseWordList(PSTRUCT_WORDLIST pstList);
-  // bool bIsCorrectWord(char *pszWord, PSTRUCT_WORDLIST pstWordList);
+  // int bIsCorrectWord(char *pszWord, PSTRUCT_WORDLIST pstWordList);
   void vFreeList(PSTRUCT_WORDLIST pstList);
   void vOutputWordList(PSTRUCT_WORDLIST pstList);
   void vOutputRawWordList(PSTRUCT_WORDLIST pstList);

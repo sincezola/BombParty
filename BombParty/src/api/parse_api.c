@@ -29,32 +29,10 @@ void vRemoveWordAccents(char *pszInput) {
   *pszPtr = '\0';
 }
 
-// void vParseWordList(PSTRUCT_WORDLIST pstList) {
-//   PSTRUCT_WORDLIST pstCurrentNode;
-//   char *pszCrrWord;
-
-//   for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext) {
-//     pszCrrWord = pszRemoveWordAccents(pstCurrentNode->pszDefaultWord);
-//     strcpy(pstCurrentNode->pszParsedWord, pszCrrWord);
-//     free(pszCrrWord);
-//   }
-
-//    vOutputWordList(pstList);
-
-//   return;
-// }
-
-// bool bIsCorrectWord(char *pszWord, PSTRUCT_WORDLIST pstWordList) {
-//   PSTRUCT_WORDLIST pstPointer;
-// 
-//   for (pstPointer = pstWordList; pstPointer != NULL; pstPointer = pstPointer->pstNext) {
-//      printf("\nPSZWORD: %s PSZPARSED WORD: %s", pszWord, pstPointer->pszParsedWord);
-// 
-//     if (strcmp(pszWord, pstPointer->pszParsedWord) == 0) return TRUE;
-//   }
-// 
-//   return FALSE;
-// }
+/** Parte antiga que funciona, o que eesta fora do if 0 ja tinha sido descontinuado
+ *  se voltarmos a usar, usar somente entre if 0 e endif
+*/
+#if 0 
 
 void vFreeList(PSTRUCT_WORDLIST pstList) {
   PSTRUCT_WORDLIST pstLastNode;
@@ -121,3 +99,32 @@ PSTRUCT_WORDLIST pstParseApi(char *pszApiContent) {
   free(pszApiContent);  // Dá fre no ponteiro de ApiResult
   return pstFirst;
 }
+
+#endif
+
+// void vParseWordList(PSTRUCT_WORDLIST pstList) {
+//   PSTRUCT_WORDLIST pstCurrentNode;
+//   char *pszCrrWord;
+
+//   for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext) {
+//     pszCrrWord = pszRemoveWordAccents(pstCurrentNode->pszDefaultWord);
+//     strcpy(pstCurrentNode->pszParsedWord, pszCrrWord);
+//     free(pszCrrWord);
+//   }
+
+//    vOutputWordList(pstList);
+
+//   return;
+// }
+
+// int bIsCorrectWord(char *pszWord, PSTRUCT_WORDLIST pstWordList) {
+//   PSTRUCT_WORDLIST pstPointer;
+// 
+//   for (pstPointer = pstWordList; pstPointer != NULL; pstPointer = pstPointer->pstNext) {
+//      printf("\nPSZWORD: %s PSZPARSED WORD: %s", pszWord, pstPointer->pszParsedWord);
+// 
+//     if (strcmp(pszWord, pstPointer->pszParsedWord) == 0) return TRUE;
+//   }
+// 
+//   return FALSE;
+// }

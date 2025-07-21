@@ -11,4 +11,5 @@
   #define HARD   3
   #define PATH_TO_DB "db"
   #define _MAX_PATH 256
+  #define DIFICULTY_LEN 8 
 #endif
