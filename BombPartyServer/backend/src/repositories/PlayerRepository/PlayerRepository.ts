@@ -7,13 +7,13 @@ class PlayerRepository implements PlayerRepositoryProtocol {
 
   async createPlayer(player_name: string): Promise<Player | null> {
     try {
-      const receivedPlayer = await this.prisma.player.create({
+      const createdPlayer = await this.prisma.player.create({
         data: { player_name },
       });
 
-      if (!receivedPlayer) return null;
+      if (!createdPlayer) return null;
 
-      return new Player(receivedPlayer);
+      return new Player(createdPlayer);
     } catch (err) {
       console.error(err);
 

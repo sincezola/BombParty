@@ -8,7 +8,7 @@ RUN npm install
 
 COPY prisma ./prisma
 COPY backend ./backend
-COPY .env ./
+COPY .env.docker ./
 
 RUN npx prisma generate
 
