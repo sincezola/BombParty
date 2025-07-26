@@ -1,5 +1,5 @@
 
-# Bomb Party Game
+# Bomb Party Game (Terminal Padronizado)
 
 ## Compilar
 ```bash
@@ -11,7 +11,9 @@ make
 doxygen Doxyfile
 ```
 
-A documentação será gerada em `docs/html/index.html`.
+Abra `docs/html/index.html` no navegador.
 
----
-Projeto padronizado com indentação de 2 espaços, notação húngara e comentários Doxygen.
+### Mudanças
+- Todos os acessos ao terminal (posições ANSI) foram substituídos por funções no módulo `terminal_utils`.
+- Layout do HUD padronizado: bomba (linhas 3–12), input (linha 20), feedback (linha 22).
+- Código mais legível e centralização das posições de tela.
