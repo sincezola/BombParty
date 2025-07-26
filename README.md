@@ -13,10 +13,10 @@ O projeto é composto por três módulos principais:
 ## Arquitetura
 
 ```
-+-----------------+        +-------------------+        +------------------+
-|   BombParty     | <----> |  BombProcessor    | <----> |   BombServer     |
-| (Client - C)    |        | (Socket Server C) |        | (API TS + Prisma)|
-+-----------------+        +-------------------+        +------------------+
++-----------------+        +-------------------+        +-----------------------+
+|   BombParty     | <----> |  BombProcessor    | <----> |    BombPartyServer    |
+| (Client - C)    |        | (Socket Server C) |        |   (API TS + Prisma)   |
++-----------------+        +-------------------+        +-----------------------+
 ```
 
 - **BombParty (Cliente):**  
@@ -39,13 +39,12 @@ O projeto é composto por três módulos principais:
 - **Make**  
 - **Bibliotecas:**  
   - `libcurl` (requisições HTTP).  
-  - `pthread` (multithreading).  
-  - `SDL2` *(opcional para futura interface gráfica)*  
+  - `pthread` (multithreading).
 
 ### Servidor (Backend):
 - **Node.js** (>= 18)  
 - **npm** ou **yarn**  
-- **Banco de dados:** PostgreSQL ou MySQL  
+- **Banco de dados:** PostgreSQL  
 
 ---
 
@@ -53,13 +52,13 @@ O projeto é composto por três módulos principais:
 
 ### 1. Backend (BombServer)
 ```bash
-cd bombserver
+cd BombPartyServer
 npm install
 npx prisma migrate dev
-npm run dev
+npm run start
 ```
 
-Crie um arquivo `.env` na pasta `bombserver` com:  
+Crie um arquivo `.env` na pasta `bombserver` (checar .env.example) com:  
 ```env
 DATABASE_URL="postgresql://usuario:senha@localhost:5432/bombparty"
 ```
@@ -68,9 +67,9 @@ DATABASE_URL="postgresql://usuario:senha@localhost:5432/bombparty"
 
 ### 2. Servidor Socket (BombProcessor)
 ```bash
-cd bombprocessor
+cd BombProcessor
 make
-./bombprocessor
+./BombProcessor
 ```
 
 O servidor socket será iniciado e aguardará conexões dos clientes.  
@@ -79,9 +78,9 @@ O servidor socket será iniciado e aguardará conexões dos clientes.
 
 ### 3. Cliente (BombParty)
 ```bash
-cd bombparty
+cd BombParty
 make
-./bombparty
+./BombParty
 ```
 
 Conecte-se ao servidor, crie ou entre em uma sala e comece a jogar.  
@@ -102,17 +101,17 @@ Conecte-se ao servidor, crie ou entre em uma sala e comece a jogar.
 ## Estrutura de Pastas
 
 ```
-/bombparty        # Cliente em C
+/BombParty        # Cliente em C
     ├─ src/
     ├─ include/
     └─ Makefile
 
-/bombprocessor    # Servidor intermediário em C
+/BombProcessor    # Servidor intermediário em C
     ├─ src/
     ├─ include/
     └─ Makefile
 
-/bombserver       # Backend em TypeScript
+/BombPartyServer  # Backend em TypeScript
     ├─ src/
     ├─ prisma/
     └─ package.json
@@ -121,10 +120,8 @@ Conecte-se ao servidor, crie ou entre em uma sala e comece a jogar.
 ---
 
 ## Próximos Passos
-- Implementar **ranking** e histórico de partidas.  
-- Adicionar **interface gráfica (SDL2)** para o cliente.  
-- Criar **testes automatizados** para o backend e comunicação entre módulos.  
-
+- Implementar **ranking** e histórico de partidas.
+  
 ---
 
 ## Contribuição
