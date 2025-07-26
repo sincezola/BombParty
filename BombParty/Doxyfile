@@ -1,0 +1,10 @@
+
+PROJECT_NAME           = "Bomb Party Game"
+OUTPUT_DIRECTORY       = docs
+GENERATE_LATEX         = NO
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+GENERATE_TREEVIEW      = YES
+QUIET                  = NO
+INPUT                  = src include
+FILE_PATTERNS          = *.c *.h

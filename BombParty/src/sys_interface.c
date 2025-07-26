@@ -38,9 +38,9 @@ void vSetSigUsrHandler(void (*vActCallBack)(int)) {
 
 int vSpawnTimerProcess(void (*vTimerFunc)(int), int iParentPID) {
 #ifdef _WIN32
-    // Cria thread no Windows (PID não é relevante aqui)
+    /** Creates Windows Thread */ 
     _beginthread((_beginthread_proc_type)vTimerFunc, 0, (void*)(intptr_t)iParentPID);
-    return 1; // retorna "pid fake"
+    return 1; /** returns fake PID */
 #else
     int pid = fork();
     if (pid == 0) {
@@ -55,7 +55,7 @@ int vSpawnTimerProcess(void (*vTimerFunc)(int), int iParentPID) {
 
 void vWaitChild() {
 #ifdef _WIN32
-    Sleep(100); // pequena espera para threads
+    Sleep(100); /** Single wait for threads */
 #else
     wait(NULL);
 #endif

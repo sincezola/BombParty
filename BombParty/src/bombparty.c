@@ -57,10 +57,10 @@ int main() {
             printf("\n\n");
         }
 
-        /** Configura o handler cross-platform */
+        /** Sets cross-platform handler */
         vSetSigUsrHandler(vTimerAction);
 
-        /** Cria processo/thread temporizador */
+        /** Creates timer process */
         vSpawnTimerProcess(vHandleBombTimer, 0);
 
         vInfixGeneratorDb(szInfix, sizeof(szInfix));
@@ -92,7 +92,7 @@ int main() {
             }
         } while (strstr(szInput, szInfix) == NULL);
 
-        /** Aguarda processo filho/thread terminar */
+        /** Waits for subproccecess */
         vWaitChild();
 
         if ( bRestart ){

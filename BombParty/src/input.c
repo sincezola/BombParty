@@ -1,104 +1,159 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <input.h>
 #include <string.h>
+#include <ctype.h>
+#include <input.h>
 #include <parse_api.h>
 #include <bombparty.h>
 
 #ifdef _WIN32
-  #include <windows.h>
+    #include <windows.h>
+    #include <conio.h>
 #else
-  #include <unistd.h>
+    #include <unistd.h>
+    #include <termios.h>
 #endif
 
-void vSleepSeconds(int seconds) {
+/**
+ * @brief Captura um único caractere do teclado, sem eco e sem buffer
+ * @return int - Código ASCII do caractere lido
+ */
+int iPortableGetchar() {
 #ifdef _WIN32
-  Sleep(seconds * 1000);
+    return _getch();
 #else
-  sleep(seconds);
+    struct termios stOldt, stNewt;
+    int iCh;
+    tcgetattr(STDIN_FILENO, &stOldt);
+    stNewt = stOldt;
+    stNewt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &stNewt);
+    iCh = getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &stOldt);
+    return iCh;
 #endif
 }
 
+/**
+ * @brief Pausa a execução por um número de segundos (cross-platform)
+ * @param iSeconds - tempo em segundos
+ */
+void vSleepSeconds(int iSeconds) {
+#ifdef _WIN32
+    Sleep(iSeconds * 1000);
+#else
+    sleep(iSeconds);
+#endif
+}
+
+/**
+ * @brief Limpa o terminal (cross-platform)
+ */
 void vClearTerminal() {
 #ifdef _WIN32
-  system("cls");
+    system("cls");
 #else
-  int vRet = system("clear"); // <- avoid compilation warnings
-  (void)vRet;
+    int iRet = system("clear");
+    (void)iRet;
 #endif
 }
 
+/**
+ * @brief Limpa buffer de entrada do teclado
+ */
 void vFlushInput() {
-  int c; 
-  while ((c = getchar()) != '\n' && c != EOF) {}
+#ifdef _WIN32
+    HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+    FlushConsoleInputBuffer(hIn);
+#else
+    int iC; 
+    while ((iC = getchar()) != '\n' && iC != EOF) {}
+#endif
 }
 
+/**
+ * @brief Converte uma string para minúsculas
+ * @param pszBuf - string a ser convertida
+ */
 void vToLower(char *pszBuf) {
-  for (char *p = pszBuf; *p; ++p)
-  if (*p >= 'A' && *p <= 'Z')
-    *p += 32; /* 'A'(65)+32 = 'a'(97) */
+    for (char *p = pszBuf; *p; ++p)
+        if (*p >= 'A' && *p <= 'Z')
+            *p += 32; /* 'A'(65)+32 = 'a'(97) */
 }
 
-int bIsOnlySpaces(const char *str) {
-  while (*str) {
-    if (!((unsigned char)*str == ' '))
-      return FALSE;
-    str++;
-  }
-  return TRUE;
+/**
+ * @brief Verifica se a string contém apenas espaços
+ * @param pszStr - string a ser verificada
+ * @return int - TRUE se for só espaços, FALSE caso contrário
+ */
+int bIsOnlySpaces(const char *pszStr) {
+    while (*pszStr) {
+        if (!((unsigned char)*pszStr == ' '))
+            return FALSE;
+        pszStr++;
+    }
+    return TRUE;
 }
 
+/**
+ * @brief Converte um caractere em nível de dificuldade
+ * @param iCh - caractere (e/m/h)
+ * @return int - nível de dificuldade (EASY/MEDIUM/HARD)
+ */
 int iSetDifficultyFromChar(int iCh){
-  int iDifficulty = EASY;
-  if      ( iCh == 'e' ) iDifficulty = EASY;
-  else if ( iCh == 'm' ) iDifficulty = MEDIUM;
-  else if ( iCh == 'h' ) iDifficulty = HARD;
-  return iDifficulty;
+    int iDifficulty = EASY;
+    if      ( iCh == 'e' ) iDifficulty = EASY;
+    else if ( iCh == 'm' ) iDifficulty = MEDIUM;
+    else if ( iCh == 'h' ) iDifficulty = HARD;
+    return iDifficulty;
 }
 
+/**
+ * @brief Captura input do usuário caractere a caractere, com redesenho contínuo
+ * @return char* - ponteiro para a string digitada (precisa ser liberado com free)
+ */
 char *cCatchInput() {
-  int iBufferLen;
-  char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
+    char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
+    int iBufferLen = 0;
+    memset(pszBuffer, 0, MAX_WORD_LEN);
 
-  memset(pszBuffer, 0, MAX_WORD_LEN);
-  while ( TRUE ) {
-    /* Nao retirar o \n */
-    printf("\033[16;1H Digite sua palavra: \n");
-    if (!fgets(pszBuffer, MAX_WORD_LEN, stdin)) {
-      if ( gbBombTimeout ){
-        sprintf(pszBuffer, "%s", TIMEOUT_STR);
-        return pszBuffer;
-      }
-      free(pszBuffer);
-      return NULL;
+    while (TRUE) {
+        /** Redesenha linha de input (sempre na linha 20) */
+        printf("\033[20;1HDigite sua palavra: %s", pszBuffer);
+        printf("\033[K"); /* limpa o resto da linha */
+        fflush(stdout);
+
+        /** Captura um único caractere */
+        int iCh = iPortableGetchar();
+
+        /** Verifica se a bomba explodiu */
+        if (gbBombTimeout) {
+            sprintf(pszBuffer, "%s", TIMEOUT_STR);
+            return pszBuffer;
+        }
+
+        if (iCh == '\n' || iCh == '\r') {  /** Enter */
+            if (iBufferLen > 0 && !bIsOnlySpaces(pszBuffer))
+                break;  /** Input válido */
+            printf("\033[21;1HVocê deve digitar uma palavra!\n");
+            vSleepSeconds(1);
+            continue;
+        } 
+        else if (iCh == 127 || iCh == 8) { /** Backspace */
+            if (iBufferLen > 0) {
+                iBufferLen--;
+                pszBuffer[iBufferLen] = '\0';
+            }
+        } 
+        else if (isprint(iCh) && iBufferLen < MAX_WORD_LEN - 1) { /** Caractere imprimível */
+            pszBuffer[iBufferLen++] = (char)iCh;
+            pszBuffer[iBufferLen] = '\0';
+        }
     }
 
-    if ( gbBombTimeout ){
-      sprintf(pszBuffer, "%s", TIMEOUT_STR);
-      return pszBuffer;
-    }
+    /** Converte para minúsculo e remove acentos */
+    vToLower(pszBuffer); 
+    vRemoveWordAccents(pszBuffer); 
 
-    iBufferLen = strlen(pszBuffer);
-    if ( iBufferLen < 1 ){
-      printf("Você deve digitar uma palavra!\n");
-      vSleepSeconds(1.5f);
-      /* vClearTerminal(); */
-      continue;
-    }
-    
-    strtok(pszBuffer, "\n"); 
-    pszBuffer[iBufferLen - 1] = '\0';
-    
-    if (pszBuffer[0] != '\0' && !bIsOnlySpaces(pszBuffer))
-      break;
-
-    printf("Você deve digitar uma palavra!\n");
-    vSleepSeconds(1.5f);
-    /* vClearTerminal(); */
-  }
-
-  vToLower(pszBuffer); /* Changes buff to lowercase */
-  vRemoveWordAccents(pszBuffer); /* Remove buff accents */
-
-  return pszBuffer;
+    return pszBuffer;
 }
