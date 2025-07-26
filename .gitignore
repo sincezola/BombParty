@@ -23,5 +23,6 @@ BombPartyServer/.env.docker
 BombPartyServer/node_modules
 
 # BombProcessor
-
+*.log
+**/*.log
 BombProcessor/log
