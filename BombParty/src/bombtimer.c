@@ -9,14 +9,12 @@
 
 void vDrawBomb(int iTimeout) {
   vGotoBombPosition();
-  vSetCursorPosition(3, 10);  printf("           ░░  \n");
-  vSetCursorPosition(4, 10);  printf("      ░░░░░░░  \n");
-  vSetCursorPosition(5, 10);  printf("      ░░       \n");
-  vSetCursorPosition(6, 10);  printf(" ░░░░░░░░░░░░  \n");
-  vSetCursorPosition(7, 10);  printf(" ░░░░░░░░░░░░  \n");
-  vSetCursorPosition(8, 10);  printf(" ░░░░░%02d░░░░░\n", iTimeout);
-  vSetCursorPosition(9, 10);  printf(" ░░░░░░░░░░░░  \n");
-  vSetCursorPosition(10, 10); printf(" ░░░░░░░░░░░░  \n");
+  vSetCursorPosition(2, 10);  printf("           ░  \n");
+  vSetCursorPosition(3, 10);  printf("       ░░░░  \n");
+  vSetCursorPosition(4, 10);  printf("      ░       \n");
+  vSetCursorPosition(5, 10);  printf(" ░░░░░░░░░░  \n");
+  vSetCursorPosition(6, 10);  printf(" ░░░░%02d░░░░\n", iTimeout);
+  vSetCursorPosition(7, 10);  printf(" ░░░░░░░░░░  \n");
   
   vGotoInputTextPosition();  /** <- reposiciona cursor para o input */
   fflush(stdout);

@@ -25,7 +25,6 @@ void vTimerAction(int iSig) {
 int main() {
   int iCh;
   int bRestart = FALSE;
-  int iSleepSec = 0;
   int iBombPid = -1; /** Guarda o processo/thread da bomba */
   char szInfix[8];
   char szInput[MAX_WORD_LEN];
@@ -39,11 +38,11 @@ int main() {
     if (!giDifficulty) {
       do {
         vClearTerminal();
-        printf("\nEscolha sua a dificuldade :\n");
+        printf("\n Escolha sua a dificuldade :\n");
         printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
         printf("\t[M] Medium (%d letras por palavra)\n", MEDIUM_INFIX);
         printf("\t[H] Hard   (%d letras por palavra)\n", HARD_INFIX);
-        printf("  Resposta: ");
+        printf("Dificuldade: ");
 
         if (fgets(szDifficulty, sizeof(szDifficulty), stdin)) {
           if (strchr(szDifficulty, '\n') == NULL)
@@ -65,15 +64,14 @@ int main() {
       char *pszUserInput;
       vClearTerminal();
 
-      printf("\033[12;1H Encontre uma palavra que tenha: (%s)", szInfix);
+      printf("\033[9;1H Encontre uma palavra que tenha: (%s)", szInfix);
       pszUserInput = cCatchInput();
       if (!strcmp(pszUserInput, TIMEOUT_STR)) {
         char szInput[_MAX_PATH];
         gbBombTimeout = FALSE;
         free(pszUserInput);
 
-        vClearScreen();
-        vGotoFeedbackPosition();
+        vClearTerminal();
         printf("💥 A BOMBA EXPLODIU! Você perdeu esta rodada.\n");
         printf("Pressione enter para continuar...\n");
         fflush(stdout);
@@ -118,15 +116,11 @@ int main() {
     if (bSearchWordDb(szInput)) {
       printf("Correto!!\n");
       fflush(stdout);
-      iSleepSec = 2;
+      vSleepSeconds(2);
     } else {
       printf("Incorreto, tente novamente!\n");
       fflush(stdout);
-      iSleepSec = 1;
     }
-    fflush(stdout);
-    vSleepSeconds(iSleepSec);
-    /** Pausa para mostrar o resultado antes de continuar */
   }
 
   return 0;

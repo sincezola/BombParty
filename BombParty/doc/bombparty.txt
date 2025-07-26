@@ -1,7 +1,7 @@
 Cronometro da bomba por dificuldade
- - 7s easy
- - 5s medium
- - 3s hard
+ - 12s easy
+ - 11s medium
+ - 10s hard
 
 room
  room_key      pkey auto_increment
