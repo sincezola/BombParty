@@ -84,10 +84,10 @@ int main() {
         free(pszUserInput);
 
         vClearTerminal();
-        vGotoFeedbackPosition();
+        vGotoBombPositions();
         printf("!! A BOMBA EXPLODIU !! Você perdeu esta rodada.\n");
         fflush(stdout);
-        vSleepSeconds(3);
+        vSleepSeconds(2);
         bRestart = TRUE;
         break;
       }
@@ -103,8 +103,7 @@ int main() {
         szLastWrong[MAX_WORD_LEN - 1] = '\0';
         bHasError = TRUE;
         vGotoFeedbackErrorPosition();
-        printf("A palavra digitada não contém a sequência exigida! Tente "
-               "novamente.\n");
+        printf("A palavra digitada não contém a sequência exigida! Tente novamente.\n");
         fflush(stdout);
         vSleepSeconds(2);
       }
