@@ -5,6 +5,7 @@
 #include <input.h>
 #include <parse_api.h>
 #include <bombparty.h>
+#include <terminal_utils.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -152,6 +153,10 @@ int iSetDifficultyFromChar(int iCh)
  * @brief Captura input do usuário caractere a caractere, com redesenho contínuo
  * @return char* - ponteiro para a string digitada (precisa ser liberado com free)
  */
+/**
+ * @brief Captura input do usuário caractere a caractere, com redesenho contínuo
+ * @return char* - ponteiro para a string digitada (precisa ser liberado com free)
+ */
 char *cCatchInput()
 {
   char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
@@ -160,9 +165,10 @@ char *cCatchInput()
 
   while (TRUE)
   {
-    /** Redesenha linha de input (sempre na linha 20) */
-    printf("\033[11;1HDigite sua palavra: %s", pszBuffer);
-    printf("\033[K"); /* limpa o resto da linha */
+    /** Redesenha linha de input */
+    vGotoInputPosition();
+    printf("Digite sua palavra: %s", pszBuffer);
+    vClearLineFromCursor();
     fflush(stdout);
 
     /** Captura um único caractere */
@@ -179,7 +185,9 @@ char *cCatchInput()
     { /** Enter */
       if (iBufferLen > 0 && !bIsOnlySpaces(pszBuffer))
         break; /** Input válido */
-      printf("\033[21;1HVocê deve digitar uma palavra!\n");
+      vGotoFeedbackPosition();
+      printf("Você deve digitar uma palavra!\n");
+      fflush(stdout);
       vSleepSeconds(1);
       continue;
     }

@@ -16,6 +16,7 @@
 int giDifficulty = 0;
 int gbBombTimeout = FALSE;
 
+/** Callback do timer (usado no processo/thread da bomba) */
 void vTimerAction(int iSig) {
   (void)iSig;
   gbBombTimeout = TRUE;
@@ -29,6 +30,8 @@ int main() {
   char szInfix[8];
   char szInput[MAX_WORD_LEN];
   char szDifficulty[DIFICULTY_LEN];
+  char szLastWrong[MAX_WORD_LEN] = ""; /** Guarda a última palavra incorreta */
+  int bHasError = FALSE;
 
   while (TRUE) {
     memset(szInput, 0, sizeof(szInput));
@@ -64,22 +67,26 @@ int main() {
       char *pszUserInput;
       vClearTerminal();
 
-      printf("\033[9;1H Encontre uma palavra que tenha: (%s)", szInfix);
+      /** Linha do desafio */
+      vSetCursorPosition(9, 1);
+      printf("Encontre uma palavra que tenha: (%s)", szInfix);
+      if (bHasError) {
+        printf(" ");
+        vPrintColored(szLastWrong, 31); /** Vermelho */
+      }
+      fflush(stdout);
+
+      /** Captura input */
       pszUserInput = cCatchInput();
       if (!strcmp(pszUserInput, TIMEOUT_STR)) {
-        char szInput[_MAX_PATH];
         gbBombTimeout = FALSE;
         free(pszUserInput);
 
         vClearTerminal();
+        vGotoFeedbackPosition();
         printf("💥 A BOMBA EXPLODIU! Você perdeu esta rodada.\n");
-        printf("Pressione enter para continuar...\n");
         fflush(stdout);
-
-        if (fgets(szInput, sizeof(szInput), stdin) == NULL)
-          break;
-
-        vSleepSeconds(1); /** Espera para o jogador ver a mensagem */
+        vSleepSeconds(3);
         bRestart = TRUE;
         break;
       }
@@ -89,8 +96,11 @@ int main() {
         free(pszUserInput);
       }
 
-      /** Novo: feedback se a palavra não contém a substring */
+      /** Feedback se a palavra não contém a substring */
       if (strstr(szInput, szInfix) == NULL) {
+        strncpy(szLastWrong, szInput, MAX_WORD_LEN - 1);
+        szLastWrong[MAX_WORD_LEN - 1] = '\0';
+        bHasError = TRUE;
         vGotoFeedbackErrorPosition();
         printf("A palavra digitada não contém a sequência exigida! Tente "
                "novamente.\n");
@@ -102,24 +112,34 @@ int main() {
 
     /** Mata o processo da bomba quando a rodada termina */
     vKillBombProcess(iBombPid);
-
     vWaitChild();
 
     if (bRestart) {
       giDifficulty = 0;
       bRestart = FALSE;
+      bHasError = FALSE;
+      szLastWrong[0] = '\0';
       continue;
     }
 
+    /** Remove espaços antes de validar */
     vTrimSpaces(szInput);
-    vGotoFeedbackErrorPosition();
+
+    /** Verifica no banco */
+    vGotoFeedbackPosition();
     if (bSearchWordDb(szInput)) {
       printf("Correto!!\n");
       fflush(stdout);
       vSleepSeconds(2);
+      bHasError = FALSE;
+      szLastWrong[0] = '\0';
     } else {
       printf("Incorreto, tente novamente!\n");
       fflush(stdout);
+      strncpy(szLastWrong, szInput, MAX_WORD_LEN - 1);
+      szLastWrong[MAX_WORD_LEN - 1] = '\0';
+      bHasError = TRUE;
+      vSleepSeconds(2);
     }
   }
 

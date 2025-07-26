@@ -35,4 +35,16 @@ void vGotoInputTextPosition();
  * @brief Posição fixa para exibir mensagens de erro feedback.
  */
 void vGotoFeedbackErrorPosition();
+
+/**
+ * @brief Imprime um texto colorido.
+ * @param pszText Texto a imprimir
+ * @param iColor Código ANSI da cor (ex: 31 = vermelho)
+ */
+void vPrintColored(const char *pszText, int iColor);
+/**
+ * @brief Limpa do cursor até o final da linha atual.
+ */
+void vClearLineFromCursor();
+
 #endif
