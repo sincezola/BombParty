@@ -26,6 +26,7 @@ void vTimerAction(int iSig) {
 int main() {
   int iCh;
   int bRestart = FALSE;
+  int bFoundWord = FALSE;
   int iBombPid = -1; /** Guarda o processo/thread da bomba */
   char szInfix[8];
   char szInput[MAX_WORD_LEN];
@@ -84,7 +85,7 @@ int main() {
 
         vClearTerminal();
         vGotoFeedbackPosition();
-        printf("💥 A BOMBA EXPLODIU! Você perdeu esta rodada.\n");
+        printf("!! A BOMBA EXPLODIU !! Você perdeu esta rodada.\n");
         fflush(stdout);
         vSleepSeconds(3);
         bRestart = TRUE;
@@ -108,7 +109,28 @@ int main() {
         vSleepSeconds(2);
       }
 
-    } while (strstr(szInput, szInfix) == NULL);
+      /** Remove espaços antes de validar */
+      vTrimSpaces(szInput);
+
+      /** Verifica no banco */
+      vGotoFeedbackPosition();
+      if (bSearchWordDb(szInput)) {
+        printf("Correto!!\n");
+        fflush(stdout);
+        vSleepSeconds(2);
+        bHasError = FALSE;
+        bFoundWord = TRUE;
+        bRestart = TRUE;
+        szLastWrong[0] = '\0';
+      } else {
+        printf("Incorreto, tente novamente!\n");
+        fflush(stdout);
+        strncpy(szLastWrong, szInput, MAX_WORD_LEN - 1);
+        szLastWrong[MAX_WORD_LEN - 1] = '\0';
+        bHasError = TRUE;
+        vSleepSeconds(2);
+      }
+    } while (!bFoundWord);
 
     /** Mata o processo da bomba quando a rodada termina */
     vKillBombProcess(iBombPid);
@@ -116,30 +138,11 @@ int main() {
 
     if (bRestart) {
       giDifficulty = 0;
+      bFoundWord = FALSE;
       bRestart = FALSE;
       bHasError = FALSE;
       szLastWrong[0] = '\0';
       continue;
-    }
-
-    /** Remove espaços antes de validar */
-    vTrimSpaces(szInput);
-
-    /** Verifica no banco */
-    vGotoFeedbackPosition();
-    if (bSearchWordDb(szInput)) {
-      printf("Correto!!\n");
-      fflush(stdout);
-      vSleepSeconds(2);
-      bHasError = FALSE;
-      szLastWrong[0] = '\0';
-    } else {
-      printf("Incorreto, tente novamente!\n");
-      fflush(stdout);
-      strncpy(szLastWrong, szInput, MAX_WORD_LEN - 1);
-      szLastWrong[MAX_WORD_LEN - 1] = '\0';
-      bHasError = TRUE;
-      vSleepSeconds(2);
     }
   }
 

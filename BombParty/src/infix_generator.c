@@ -32,13 +32,17 @@ void vInfixGeneratorDb(char *pszInfixBuffer, int iInfixBufferSize) {
     iInfixMaxSize = strlen(szWord2Infix) - MEDIUM_INFIX;
 
   if ( iInfixMaxSize <= 0 ) {
-    sprintf(pszInfixBuffer, "%.*s", (int)iInfixBufferSize, szWord2Infix);
+    snprintf(pszInfixBuffer, iInfixBufferSize, "%.*s", (int)iInfixBufferSize, szWord2Infix);
     return;
   }
 
   iRand = iRandomBetween(1, strlen(szWord2Infix) - iInfixMaxSize, 5);
   if ( strlen(szWord2Infix) > MEDIUM_INFIX ) {
-    sprintf(pszInfixBuffer, "%.*s", (int)(strlen(szWord2Infix) - iInfixMaxSize), &szWord2Infix[iRand]);
+    snprintf(pszInfixBuffer, iInfixBufferSize, 
+    "%.*s", 
+          (int)(strlen(szWord2Infix) - iInfixMaxSize),
+          &szWord2Infix[iRand]
+    );
   }
 }
 
