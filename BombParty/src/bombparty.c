@@ -61,7 +61,7 @@ int main() {
         vSetSigUsrHandler(vTimerAction);
 
         /** Cria processo/thread temporizador */
-        iPid = vSpawnTimerProcess(vHandleBombTimer, 0);
+        vSpawnTimerProcess(vHandleBombTimer, 0);
 
         vInfixGeneratorDb(szInfix, sizeof(szInfix));
         do {
