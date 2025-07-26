@@ -15,19 +15,19 @@
 #include <trace.h>
 
 #ifdef _WIN32
-#include <process.h>
-#include <windows.h>
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
-typedef SOCKET tSocket;
-#else
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <signal.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-typedef int tSocket;
+  #include <process.h>
+  #include <windows.h>
+  #include <winsock2.h>
+  #pragma comment(lib, "ws2_32.lib")
+  typedef SOCKET tSocket;
+#else /** LINUX */
+  #include <arpa/inet.h>
+  #include <netinet/in.h>
+  #include <signal.h>
+  #include <sys/socket.h>
+  #include <sys/types.h>
+  #include <unistd.h>
+  typedef int tSocket;
 #endif
 
 #define SERVER_PORT 5050
@@ -166,13 +166,13 @@ int main(int argc, char *argv[]) {
   vTraceVarArgs("[INFO] Servidor escutando na porta %d...", giServerPort);
 
 #ifndef _WIN32
-  signal(SIGCHLD, SIG_IGN); // Evita processos zumbis no Linux
+  /** Avoid zombie proccess */
+  signal(SIGCHLD, SIG_IGN); 
 #endif
 
   while (TRUE) {
-    pClientSock = (tSocket *)malloc(sizeof(tSocket));
-    *pClientSock =
-        accept(iServerSock, (struct sockaddr *)&stClientAddr, &iClientLen);
+    pClientSock  = (tSocket *)malloc(sizeof(tSocket));
+    *pClientSock = accept(iServerSock, (struct sockaddr *)&stClientAddr, &iClientLen);
     if (*pClientSock < 0) {
       perror("Erro ao aceitar conexão");
       free(pClientSock);
@@ -180,23 +180,25 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef _WIN32
-    uintptr_t iThread =
-        _beginthreadex(NULL, 0, vHandleClient, (void *)pClientSock, 0, NULL);
+    uintptr_t iThread = _beginthreadex(NULL, 0, vHandleClient, (void *)pClientSock, 0, NULL);
     if (iThread == 0) {
       vTraceMsg("Erro ao criar thread.");
       closesocket(*pClientSock);
       free(pClientSock);
     }
-#else
-    pid_t pid = fork();
-    if (pid == 0) { // Processo filho
+#else /** LINUX */
+    pid_t iPID = fork();
+    if (iPID == 0) {
+      /** Child Process */
       close(iServerSock);
       vHandleClient((void *)pClientSock);
       exit(0);
-    } else if (pid > 0) {
+    } 
+    else if (iPID > 0) {
       close(*pClientSock);
       free(pClientSock);
-    } else {
+    }
+    else {
       perror("Erro no fork");
       close(*pClientSock);
       free(pClientSock);
