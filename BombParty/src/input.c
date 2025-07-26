@@ -161,7 +161,7 @@ char *cCatchInput()
   while (TRUE)
   {
     /** Redesenha linha de input (sempre na linha 20) */
-    printf("\033[20;1HDigite sua palavra: %s", pszBuffer);
+    printf("\033[13;1HDigite sua palavra: %s", pszBuffer);
     printf("\033[K"); /* limpa o resto da linha */
     fflush(stdout);
 

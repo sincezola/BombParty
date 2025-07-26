@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys_interface.h>
+#include <terminal_utils.h>
 #include <time.h>
 #include <word_db.h>
-#include <terminal_utils.h>
 
 int giDifficulty = 0;
 int gbBombTimeout = FALSE;
@@ -25,6 +25,7 @@ void vTimerAction(int iSig) {
 int main() {
   int iCh;
   int bRestart = FALSE;
+  int iSleepSec = 0;
   int iBombPid = -1; /** Guarda o processo/thread da bomba */
   char szInfix[8];
   char szInput[MAX_WORD_LEN];
@@ -64,8 +65,7 @@ int main() {
       char *pszUserInput;
       vClearTerminal();
 
-      printf("\n\n");
-      printf("\033[15;1H Encontre uma palavra que tenha: (%s)\n", szInfix);
+      printf("\033[12;1H Encontre uma palavra que tenha: (%s)", szInfix);
       pszUserInput = cCatchInput();
       if (!strcmp(pszUserInput, TIMEOUT_STR)) {
         char szInput[_MAX_PATH];
@@ -93,7 +93,7 @@ int main() {
 
       /** Novo: feedback se a palavra não contém a substring */
       if (strstr(szInput, szInfix) == NULL) {
-        vGotoFeedbackPosition();
+        vGotoFeedbackErrorPosition();
         printf("A palavra digitada não contém a sequência exigida! Tente "
                "novamente.\n");
         fflush(stdout);
@@ -114,14 +114,19 @@ int main() {
     }
 
     vTrimSpaces(szInput);
-    vGotoFeedbackPosition();
-    if (bSearchWordDb(szInput))
+    vGotoFeedbackErrorPosition();
+    if (bSearchWordDb(szInput)) {
       printf("Correto!!\n");
-    else
+      fflush(stdout);
+      iSleepSec = 2;
+    } else {
       printf("Incorreto, tente novamente!\n");
-
+      fflush(stdout);
+      iSleepSec = 1;
+    }
     fflush(stdout);
-    vSleepSeconds(2); /** Pausa para mostrar o resultado antes de continuar */
+    vSleepSeconds(iSleepSec);
+    /** Pausa para mostrar o resultado antes de continuar */
   }
 
   return 0;

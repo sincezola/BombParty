@@ -22,6 +22,9 @@ void vGotoInputPosition() {
 void vGotoFeedbackPosition() {
   vSetCursorPosition(22, 1);  /** Feedback sempre na linha 22 */
 }
+void vGotoFeedbackErrorPosition() {
+  vSetCursorPosition(14, 1);  /** Feedback de erro sempre na linha 14 */
+}
 
 void vGotoInputTextPosition() {
   vSetCursorPosition(20, 22); /** Linha 20, coluna após "Digite sua palavra: " */

@@ -31,4 +31,8 @@ void vGotoFeedbackPosition();
  * @brief Posição fixa do input (onde começa a digitação, após o label).
  */
 void vGotoInputTextPosition();
+/**
+ * @brief Posição fixa para exibir mensagens de erro feedback.
+ */
+void vGotoFeedbackErrorPosition();
 #endif
