@@ -5,20 +5,22 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <sys_interface.h>
+#include <terminal_utils.h>
 
 void vDrawBomb(int iTimeout) {
-  
-  printf( "\033[3;10H           ░░  \n");
-  printf( "\033[4;10H      ░░░░░░░  \n");
-  printf( "\033[5;10H      ░░       \n");
-  printf( "\033[6;10H ░░░░░░░░░░░░  \n");
-  printf( "\033[7;10H ░░░░░░░░░░░░  \n");
-  printf( "\033[8;10H ░░░░░%02d░░░░░\n", iTimeout);
-  printf( "\033[9;10H ░░░░░░░░░░░░  \n");
-  printf("\033[10;10H ░░░░░░░░░░░░  \n");
-  
+  vGotoBombPosition();
+  printf( "           ░░  \n");
+  printf( "      ░░░░░░░  \n");
+  printf( "      ░░       \n");
+  printf( " ░░░░░░░░░░░░  \n");
+  printf( " ░░░░░░░░░░░░  \n");
+  printf( " ░░░░░%02d░░░░░\n", iTimeout);
+  printf( " ░░░░░░░░░░░░  \n");
+  printf( " ░░░░░░░░░░░░  \n");
+  vGotoInputTextPosition();  /** <- reposiciona cursor para o input */
   fflush(stdout);
 }
+
 
 int iGetDifficultyTimeout() {
   switch ( giDifficulty ) {

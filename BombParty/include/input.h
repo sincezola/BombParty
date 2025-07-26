@@ -9,4 +9,5 @@
   void vClearTerminal();
   void vFlushInput();
   int iSetDifficultyFromChar(int iCh);
+  void vTrimSpaces(char *pszStr);
 #endif

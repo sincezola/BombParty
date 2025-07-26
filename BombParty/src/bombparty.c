@@ -113,11 +113,12 @@ int main() {
       continue;
     }
 
-    printf("\033[22;1H");
+    vTrimSpaces(szInput);
+    vGotoFeedbackPosition();
     if (bSearchWordDb(szInput))
-      printf("UHUUU ACERTO!\n");
+      printf("Correto!!\n");
     else
-      printf("AHHHH ERRO!\n");
+      printf("Incorreto, tente novamente!\n");
 
     fflush(stdout);
     vSleepSeconds(2); /** Pausa para mostrar o resultado antes de continuar */
