@@ -27,5 +27,5 @@ void vGotoFeedbackErrorPosition() {
 }
 
 void vGotoInputTextPosition() {
-  vSetCursorPosition(20, 22); /** Linha 20, coluna após "Digite sua palavra: " */
+  vSetCursorPosition(13, 22); /** Linha 20, coluna após "Digite sua palavra: " */
 }
