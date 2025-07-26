@@ -1,36 +1,34 @@
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef _WIN32
-  #ifndef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0501  /* Windows XP ou superior */
-  #endif
+  #include <stdint.h> /** Para intptr_t */
   #include <windows.h>
-  #include <stdint.h>  /** Para intptr_t */
   static HANDLE ghBombThread = NULL; /** Handle global para thread da bomba */
+#else
+  #include <signal.h>
+  #include <sys/types.h>
+  #include <sys/wait.h>
+  #include <unistd.h>
+  static int giBombPid = -1; /** PID global do processo da bomba */
+#endif
 
+#ifdef _WIN32
   /** Wrapper para CreateThread */
   DWORD WINAPI ThreadWrapper(LPVOID pArg) {
-      void (**args)(int) = (void (**)(int))pArg;
-      void (*func)(int) = args[0];
-      int param = (int)(intptr_t)args[1];
-      func(param);
-      free(pArg);
-      return 0;
+    void (**args)(int) = (void (**)(int))pArg;
+    void (*func)(int) = args[0];
+    int param = (int)(intptr_t)args[1];
+    func(param);
+    free(pArg);
+    return 0;
   }
 
   /** Wrapper para SetConsoleCtrlHandler */
   static BOOL WINAPI CtrlHandler(DWORD dwCtrlType) {
-      (void)dwCtrlType;
-      return TRUE; /** Apenas consome o evento */
+    (void)dwCtrlType;
+    return TRUE; /** Apenas consome o evento */
   }
-
-#else
-  #include <signal.h>
-  #include <unistd.h>
-  #include <sys/types.h>
-  #include <sys/wait.h>
-  static int giBombPid = -1; /** PID global do processo da bomba */
 #endif
 
 void vSendSig2Process(int iPID, int iSigType) {
@@ -70,7 +68,8 @@ int vSpawnTimerProcess(void (*vTimerFunc)(int), int iParentPID) {
 #else
   int pid = fork();
   if (pid == 0) {
-    if (iParentPID == 0) iParentPID = getppid();
+    if (iParentPID == 0)
+      iParentPID = getppid();
     vTimerFunc(iParentPID);
     _exit(0);
   }
@@ -79,7 +78,7 @@ int vSpawnTimerProcess(void (*vTimerFunc)(int), int iParentPID) {
 #endif
 }
 
-/** 
+/**
  * @brief Encerra processo/thread da bomba
  */
 void vKillBombProcess(int iPid) {

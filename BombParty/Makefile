@@ -19,6 +19,9 @@ INCLUDE_PATH  = include
 ICON_PATH     = icon
 OBJ_DIR       = obj
 BIN_DIR       = bin
+HTML_DIR      = html
+LATEX_DIR     = latex
+LOG_DIR       = log
 INC_DIR       = -I. -I$(INCLUDE_PATH)
 LIBS          = 
 
@@ -59,7 +62,7 @@ all: clean directories $(BIN_DIR)/$(BOMB_EXEC)
 with_icon: icon directories $(BIN_DIR)/$(BOMB_EXEC)
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) *.log $(ICON_PATH)/icon.png $(ICON_PATH)/icon.ico
+	rm -rf $(OBJ_DIR) $(BIN_DIR) $(LOG_DIR) $(ICON_PATH)/icon.png $(ICON_PATH)/icon.ico $(HTML_DIR) $(LATEX_DIR)
 
 directories:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
