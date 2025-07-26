@@ -70,7 +70,7 @@ DATABASE_URL="postgresql://usuario:senha@localhost:5432/bombparty"
 ```bash
 cd BombProcessor
 make
-./BombProcessor
+./bin/BombProcessor
 ```
 
 O servidor socket será iniciado e aguardará conexões dos clientes.  
@@ -81,7 +81,7 @@ O servidor socket será iniciado e aguardará conexões dos clientes.
 ```bash
 cd BombParty
 make
-./BombParty
+./bin/BombParty
 ```
 
 Conecte-se ao servidor, crie ou entre em uma sala e comece a jogar.  
