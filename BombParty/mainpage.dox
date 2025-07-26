@@ -1,0 +1,13 @@
+/**
+ * @mainpage BombParty - Documentação do Projeto
+ *
+ * Bem-vindo à documentação do **BombParty**!
+ *
+ * - **Objetivo:** Este jogo implementa um modo multiplayer com bomba-relógio.
+ * - **Pastas:**
+ *   - `src/` Código-fonte do jogo
+ *   - `include/` Headers do projeto
+ * - **Como compilar:** Veja o README.md
+ *
+ * Navegue pelo menu lateral para ver os arquivos, funções e diagramas.
+ */
