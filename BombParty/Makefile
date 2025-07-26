@@ -42,7 +42,7 @@ OBJS = \
 	$(OBJ_DIR)/infix_generator.o \
 	$(OBJ_DIR)/input.o \
 	$(OBJ_DIR)/word_db.o \
-	$(OBJ_DIR)/bombtimer.o \
+	$(OBJ_DIR)/bomb_timer.o \
 	$(OBJ_DIR)/sys_interface.o \
 	$(OBJ_DIR)/terminal_utils.o \
 	$(OBJ_DIR)/parse_api.o

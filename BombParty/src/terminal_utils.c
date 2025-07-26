@@ -16,7 +16,7 @@ void vGotoBombPosition() {
 }
 
 void vGotoInputPosition() {
-  vSetCursorPosition(13, 1);  /** Input sempre na linha 23 */
+  vSetCursorPosition(11, 1);  /** Input sempre na linha 11 */
 }
 
 void vGotoFeedbackPosition() {

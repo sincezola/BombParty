@@ -1,4 +1,4 @@
-#include <bombtimer.h>
+#include <bomb_timer.h>
 #include <config.h>
 #include <ctype.h>
 #include <errno.h>

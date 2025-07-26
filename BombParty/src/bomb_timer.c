@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <input.h>
 #include <unistd.h>
-#include <bombtimer.h>
+#include <bomb_timer.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <sys_interface.h>
