@@ -1,18 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <bombparty.h>
 #include <ctype.h>
 #include <input.h>
 #include <parse_api.h>
-#include <bombparty.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <terminal_utils.h>
 
 #ifdef _WIN32
 #include <windows.h>
-#include <conio.h>
 #else
-#include <unistd.h>
 #include <termios.h>
+#include <unistd.h>
 #endif
 
 /**
@@ -41,15 +40,21 @@ void vTrimSpaces(char *pszStr) {
   }
 }
 
-
 /**
  * @brief Captura um único caractere do teclado, sem eco e sem buffer
  * @return int - Código ASCII do caractere lido
  */
-int iPortableGetchar()
-{
+int iPortableGetchar() {
 #ifdef _WIN32
-  return _getch();
+  HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+  INPUT_RECORD record;
+  DWORD read;
+  while (1) {
+    ReadConsoleInput(hStdin, &record, 1, &read);
+    if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
+      return record.Event.KeyEvent.uChar.AsciiChar;
+    }
+  }
 #else
   struct termios stOldt, stNewt;
   int iCh;
@@ -67,8 +72,7 @@ int iPortableGetchar()
  * @brief Pausa a execução por um número de segundos (cross-platform)
  * @param iSeconds - tempo em segundos
  */
-void vSleepSeconds(int iSeconds)
-{
+void vSleepSeconds(int iSeconds) {
 #ifdef _WIN32
   Sleep(iSeconds * 1000);
 #else
@@ -79,8 +83,7 @@ void vSleepSeconds(int iSeconds)
 /**
  * @brief Limpa o terminal (cross-platform)
  */
-void vClearTerminal()
-{
+void vClearTerminal() {
 #ifdef _WIN32
   system("cls");
 #else
@@ -92,15 +95,13 @@ void vClearTerminal()
 /**
  * @brief Limpa buffer de entrada do teclado
  */
-void vFlushInput()
-{
+void vFlushInput() {
 #ifdef _WIN32
   HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
   FlushConsoleInputBuffer(hIn);
 #else
   int iC;
-  while ((iC = getchar()) != '\n' && iC != EOF)
-  {
+  while ((iC = getchar()) != '\n' && iC != EOF) {
   }
 #endif
 }
@@ -109,8 +110,7 @@ void vFlushInput()
  * @brief Converte uma string para minúsculas
  * @param pszBuf - string a ser convertida
  */
-void vToLower(char *pszBuf)
-{
+void vToLower(char *pszBuf) {
   for (char *p = pszBuf; *p; ++p)
     if (*p >= 'A' && *p <= 'Z')
       *p += 32; /* 'A'(65)+32 = 'a'(97) */
@@ -121,10 +121,8 @@ void vToLower(char *pszBuf)
  * @param pszStr - string a ser verificada
  * @return int - TRUE se for só espaços, FALSE caso contrário
  */
-int bIsOnlySpaces(const char *pszStr)
-{
-  while (*pszStr)
-  {
+int bIsOnlySpaces(const char *pszStr) {
+  while (*pszStr) {
     if (!((unsigned char)*pszStr == ' '))
       return FALSE;
     pszStr++;
@@ -137,8 +135,7 @@ int bIsOnlySpaces(const char *pszStr)
  * @param iCh - caractere (e/m/h)
  * @return int - nível de dificuldade (EASY/MEDIUM/HARD)
  */
-int iSetDifficultyFromChar(int iCh)
-{
+int iSetDifficultyFromChar(int iCh) {
   int iDifficulty = EASY;
   if (iCh == 'e')
     iDifficulty = EASY;
@@ -151,20 +148,20 @@ int iSetDifficultyFromChar(int iCh)
 
 /**
  * @brief Captura input do usuário caractere a caractere, com redesenho contínuo
- * @return char* - ponteiro para a string digitada (precisa ser liberado com free)
+ * @return char* - ponteiro para a string digitada (precisa ser liberado com
+ * free)
  */
 /**
  * @brief Captura input do usuário caractere a caractere, com redesenho contínuo
- * @return char* - ponteiro para a string digitada (precisa ser liberado com free)
+ * @return char* - ponteiro para a string digitada (precisa ser liberado com
+ * free)
  */
-char *cCatchInput()
-{
+char *cCatchInput() {
   char *pszBuffer = (char *)malloc(MAX_WORD_LEN);
   int iBufferLen = 0;
   memset(pszBuffer, 0, MAX_WORD_LEN);
 
-  while (TRUE)
-  {
+  while (TRUE) {
     /** Redesenha linha de input */
     vGotoInputPosition();
     printf("Digite sua palavra: %s", pszBuffer);
@@ -175,14 +172,12 @@ char *cCatchInput()
     int iCh = iPortableGetchar();
 
     /** Verifica se a bomba explodiu */
-    if (gbBombTimeout)
-    {
+    if (gbBombTimeout) {
       sprintf(pszBuffer, "%s", TIMEOUT_STR);
       return pszBuffer;
     }
 
-    if (iCh == '\n' || iCh == '\r')
-    { /** Enter */
+    if (iCh == '\n' || iCh == '\r') { /** Enter */
       if (iBufferLen > 0 && !bIsOnlySpaces(pszBuffer))
         break; /** Input válido */
       vGotoFeedbackPosition();
@@ -190,17 +185,13 @@ char *cCatchInput()
       fflush(stdout);
       vSleepSeconds(1);
       continue;
-    }
-    else if (iCh == 127 || iCh == 8)
-    { /** Backspace */
-      if (iBufferLen > 0)
-      {
+    } else if (iCh == 127 || iCh == 8) { /** Backspace */
+      if (iBufferLen > 0) {
         iBufferLen--;
         pszBuffer[iBufferLen] = '\0';
       }
-    }
-    else if (isprint(iCh) && iBufferLen < MAX_WORD_LEN - 1)
-    { /** Caractere imprimível */
+    } else if (isprint(iCh) &&
+               iBufferLen < MAX_WORD_LEN - 1) { /** Caractere imprimível */
       pszBuffer[iBufferLen++] = (char)iCh;
       pszBuffer[iBufferLen] = '\0';
     }

@@ -4,9 +4,10 @@
 #   Enzo Zamberlan <sincecontatodev@gmail.com>
 # in July 2025
 
-
 CC            = gcc
-GCC_TARGET := $(shell $(CC) -dumpmachine)
+WINDRES       = windres
+IMAGEMAGICK   = magick
+GCC_TARGET    := $(shell $(CC) -dumpmachine)
 
 ifeq ($(findstring mingw32, $(GCC_TARGET)), mingw32)
   _WIN32 = 1
@@ -15,6 +16,7 @@ endif
 SRC_PATH      = src
 API_PATH      = $(SRC_PATH)/api
 INCLUDE_PATH  = include
+ICON_PATH     = icon
 OBJ_DIR       = obj
 BIN_DIR       = bin
 INC_DIR       = -I. -I$(INCLUDE_PATH)
@@ -23,6 +25,7 @@ LIBS          =
 CCOPT         = -Wall -Wextra
 ifdef _WIN32
   CCOPT += -D_WIN32
+  ICON_OBJ = $(OBJ_DIR)/icon.o
 endif
 
 ifdef LINUX
@@ -45,15 +48,32 @@ OBJS = \
 	$(OBJ_DIR)/bomb_timer.o \
 	$(OBJ_DIR)/sys_interface.o \
 	$(OBJ_DIR)/terminal_utils.o \
-	$(OBJ_DIR)/parse_api.o
+	$(OBJ_DIR)/parse_api.o 
+
+ifneq ("$(wildcard $(OBJ_DIR)/icon.o)","")
+  OBJS += $(OBJ_DIR)/icon.o
+endif
 
 all: clean directories $(BIN_DIR)/$(BOMB_EXEC)
 
+with_icon: icon directories $(BIN_DIR)/$(BOMB_EXEC)
+
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) *.log
+	rm -rf $(OBJ_DIR) $(BIN_DIR) *.log $(ICON_PATH)/icon.png $(ICON_PATH)/icon.ico
 
 directories:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
+
+# Target para gerar ícone a partir do WEBP
+icon: $(ICON_PATH)/icon.webp $(ICON_PATH)/icon.rc
+	$(IMAGEMAGICK) $< -resize 512x512 $(ICON_PATH)/icon.png
+	$(IMAGEMAGICK) $(ICON_PATH)/icon.png -define icon:auto-resize=256,128,64,48,32,16 $(ICON_PATH)/icon.ico
+	$(WINDRES) $(ICON_PATH)/icon.rc -O coff -o $(OBJ_DIR)/icon.o
+	@echo "Ícone atualizado com sucesso!"
+
+# Compilar recurso no Windows
+$(OBJ_DIR)/icon.o: $(ICON_PATH)/icon.rc $(ICON_PATH)/icon.ico
+	$(WINDRES) $(ICON_PATH)/icon.rc -O coff -o $@
 
 $(BIN_DIR)/$(BOMB_EXEC): $(OBJS)
 	$(CC) $(LDOPT) $(INC_DIR) -o $@ $(OBJS) $(LIBS)
@@ -66,4 +86,4 @@ $(OBJ_DIR)/%.o: $(API_PATH)/%.c
 
 distclean: clean
 
-.PHONY: all clean distclean directories
+.PHONY: all clean distclean directories icon

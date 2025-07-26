@@ -2,9 +2,29 @@
 #include <stdio.h>
 
 #ifdef _WIN32
+  #ifndef _WIN32_WINNT
+    #define _WIN32_WINNT 0x0501  /* Windows XP ou superior */
+  #endif
   #include <windows.h>
-  #include <process.h>
+  #include <stdint.h>  /** Para intptr_t */
   static HANDLE ghBombThread = NULL; /** Handle global para thread da bomba */
+
+  /** Wrapper para CreateThread */
+  DWORD WINAPI ThreadWrapper(LPVOID pArg) {
+      void (**args)(int) = (void (**)(int))pArg;
+      void (*func)(int) = args[0];
+      int param = (int)(intptr_t)args[1];
+      func(param);
+      free(pArg);
+      return 0;
+  }
+
+  /** Wrapper para SetConsoleCtrlHandler */
+  static BOOL WINAPI CtrlHandler(DWORD dwCtrlType) {
+      (void)dwCtrlType;
+      return TRUE; /** Apenas consome o evento */
+  }
+
 #else
   #include <signal.h>
   #include <unistd.h>
@@ -15,6 +35,7 @@
 
 void vSendSig2Process(int iPID, int iSigType) {
 #ifdef _WIN32
+  (void)iSigType; /** Não usado no Windows */
   HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, iPID);
   if (hProcess) {
     TerminateProcess(hProcess, 0);
@@ -27,7 +48,8 @@ void vSendSig2Process(int iPID, int iSigType) {
 
 void vSetSigUsrHandler(void (*vActCallBack)(int)) {
 #ifdef _WIN32
-  SetConsoleCtrlHandler((PHANDLER_ROUTINE)vActCallBack, TRUE);
+  (void)vActCallBack; /** Não usado, mas podemos armazenar se necessário */
+  SetConsoleCtrlHandler(CtrlHandler, TRUE);
 #else
   struct sigaction stSig;
   memset(&stSig, 0, sizeof(struct sigaction));
@@ -40,7 +62,10 @@ void vSetSigUsrHandler(void (*vActCallBack)(int)) {
 
 int vSpawnTimerProcess(void (*vTimerFunc)(int), int iParentPID) {
 #ifdef _WIN32
-  ghBombThread = (HANDLE)_beginthread((_beginthread_proc_type)vTimerFunc, 0, (void*)(intptr_t)iParentPID);
+  void **pArgs = malloc(2 * sizeof(void *));
+  pArgs[0] = (void *)vTimerFunc;
+  pArgs[1] = (void *)(intptr_t)iParentPID;
+  ghBombThread = CreateThread(NULL, 0, ThreadWrapper, pArgs, 0, NULL);
   return 1; /** ID fake */
 #else
   int pid = fork();
@@ -59,6 +84,7 @@ int vSpawnTimerProcess(void (*vTimerFunc)(int), int iParentPID) {
  */
 void vKillBombProcess(int iPid) {
 #ifdef _WIN32
+  (void)iPid; /** Ignorado no Windows */
   if (ghBombThread) {
     TerminateThread(ghBombThread, 0);
     CloseHandle(ghBombThread);
