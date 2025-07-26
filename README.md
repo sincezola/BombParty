@@ -40,6 +40,7 @@ O projeto é composto por três módulos principais:
 - **Bibliotecas:**  
   - `libcurl` (requisições HTTP).  
   - `pthread` (multithreading).
+  - `imagemagick` (*Opcional* compilacao que gera o icone do executavel).  
 
 ### Servidor (Backend):
 - **Node.js** (>= 18)  

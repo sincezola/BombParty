@@ -5,6 +5,10 @@
 ```bash
 make
 ```
+## Compilar com icone para executavel
+```bash
+make with_icon
+```
 
 ## Gerar Documentação
 ```bash
