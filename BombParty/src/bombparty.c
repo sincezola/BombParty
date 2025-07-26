@@ -37,6 +37,7 @@ int main() {
 
     if (!giDifficulty) {
       do {
+        vClearTerminal();
         printf("\nEscolha sua a dificuldade :\n");
         printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
         printf("\t[M] Medium (%d letras por palavra)\n", MEDIUM_INFIX);
