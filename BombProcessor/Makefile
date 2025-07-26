@@ -4,9 +4,8 @@
 #   Enzo Zamberlan <sincecontatodev@gmail.com>
 # in July 2025
 
-
 CC            = gcc
-GCC_TARGET := $(shell $(CC) -dumpmachine)
+GCC_TARGET    := $(shell $(CC) -dumpmachine)
 
 ifeq ($(findstring mingw32, $(GCC_TARGET)), mingw32)
   _WIN32 = 1
@@ -23,11 +22,12 @@ LIBS          =
 CCOPT         = -Wall -Wextra
 ifdef _WIN32
   CCOPT += -D_WIN32
-endif
-
-ifdef LINUX
-  CCOPT += -Wl,-rpath,/usr/lib64 -Wl,--enable-new-dtags -DLINUX
-  LIBS  += -Wl,-rpath,/usr/lib64 -Wl,--enable-new-dtags -DLINUX
+  MKDIR_CMD = if not exist $(OBJ_DIR) mkdir $(OBJ_DIR) & if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+  RM_CMD = rmdir /S /Q $(OBJ_DIR) & rmdir /S /Q $(BIN_DIR) & del /Q *.log 2>nul || exit 0
+else
+  CCOPT += -DLINUX
+  MKDIR_CMD = mkdir -p $(OBJ_DIR) $(BIN_DIR)
+  RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) *.log
 endif
 
 DEBUG_ADD_FLAGS = -O2
@@ -35,18 +35,20 @@ ifdef DEBUG
   DEBUG_ADD_FLAGS = -g -ggdb
 endif
 
-BOMB_PROC_EXEC = bombprocessor
+BOMB_PROC_EXEC = bomb_processor
 
 OBJS = \
-	$(OBJ_DIR)/bombprocessor.o 
+	$(OBJ_DIR)/bomb_processor.o \
+	$(OBJ_DIR)/parse_messages.o \
+	$(OBJ_DIR)/trace.o 
 
-all: clean directories $(BIN_DIR)/$(BOMB_EXEC)
+all: clean directories $(BIN_DIR)/$(BOMB_PROC_EXEC)
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) *.log
+	$(RM_CMD)
 
 directories:
-	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
+	$(MKDIR_CMD)
 
 $(BIN_DIR)/$(BOMB_PROC_EXEC): $(OBJS)
 	$(CC) $(LDOPT) $(INC_DIR) -o $@ $(OBJS) $(LIBS)
@@ -57,6 +59,14 @@ $(OBJ_DIR)/%.o: $(SRC_PATH)/%.c
 $(OBJ_DIR)/%.o: $(API_PATH)/%.c
 	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INC_DIR) $< -o $@
 
+# Extra: gerar documentação do Doxygen
+doc:
+	doxygen Doxyfile
+
+# Extra: rodar o servidor
+run: $(BIN_DIR)/$(BOMB_PROC_EXEC)
+	./$(BIN_DIR)/$(BOMB_PROC_EXEC)
+
 distclean: clean
 
-.PHONY: all clean distclean directories
+.PHONY: all clean distclean directories run doc

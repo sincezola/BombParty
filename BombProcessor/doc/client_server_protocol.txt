@@ -1,0 +1,16 @@
+Client Server requests:
+
+'CMD'|<ID>[|{ARGs|}]
+
+where ID:
+
+  001 - Create room
+    Args - Player Name
+         - Level Difficulty
+         - Capacity
+  002 - Join room
+    Args - Player name
+         - Room ID
+  003 - Delete room
+    Args - Room ID
+  004 - Disconnect

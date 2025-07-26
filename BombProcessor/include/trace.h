@@ -1,0 +1,148 @@
+/**
+ * trace.h
+ * 
+ * Written by Renato Fermi <repiazza@gmail.com>
+ *
+ * Trace functions and global variables
+ * 
+ */
+
+#ifndef _TRACE_H_
+  #define _TRACE_H_
+
+/******************************************************************************
+ *                                                                            *
+ *                                 Includes                                   *
+ *                                                                            *
+ ******************************************************************************/ 
+  #include <time.h>
+  #include <errno.h>
+  #include <stdarg.h>
+  #include <config.h>
+  #include <bomb_processor.h>
+  
+  #ifdef _WIN32
+    #include <windows.h>
+    #include <process.h>
+  #elif LINUX
+    #include <unistd.h>
+    #include <sys/time.h>
+  #endif
+  
+/******************************************************************************
+ *                                                                            *
+ *                             Defines and macros                             *
+ *                                                                            *
+ ******************************************************************************/
+  #define DEBUG_MSGS      giDebugLevel > 0
+  #define DEBUG_MORE_MSGS giDebugLevel > 8
+
+  #define vTraceVarArgs(FORMAT, ...) _vTraceVarArgs(__FILE__, __LINE__, FORMAT, ##__VA_ARGS__)
+  #define vTraceBegin() vTraceVarArgs("%s - begin", __func__)
+  #define vTraceEnd() vTraceVarArgs("%s - end", __func__)
+
+/******************************************************************************
+ *                                                                            *
+ *                     Global variables and constants                         *
+ *                                                                            *
+ ******************************************************************************/
+
+  extern char gszTraceFile[_MAX_PATH+_MAX_PATH];
+  extern int giDebugLevel;
+  extern char gszConfFile[_MAX_PATH];
+
+/******************************************************************************
+ *                                                                            *
+ *                                 Prototypes                                 *
+ *                                                                            *
+ ******************************************************************************/ 
+
+  int iGetDebugLevel( const char *kpszConfFile );
+
+
+  void vSetConfFile( void );
+
+
+  void vSetLogFile( void );
+
+  void vSetDebugLevel( void );
+
+  void vTraceMsg( char *szMsg );
+  void vTracePid( char *szMsg, int iMsgLen );
+  void vTraceMsgNoNL( char *szMsg );
+  void vInitLogs( void );
+
+  void _vTraceVarArgs( const char *kpszModuleName,
+                       const int kiLine,
+                       const char *kpszFmt, ... );
+
+  #define TOKEN_MISMATCH -1
+  #define ROOT_PATH_FROM_BIN "./"
+ 
+  /******************************************************************************
+   *                                                                            *
+   *                     Global variables and constants                         *
+   *                                                                            *
+   ******************************************************************************/
+
+  extern char *szTokenName[];
+
+  /******************************************************************************
+   *                                                                            *
+   *                               FILE FUNCTIONS                               *
+   *                                                                            *
+   ******************************************************************************/
+
+  /**
+   * Open a file
+   *
+   * fppFile: file pointer
+   * kpszFileName: the name of file
+   * kpszMode: mode used in fopen
+   */
+  int bOpenFile( FILE **fppFile, const char *kpszFileName, const char *kpszMode );
+
+  /**
+   * Close file safety
+   */
+  int bCloseFile( FILE **fppFile );
+
+  /**
+   * Check if file exists
+   */
+  int bFileExist( const char *kpszFileName );
+
+  /******************************************************************************
+   *                                                                            *
+   *                              STRING FUNCTIONS                              *
+   *                                                                            *
+   ******************************************************************************/
+
+  /**
+   * Check if string is empty
+   */
+  int bStrIsEmpty( const char *kpszStr );
+
+  /******************************************************************************
+   *                                                                            *
+   *                              CATTIE FUNCTIONS                              *
+   *                                                                            *
+   ******************************************************************************/
+
+  /**
+   * 
+   */
+  int iValidToken( char *pTokSearch );
+
+
+  /**
+   * Print a formatted error message
+   */
+  void vPrintErrorMessage( const char *kpszFmt, ... );
+
+  int iDIR_SplitFilename(char* szFilename, char* szPath, char* szName, char* szExt);
+  int iDIR_IsDir(char* szDir);
+  int iDIR_MkDir(char *szDir);
+  
+#endif /* _TRACE_H */
+

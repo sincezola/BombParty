@@ -6,10 +6,13 @@
  * para cada conexão de cliente (cada sala de jogo).
  */
 
+#include <config.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <parse_messages.h>
+#include <trace.h>
 
 #ifdef _WIN32
 #include <process.h>
@@ -30,6 +33,9 @@ typedef int tSocket;
 #define SERVER_PORT 5050
 #define BACKLOG 10
 
+int giServerPort = 0;
+const char *gkpszProgramName;
+
 /**
  * @brief Função que lida com a conexão de um cliente (sala).
  * @param pArg - ponteiro para o socket do cliente
@@ -40,25 +46,23 @@ unsigned __stdcall vHandleClient(void *pArg)
 void vHandleClient(void *pArg)
 #endif
 {
+  char szBuffer[512];
+  int iBytes;
   tSocket iClientSock = *((tSocket *)pArg);
   free(pArg);
 
-  char szBuffer[512];
-  int iBytes;
+  vTraceMsg("[INFO] Nova conexão iniciada.");
 
-  printf("[INFO] Nova conexão iniciada.\n");
-
-  while (1) {
+  while (TRUE) {
     memset(szBuffer, 0, sizeof(szBuffer));
     iBytes = recv(iClientSock, szBuffer, sizeof(szBuffer) - 1, 0);
     if (iBytes <= 0) {
-      printf("[INFO] Conexão encerrada.\n");
+      vTraceMsg("[INFO] Conexão encerrada.");
       break;
     }
 
-    printf("[CLIENTE] %s\n", szBuffer);
-
-    // Resposta simples (eco por enquanto)
+    vTraceVarArgs("[CLIENTE] %s", szBuffer);
+    vProcessCommand(szBuffer);
     send(iClientSock, "OK\n", 3, 0);
   }
 
@@ -79,7 +83,7 @@ void vInitSockets() {
 #ifdef _WIN32
   WSADATA wsa;
   if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-    printf("Erro ao iniciar Winsock.\n");
+    vTraceMsg("Erro ao iniciar Winsock.");
     exit(EXIT_FAILURE);
   }
 #endif
@@ -97,14 +101,30 @@ void vCleanupSockets() {
 /**
  * @brief Função principal do servidor
  */
-int main() {
-  vInitSockets();
-
+int main(int argc, char *argv[]) {
   tSocket iServerSock, *pClientSock;
   struct sockaddr_in stServerAddr, stClientAddr;
   socklen_t iClientLen = sizeof(stClientAddr);
 
-  // Cria socket
+  gkpszProgramName = argv[0];
+
+  vInitLogs();
+
+  /** Setting non default server parameters
+   * argv[1] = Server Port
+   */
+  giServerPort = SERVER_PORT;
+  if (argc > 1) {
+    int iSrvPort = atoi(argv[1]);
+    if (iSrvPort < 0)
+      return -1;
+    
+    giServerPort = iSrvPort;
+  }
+  
+  vInitSockets();
+
+  /** Creates Socket Server */
   iServerSock = socket(AF_INET, SOCK_STREAM, 0);
   if (iServerSock < 0) {
     perror("Erro ao criar socket");
@@ -112,13 +132,13 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  // Prepara endereço
+  /** Set Server Port */
   memset(&stServerAddr, 0, sizeof(stServerAddr));
   stServerAddr.sin_family = AF_INET;
   stServerAddr.sin_addr.s_addr = INADDR_ANY;
-  stServerAddr.sin_port = htons(SERVER_PORT);
+  stServerAddr.sin_port = htons(giServerPort);
 
-  // Faz bind
+  /** Bind Socket Server */
   if (bind(iServerSock, (struct sockaddr *)&stServerAddr,
            sizeof(stServerAddr)) < 0) {
     perror("Erro ao fazer bind");
@@ -131,7 +151,7 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  // Escuta
+  /** Listen */
   if (listen(iServerSock, BACKLOG) < 0) {
     perror("Erro ao escutar");
 #ifdef _WIN32
@@ -143,13 +163,13 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  printf("[INFO] Servidor escutando na porta %d...\n", SERVER_PORT);
+  vTraceVarArgs("[INFO] Servidor escutando na porta %d...", giServerPort);
 
 #ifndef _WIN32
   signal(SIGCHLD, SIG_IGN); // Evita processos zumbis no Linux
 #endif
 
-  while (1) {
+  while (TRUE) {
     pClientSock = (tSocket *)malloc(sizeof(tSocket));
     *pClientSock =
         accept(iServerSock, (struct sockaddr *)&stClientAddr, &iClientLen);
@@ -163,7 +183,7 @@ int main() {
     uintptr_t iThread =
         _beginthreadex(NULL, 0, vHandleClient, (void *)pClientSock, 0, NULL);
     if (iThread == 0) {
-      printf("Erro ao criar thread.\n");
+      vTraceMsg("Erro ao criar thread.");
       closesocket(*pClientSock);
       free(pClientSock);
     }
