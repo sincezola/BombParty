@@ -5,5 +5,5 @@
   #define MEDIUM_TIMEOUT 5
   #define HARD_TIMEOUT   3
   
-  void vHandleBombTimer();
+  void vHandleBombTimer(int iParentPID);
 #endif

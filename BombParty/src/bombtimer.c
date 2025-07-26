@@ -4,6 +4,7 @@
 #include <bombtimer.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys_interface.h>
 
 void vDrawBomb(int iTimeout) {
   
@@ -32,7 +33,7 @@ int iGetDifficultyTimeout() {
   return EASY_TIMEOUT;
 }
 
-void vHandleBombTimer() {
+void vHandleBombTimer(int iParentPID) {
   int iTimeout = iGetDifficultyTimeout();
   
   while (iTimeout > 0) {
@@ -40,7 +41,7 @@ void vHandleBombTimer() {
     vSleepSeconds(1);
   }
   
-  kill(getppid(), SIGUSR1);
+  vSendSig2Process(iParentPID, SIGUSR1);
 
   return;
 }

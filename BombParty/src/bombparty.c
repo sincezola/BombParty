@@ -65,7 +65,7 @@ int main() {
 
     vSetSigUsrHandler(&stSigAct, vTimerAction);
     if ( (iPid = fork()) == 0 ) {
-      vHandleBombTimer();
+      vHandleBombTimer(getppid());
       return 0;
     }
 
