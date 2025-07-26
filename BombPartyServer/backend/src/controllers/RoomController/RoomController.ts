@@ -1,5 +1,6 @@
 import RoomService from "../../services/RoomService/RoomService.ts";
 import HttpStatusCode from "../../types/enums/HttpStatusCode.ts";
+import isValidInteger from "../../utils/isIntegerValue.ts";
 import RoomControllerProtocol from "./RoomControllerProtocol.ts";
 import { Request, Response, Router } from "express";
 
@@ -13,12 +14,18 @@ class RoomController extends RoomControllerProtocol {
   }
 
   private registerRoutes() {
-    this.router.get("/api/Room/GetRoomById/:id", this.getRoomById.bind(this));
+    this.router.get(
+      "/api/Room/GetRoomById/:id",
+      this.getRoomById.bind(this)
+    );
     this.router.get(
       "/api/Room/GetStatusRooms/:status",
       this.getRoomsByStatus.bind(this)
     );
-    this.router.get("/api/Room/GetAllRooms/", this.getAllRooms.bind(this));
+    this.router.get(
+      "/api/Room/GetAllRooms/",
+      this.getAllRooms.bind(this)
+    );
   }
 
   protected async getAllRooms(_req: Request, res: Response): Promise<void> {
@@ -41,6 +48,10 @@ class RoomController extends RoomControllerProtocol {
     try {
       const { status } = req.params;
 
+      if (!isValidInteger(status) || Number(status) > 3 || Number(status) < 1) {
+        res.status(HttpStatusCode.BAD_REQUEST).json({ message: `Status ${status} is not a valid status.`})
+      }
+
       const receivedRooms = await this.roomService.getRoomsByStatus(
         Number(status)
       );
@@ -60,6 +71,13 @@ class RoomController extends RoomControllerProtocol {
   protected async getRoomById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+
+      if (!isValidInteger(id)) {
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: `${id} Is not a valid id.` });
+        return;
+      }
 
       const receivedRoom = await this.roomService.getRoomById(Number(id));
 

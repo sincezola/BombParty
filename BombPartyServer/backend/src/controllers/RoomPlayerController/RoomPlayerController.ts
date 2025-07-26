@@ -1,6 +1,7 @@
-import RoomPlayerService from "../../services/RoomPlayer/RoomPlayerService.ts";
+import RoomPlayerService from "../../services/RoomPlayerService/RoomPlayerService.ts";
 import RoomPlayerControllerProtocol from "./RoomPlayerControllerProtocol.ts";
 import HttpStatusCode from "../../types/enums/HttpStatusCode.ts";
+import isValidInteger from "../../utils/isIntegerValue.ts";
 import { Request, Response, Router } from "express";
 
 class RoomPlayerController extends RoomPlayerControllerProtocol {
@@ -17,19 +18,53 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
       "/api/RoomPlayer/Create/",
       this.createRoomPlayer.bind(this)
     );
+    this.router.delete(
+      "/api/RoomPlayer/Delete/:id",
+      this.deleteRoomPlayer.bind(this)
+    );
+  }
+
+  protected async deleteRoomPlayer(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!isValidInteger(id)) {
+        res.status(HttpStatusCode.BAD_REQUEST).json({ message: `${id} Is not a valid integer.`});
+        return;
+      }
+
+      const receivedRoomPlayer = await this.roomPlayerService.deleteRoomPlayer(Number(id));
+
+      const { statusCode, body } = receivedRoomPlayer;
+
+      res.status(statusCode).json(body);
+    } catch (err) {
+      console.error(err);
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+        message: "Sorry, Internal Server Error",
+      });
+    }
   }
 
   protected async createRoomPlayer(req: Request, res: Response): Promise<void> {
     try {
-
-      console.log("ok")
-
       const { room_id, player_id, room_player_type } = req.body;
 
+      if (
+        !isValidInteger(room_id) ||
+        !isValidInteger(player_id) ||
+        !isValidInteger(room_player_type)
+      ) {
+        res.status(HttpStatusCode.BAD_REQUEST).json({
+          message: "room_id, player_id, and room_player_type must be valid integers.",
+        });
+        return;
+      }
+
       const createdRoomPlayer = await this.roomPlayerService.createRoomPlayer(
-        room_id,
-        player_id,
-        room_player_type
+        Number(room_id),
+        Number(player_id),
+        Number(room_player_type)
       );
 
       const { statusCode, body } = createdRoomPlayer;
@@ -37,10 +72,9 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
       res.status(statusCode).json(body);
     } catch (err) {
       console.error(err);
-
-      res
-        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-        .json({ message: "Sorry, Internal Server Error" });
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+        message: "Sorry, Internal Server Error",
+      });
     }
   }
 }

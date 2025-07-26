@@ -21,8 +21,8 @@ services:
     container_name: backend
     env_file:
       - .env.docker
-    # ports:
-    #   - "8080:8080"
+    ports:
+      - "8080:8080"
     depends_on:
       - postgres
     networks:
@@ -36,7 +36,7 @@ services:
     env_file:
       - .env.docker
     ports:
-      - "8081:8081"
+     - "8081:8081"
     networks:
       - appnet
 
@@ -44,7 +44,7 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
     depends_on:

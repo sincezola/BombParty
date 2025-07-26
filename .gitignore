@@ -5,6 +5,11 @@
 obj/
 bin/
 
+BombParty/html
+BombParty/latex
+
+*.bak
+
 *.o
 **/*.o
 
@@ -14,4 +19,9 @@ bin/
 # BombPartyServer
 
 BombPartyServer/.env
+BombPartyServer/.env.docker
 BombPartyServer/node_modules
+
+# BombProcessor
+
+BombProcessor/log

@@ -2,7 +2,6 @@
 CREATE TABLE "status_type" (
     "status_type_id" SERIAL NOT NULL,
     "code" TEXT NOT NULL,
-    "description" TEXT,
 
     CONSTRAINT "status_type_pkey" PRIMARY KEY ("status_type_id")
 );
@@ -11,7 +10,6 @@ CREATE TABLE "status_type" (
 CREATE TABLE "level_type" (
     "level_type_id" SERIAL NOT NULL,
     "code" TEXT NOT NULL,
-    "description" TEXT,
 
     CONSTRAINT "level_type_pkey" PRIMARY KEY ("level_type_id")
 );
@@ -20,7 +18,6 @@ CREATE TABLE "level_type" (
 CREATE TABLE "room_player_type" (
     "room_player_type_id" SERIAL NOT NULL,
     "code" TEXT NOT NULL,
-    "description" TEXT,
 
     CONSTRAINT "room_player_type_pkey" PRIMARY KEY ("room_player_type_id")
 );

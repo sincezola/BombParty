@@ -6,5 +6,6 @@ export default abstract class RoomPlayerServiceProtocol {
     room_id: number,
     player_id: number,
     room_player_type: number
-  ): Promise<ApiResponse<{ message: string } | RoomPlayer | []>>;
+  ): Promise<ApiResponse<{ message: string } | RoomPlayer>>;
+  abstract deleteRoomPlayer(room_player_id: number): Promise<ApiResponse<{ message: string } | RoomPlayer>>
 }

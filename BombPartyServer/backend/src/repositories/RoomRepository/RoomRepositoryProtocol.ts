@@ -1,7 +1,7 @@
-import { Room } from "../../entities/Room.ts";
+import { RoomWithRelations } from "../../types/relations/roomrelations.ts";
 
 export default abstract class RoomRepositoryProtocol {
-  abstract getAllRooms(): Promise<Room[] | null>;
-  abstract getRoomsByStatus(room_status: number): Promise<Room[] | null>;
-  abstract getRoomById(room_key: number): Promise<Room | null>;
+  abstract getAllRooms(): Promise<RoomWithRelations[] | null>;
+  abstract getRoomsByStatus(room_status: number): Promise<RoomWithRelations[] | null>;
+  abstract getRoomById(room_key: number): Promise<RoomWithRelations | null>;
 }

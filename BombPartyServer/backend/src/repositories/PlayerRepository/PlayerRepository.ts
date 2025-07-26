@@ -1,19 +1,39 @@
 import PlayerRepositoryProtocol from "./PlayerRepositoryProtocol.ts";
-import { Player } from "../../entities/Player.ts";
 import { PrismaClient } from "@prisma/client";
+import { playerInclude, PlayerWithRelations } from "../../types/relations/playerrelations.ts";
 
 class PlayerRepository implements PlayerRepositoryProtocol {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async createPlayer(player_name: string): Promise<Player | null> {
+  async getPlayerById(player_key: number): Promise<PlayerWithRelations | null> {
     try {
-      const createdPlayer = await this.prisma.player.create({
-        data: { player_name },
+      return await this.prisma.player.findUnique({
+        where: { player_key }, include: playerInclude
       });
+    } catch (err) {
+      console.error(err);
 
-      if (!createdPlayer) return null;
+      return null;
+    }
+  }
 
-      return new Player(createdPlayer);
+  async createPlayer(player_name: string): Promise<PlayerWithRelations | null> {
+    try {
+      return await this.prisma.player.create({
+        data: { player_name }, include: playerInclude
+      });
+    } catch (err) {
+      console.error(err);
+
+      return null;
+    }
+  }
+
+  async deletePlayerById(player_key: number): Promise<PlayerWithRelations | null> {
+    try {
+      return await this.prisma.player.delete({
+        where: { player_key }, include: playerInclude 
+      });
     } catch (err) {
       console.error(err);
 

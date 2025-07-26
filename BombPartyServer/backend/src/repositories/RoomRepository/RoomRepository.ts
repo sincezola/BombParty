@@ -1,29 +1,18 @@
 import RoomRepositoryProtocol from "./RoomRepositoryProtocol.ts";
-import { Room } from "../../entities/Room.ts";
+import {
+  roomInclude,
+  RoomWithRelations,
+} from "../../types/relations/roomrelations.ts";
 import { PrismaClient } from "@prisma/client";
 
 class RoomRepository implements RoomRepositoryProtocol {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async getAllRooms(): Promise<Room[] | null> {
+  async getAllRooms(): Promise<RoomWithRelations[] | null> {
     try {
-      const receivedRooms = await this.prisma.room.findMany({
-        include: {
-          status: true,
-          level: true,
-          players: {
-            include: { player: true, type: true },
-          },
-        },
+      return await this.prisma.room.findMany({
+        include: roomInclude,
       });
-
-      if (!receivedRooms) return null;
-
-      const retArr: Room[] = receivedRooms.map((room) => {
-        return new Room(room);
-      });
-
-      return retArr;
     } catch (err) {
       console.error(err);
 
@@ -31,49 +20,25 @@ class RoomRepository implements RoomRepositoryProtocol {
     }
   }
 
-  async getRoomsByStatus(room_status: number): Promise<Room[] | null> {
+  async getRoomsByStatus(room_status: number): Promise<RoomWithRelations[] | null> {
     try {
-      const receivedRooms = await this.prisma.room.findMany({
+      return await this.prisma.room.findMany({
         where: { room_status },
-        include: {
-          status: true,
-          level: true,
-          players: {
-            include: { player: true, type: true },
-          },
-        },
+        include: roomInclude,
       });
-
-      if (!receivedRooms) return null;
-
-      const retArr = receivedRooms.map((room) => {
-        return new Room(room);
-      });
-
-      return retArr;
     } catch (err) {
       console.error(err);
 
-      return null;
+      return null
     }
   }
 
-  async getRoomById(room_key: number): Promise<Room | null> {
+  async getRoomById(room_key: number): Promise<RoomWithRelations | null> {
     try {
-      const receivedRoom = await this.prisma.room.findFirst({
+      return await this.prisma.room.findUnique({
         where: { room_key },
-        include: {
-          status: true,
-          level: true,
-          players: {
-            include: { player: true, type: true },
-          },
-        },
+        include: roomInclude,
       });
-
-      if (!receivedRoom) return null;
-
-      return new Room(receivedRoom);
     } catch (err) {
       console.error(err);
 
