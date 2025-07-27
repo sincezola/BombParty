@@ -26,3 +26,5 @@ BombPartyServer/node_modules
 *.log
 **/*.log
 BombProcessor/log
+BombProcessor/node_scripts/input.txt
+**/**/input.txt
