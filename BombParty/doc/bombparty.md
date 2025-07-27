@@ -17,7 +17,6 @@ level_type
  level_type_id   smallint key -> room_level
  level_type_desc varchar255 not null {'easy', 'medium', 'hard'}
 
-
 status_type
  status_type_id   smallint key -> room_status
  status_type_desc varchar255 not null {'created', 'in game', 'closed'}
@@ -49,6 +48,9 @@ player
    2a Interação:
     Sala criada
         -> Iniciar jogo 
+        -> Alterar propriedades da sala
+            - dificuldade do jogo
+            - quantidade maxima de jogadores
         -> Remover jogador 
         -> Fechar sala 
     Entrou na sala
