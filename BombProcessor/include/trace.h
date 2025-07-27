@@ -60,13 +60,7 @@
 
   int iGetDebugLevel( const char *kpszConfFile );
 
-
-  void vSetConfFile( void );
-
-
   void vSetLogFile( void );
-
-  void vSetDebugLevel( void );
 
   void vTraceMsg( char *szMsg );
   void vTracePid( char *szMsg, int iMsgLen );
@@ -87,42 +81,4 @@
    ******************************************************************************/
 
   extern char *szTokenName[];
-
-  /******************************************************************************
-   *                                                                            *
-   *                               FILE FUNCTIONS                               *
-   *                                                                            *
-   ******************************************************************************/
-
-
-  /******************************************************************************
-   *                                                                            *
-   *                              STRING FUNCTIONS                              *
-   *                                                                            *
-   ******************************************************************************/
-
-  /**
-   * Check if string is empty
-   */
-  // int bStrIsEmpty( const char *kpszStr );
-
-  /******************************************************************************
-   *                                                                            *
-   *                              CATTIE FUNCTIONS                              *
-   *                                                                            *
-   ******************************************************************************/
-
-  /**
-   * 
-   */
-  int iValidToken( char *pTokSearch );
-
-
-  /**
-   * Print a formatted error message
-   */
-  void vPrintErrorMessage( const char *kpszFmt, ... );
-
-  
 #endif /* _TRACE_H */
-

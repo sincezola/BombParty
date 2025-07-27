@@ -4,7 +4,8 @@
 #include <curl_api.h>
 #include <sys_interface.h>
 #include <trace.h>
-
+#include <stdlib.h>
+#include <sys/socket.h>
 /**
 * CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
 * CMD|001|"Name"|4|1|
@@ -172,7 +173,7 @@ int iCMD_PatchRoom(char **ppszArgs) {
  * CMD|006|I|13
  *
  */
-int iCMD_GetRoom(char **ppszArgs) {
+int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   char *pTok;
   char cQueryPRM = 0;
   int iPRM_Value = 0;
@@ -180,9 +181,13 @@ int iCMD_GetRoom(char **ppszArgs) {
   char szFullEndpoint[1024];
   char *pszEndpoint;
   char szRsl[_MAX_RSL_BUFFER];
+  char szChildResponse[_MAX_RSL_BUFFER];
+  char szMsg[128];
+  
 
   memset(szURL, 0, sizeof(szURL));
   memset(szFullEndpoint, 0, sizeof(szFullEndpoint));
+  memset(szChildResponse, 0, sizeof(szChildResponse));
   memset(szRsl, 0, sizeof(szRsl));
   /** Query parameter */
   pszEndpoint = GET_ALL_ROOM_PATH;
@@ -215,6 +220,35 @@ int iCMD_GetRoom(char **ppszArgs) {
   iCurlReq(szURL, szFullEndpoint, "GET", NULL, 0, szRsl);
 
   vTraceVarArgs("Return from backend:[%s]", szRsl);
+
+  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse)) < 0 )
+    return -1;
+
+  strcat(szChildResponse, "\n");
+  sprintf(szMsg, "OK|BYTES|%ld\n", strlen(szChildResponse));
+  send(iSocketClient, szMsg, strlen(szMsg), 0);
+  send(iSocketClient, szChildResponse, strlen(szChildResponse), 0);
+  send(iSocketClient, "BYE\n", strlen("BYE\n"), 0);
+
+  return 0;
+}
+
+int iJSON_ExternalParse(char *pszJSON, char *pszRsl, int iRslSz){
+  FILE *pfInput;
+  char *pszTitle = "input.txt";
+  char szCmd[1024];
+
+  memset(szCmd, 0, sizeof(szCmd));
+
+  if ( (pfInput = fopen(pszTitle, "w")) == NULL )
+    return -1;
+  
+  fprintf(pfInput, "%s", pszJSON);
+  fclose(pfInput);
+
+  sprintf(szCmd, "node %s < %s", JSON_PARSER_TITLE, pszTitle);
+  if ( bRunCmd(szCmd, pszRsl, iRslSz) == FALSE )
+    return -1;
 
   return 0;
 }

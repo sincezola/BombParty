@@ -12,4 +12,5 @@
   int bCloseFile(FILE **fppFile);
   int bFileExist(const char *kpszFileName);
   int bStrIsEmpty(const char *kpszStr);
+  int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz);
 #endif

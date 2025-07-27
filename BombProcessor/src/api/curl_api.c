@@ -1,5 +1,6 @@
 #include <curl/curl.h>
 #include <string.h>
+#include <trace.h>
 
 size_t ulWriteCallback(void *vContents, size_t ulSize, size_t ulNMemb, void *vUserp) {
   size_t ulTotalSize = ulSize * ulNMemb;
@@ -14,7 +15,7 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
 
   memset(szUrl, 0, sizeof(szUrl));
   sprintf(szUrl, "%s/%s", pszUrl, pszEndPoint);
-  printf("%s\n", szUrl);
+  vTraceVarArgs("%s\n", szUrl);
   curl = curl_easy_init();
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, szUrl);
@@ -38,6 +39,6 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
   } else {
     return -1;
   }
-  printf("Retorno [%s]\n",szRsl);
+  vTraceVarArgs("Retorno [%s]\n",szRsl);
   return 0;
 }

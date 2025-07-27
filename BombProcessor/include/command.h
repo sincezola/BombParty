@@ -9,11 +9,15 @@
     char szRoomName[128];
     char szPassword[128];
   } STRUCT_ROOM;
-
+  
+  #define JSON_PARSER_TITLE "node_scripts/json-parser.js"
+  
   int iCMD_CreateRoom(char **ppszArgs);
   int iCMD_JoinRoom(char **ppszArgs);
   int iCMD_DeleteRoom(char **ppszArgs);
   int iCMD_LeaveRoom(char **ppszArgs);
   int iCMD_PatchRoom(char **ppszArgs);
-  int iCMD_GetRoom(char **ppszArgs);
+  int iCMD_GetRoom(char **ppszArgs, int iSocketClient);
+  int iJSON_ExternalParse(char *pszJSON, char *pszRsl, int iRslSz);
+
 #endif

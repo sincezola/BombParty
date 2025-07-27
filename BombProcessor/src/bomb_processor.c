@@ -61,7 +61,7 @@ void vHandleClient(void *pArg)
     }
 
     vTraceVarArgs("[CLIENTE] %s", szBuffer);
-    vProcessCommand(szBuffer);
+    vProcessCommand(szBuffer, iClientSock);
     send(iClientSock, "OK\n", 3, 0);
   }
 

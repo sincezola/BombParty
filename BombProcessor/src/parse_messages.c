@@ -15,7 +15,7 @@
  * @param piArgCount Retorna o número de argumentos
  * @return int 0 se OK, -1 se inválido
  */
-int iParseCommand(char *pszBuffer, int *piCmdId) {
+int iParseCommand(char *pszBuffer, int *piCmdId, int iSock) {
   int iRsl = 0;
   char *pTok;
   char *pszSavePtr;
@@ -48,7 +48,7 @@ int iParseCommand(char *pszBuffer, int *piCmdId) {
       iRsl = iCMD_PatchRoom(&pszSavePtr);
       break;
     case CMD_GET_ROOM:
-      iRsl = iCMD_GetRoom(&pszSavePtr);
+      iRsl = iCMD_GetRoom(&pszSavePtr, iSock);
       break;
     default:
       iRsl = -1;
@@ -58,13 +58,13 @@ int iParseCommand(char *pszBuffer, int *piCmdId) {
   return iRsl;
 }
 
-void vProcessCommand(char *pszCmd) {
+void vProcessCommand(char *pszCmd, int iSock) {
   int iCmdId;
   int iArgCount = 0;
   int ii;
   char **ppszArgs = NULL;
 
-  if (iParseCommand(pszCmd, &iCmdId) != 0) {
+  if (iParseCommand(pszCmd, &iCmdId, iSock) != 0) {
     vTraceVarArgs("Comando inválido: %s", pszCmd);
     return;
   }

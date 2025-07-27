@@ -2,13 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys_interface.h>
 #ifdef _WIN32
-#include <direct.h> // mkdir no Windows
-#include <io.h>
+  #define popen _popen
+  #define popen _pclose
+  #include <direct.h>   // mkdir no Windows
+  #include <io.h>
 #else
-#include <libgen.h>   // dirname, basename
-#include <sys/stat.h> // struct stat, S_ISDIR, mkdir
-#include <unistd.h>
+  #include <libgen.h>   // dirname, basename
+  #include <sys/stat.h> // struct stat, S_ISDIR, mkdir
+  #include <unistd.h>
 #endif
 
 #ifdef _WIN32
@@ -76,13 +79,7 @@ int iDIR_SplitFilename(char *szFilename, char *szPath, char *szName,
     strcpy(szName, szBase);
     *szExt = 0;
   }
-  // if (DEBUG_MORE_MSGS) {
-  //   char szDbg[1024];
-  //   sprintf(szDbg,
-  //           "iDIR_SplitFilename('%s', ...) szPath=[%s] szName=[%s]
-  //           szExt=[%s]", szFilename, szPath, szName, szExt);
-  //   vTraceMsg(szDbg);
-  // }
+
   return 0;
 }
 // Return 0 if error
@@ -126,11 +123,30 @@ int bFileExist(const char *kpszFileName) {
   return TRUE;
 } /* bFileExist */
 
-/******************************************************************************
- *                                                                            *
- *                              STRING FUNCTIONS                              *
- *                                                                            *
- ******************************************************************************/
+int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz){
+  FILE *pfPopen;
+  char szLine[1024];
+  int iCurrLen = 0;
+
+  if ( (pfPopen = popen(pszCmd, "r")) == NULL )
+    return FALSE;
+
+  while ( fgets(szLine, sizeof(szLine), pfPopen) ){
+    if ( ((int)strlen(szLine) + iCurrLen) > iRslSz ){
+      pclose(pfPopen);
+      return FALSE;
+    }
+    sprintf(&pszRsl[iCurrLen], "%s", szLine);
+    iCurrLen += strlen(szLine);
+  }
+  
+  pclose(pfPopen);
+  if ( bStrIsEmpty(pszRsl) )
+    return FALSE;
+  
+  return TRUE;
+}
+
 int bStrIsEmpty(const char *kpszStr) {
   if (kpszStr == NULL || !strcmp(kpszStr, "") || !strcmp(kpszStr, "\n")) {
     return TRUE;
