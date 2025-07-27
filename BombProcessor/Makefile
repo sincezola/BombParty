@@ -40,6 +40,7 @@ BOMB_PROC_EXEC = bomb_processor
 OBJS = \
 	$(OBJ_DIR)/bomb_processor.o \
 	$(OBJ_DIR)/parse_messages.o \
+	$(OBJ_DIR)/command.o \
 	$(OBJ_DIR)/trace.o 
 
 all: clean directories $(BIN_DIR)/$(BOMB_PROC_EXEC)
