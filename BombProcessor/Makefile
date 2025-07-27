@@ -14,10 +14,11 @@ endif
 SRC_PATH      = src
 API_PATH      = $(SRC_PATH)/api
 INCLUDE_PATH  = include
+INCLUDE_API   = $(INCLUDE_PATH)/api
 OBJ_DIR       = obj
 BIN_DIR       = bin
-INC_DIR       = -I. -I$(INCLUDE_PATH)
-LIBS          = 
+INC_DIR       = -I. -I$(INCLUDE_PATH) -I$(INCLUDE_API)
+LIBS          = -lcurl
 
 CCOPT         = -Wall -Wextra
 ifdef _WIN32
@@ -40,7 +41,9 @@ BOMB_PROC_EXEC = bomb_processor
 OBJS = \
 	$(OBJ_DIR)/bomb_processor.o \
 	$(OBJ_DIR)/parse_messages.o \
+	$(OBJ_DIR)/sys_interface.o \
 	$(OBJ_DIR)/command.o \
+	$(OBJ_DIR)/curl_api.o \
 	$(OBJ_DIR)/trace.o 
 
 all: clean directories $(BIN_DIR)/$(BOMB_PROC_EXEC)

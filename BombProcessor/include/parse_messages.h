@@ -5,7 +5,8 @@
     CMD_JOIN_ROOM,
     CMD_DELETE_ROOM,
     CMD_LEAVE_ROOM,
-    CMD_PATCH_ROOM
+    CMD_PATCH_ROOM,
+    CMD_GET_ROOM
   } eCMDList;
 
    typedef enum eDifficultyList {
@@ -18,6 +19,6 @@
   void vHandleJoinRoom(char **ppszArgs, int iArgCount);
   void vHandleDeleteRoom(char **ppszArgs, int iArgCount);
   void vHandleDisconnect();
-  int iParseCommand(char *pszBuffer, int *piCmdId, char ***ppszArgs, int *piArgCount);
+  int iParseCommand(char *pszBuffer, int *piCmdId);
   void vProcessCommand(char *pszCmd);
 #endif

@@ -1,8 +1,11 @@
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <parse_messages.h>
 #include <trace.h>
+#include <curl_api.h>
+#include <routes_api.h>
+#include <command.h>
+#include <sys_interface.h>
 
 /**
  * @brief Faz o parse de um comando do cliente no formato CMD|ID|ARG1|ARG2...
@@ -12,12 +15,10 @@
  * @param piArgCount Retorna o número de argumentos
  * @return int 0 se OK, -1 se inválido
  */
-int iParseCommand(char *pszBuffer, int *piCmdId, char ***ppszArgs, int *piArgCount) {
-  int iCount = 0;
-  int iRsl;
+int iParseCommand(char *pszBuffer, int *piCmdId) {
+  int iRsl = 0;
   char *pTok;
   char *pszSavePtr;
-  char **ppszTmpArgs = NULL;
 
   // Primeiro token: deve ser "CMD"
   pTok = strtok_r(pszBuffer, "|", &pszSavePtr);
@@ -30,7 +31,6 @@ int iParseCommand(char *pszBuffer, int *piCmdId, char ***ppszArgs, int *piArgCou
     return -1;
 
   *piCmdId = atoi(pTok);
-
   switch( *piCmdId ) {
     case CMD_CREATE_ROOM:
       iRsl = iCMD_CreateRoom(&pszSavePtr);
@@ -41,12 +41,21 @@ int iParseCommand(char *pszBuffer, int *piCmdId, char ***ppszArgs, int *piArgCou
     case CMD_DELETE_ROOM:
       iRsl = iCMD_DeleteRoom(&pszSavePtr);
       break;
-    case CMD_DISCONNECT:
-      iRsl = iCMD_Disconnect(&pszSavePtr);
+    case CMD_LEAVE_ROOM:
+      iRsl = iCMD_LeaveRoom(&pszSavePtr);
+      break;
+    case CMD_PATCH_ROOM:
+      iRsl = iCMD_PatchRoom(&pszSavePtr);
+      break;
+    case CMD_GET_ROOM:
+      iRsl = iCMD_GetRoom(&pszSavePtr);
+      break;
+    default:
+      iRsl = -1;
       break;
   }
 
-  return 0;
+  return iRsl;
 }
 
 void vProcessCommand(char *pszCmd) {
@@ -55,17 +64,9 @@ void vProcessCommand(char *pszCmd) {
   int ii;
   char **ppszArgs = NULL;
 
-  if (iParseCommand(pszCmd, &iCmdId, &ppszArgs, &iArgCount) != 0) {
+  if (iParseCommand(pszCmd, &iCmdId) != 0) {
     vTraceVarArgs("Comando inválido: %s", pszCmd);
     return;
-  }
-
-  switch (iCmdId) {
-    case CMD_CREATE_ROOM: vHandleCreateRoom(ppszArgs, iArgCount); break;
-    case CMD_JOIN_ROOM:   vHandleJoinRoom(ppszArgs, iArgCount); break;
-    case CMD_DELETE_ROOM: vHandleDeleteRoom(ppszArgs, iArgCount); break;
-    case CMD_DISCONNECT:  vHandleDisconnect(); break;
-    default: vTraceVarArgs("Comando desconhecido: %d", iCmdId);
   }
 
   for (ii = 0; ii < iArgCount; ii++)

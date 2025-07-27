@@ -19,6 +19,7 @@
   #include <errno.h>
   #include <stdarg.h>
   #include <config.h>
+  #include <stdio.h>
   #include <bomb_processor.h>
   
   #ifdef _WIN32
@@ -93,24 +94,6 @@
    *                                                                            *
    ******************************************************************************/
 
-  /**
-   * Open a file
-   *
-   * fppFile: file pointer
-   * kpszFileName: the name of file
-   * kpszMode: mode used in fopen
-   */
-  int bOpenFile( FILE **fppFile, const char *kpszFileName, const char *kpszMode );
-
-  /**
-   * Close file safety
-   */
-  int bCloseFile( FILE **fppFile );
-
-  /**
-   * Check if file exists
-   */
-  int bFileExist( const char *kpszFileName );
 
   /******************************************************************************
    *                                                                            *
@@ -121,7 +104,7 @@
   /**
    * Check if string is empty
    */
-  int bStrIsEmpty( const char *kpszStr );
+  // int bStrIsEmpty( const char *kpszStr );
 
   /******************************************************************************
    *                                                                            *
@@ -140,9 +123,6 @@
    */
   void vPrintErrorMessage( const char *kpszFmt, ... );
 
-  int iDIR_SplitFilename(char* szFilename, char* szPath, char* szName, char* szExt);
-  int iDIR_IsDir(char* szDir);
-  int iDIR_MkDir(char *szDir);
   
 #endif /* _TRACE_H */
 

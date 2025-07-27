@@ -10,18 +10,23 @@ size_t ulWriteCallback(void *vContents, size_t ulSize, size_t ulNMemb, void *vUs
 int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, int iPayloadLen, char *szRsl) {
   CURL *curl;
   CURLcode curlRes;
-  char szUrl[1024];
+  char szUrl[2048];
 
+  memset(szUrl, 0, sizeof(szUrl));
   sprintf(szUrl, "%s/%s", pszUrl, pszEndPoint);
+  printf("%s\n", szUrl);
   curl = curl_easy_init();
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, szUrl);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ulWriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, szRsl);
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, pszMethod);
     if ( !strcmp(pszMethod, "POST") ) {
+      curl_easy_setopt(curl, CURLOPT_POST, 1L);
       curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, iPayloadLen);
       curl_easy_setopt(curl, CURLOPT_POSTFIELDS, szPayload);
+    }
+    else if ( !strcmp(pszMethod, "GET") ) {
+      curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
     }
     curlRes = curl_easy_perform(curl);
 
@@ -33,6 +38,6 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
   } else {
     return -1;
   }
-
+  printf("Retorno [%s]\n",szRsl);
   return 0;
 }

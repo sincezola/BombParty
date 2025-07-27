@@ -1,11 +1,14 @@
 #include <string.h>
 #include <command.h>
+#include <routes_api.h>
+#include <curl_api.h>
+#include <sys_interface.h>
+#include <trace.h>
 
 /**
 * CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
 * CMD|001|"Name"|4|1|
 */
-
 int iCMD_CreateRoom(char **ppszArgs) {
   char *pTok;
   STRUCT_ROOM stRoom;
@@ -153,6 +156,65 @@ int iCMD_PatchRoom(char **ppszArgs) {
   }
 
   // iCurlReq();
+
+  return 0;
+}
+/**
+ * Before game starts:
+ *  Difficulty Level
+ *  Room Capacity
+ * After game starts:
+ *  query_parameter - A - All , S - Status, I - Id
+ *  
+ * CMD|CMD_GET_ROOM|query_parameter|{parameter_value|}
+ * CMD|006|A
+ * CMD|006|S|1
+ * CMD|006|I|13
+ *
+ */
+int iCMD_GetRoom(char **ppszArgs) {
+  char *pTok;
+  char cQueryPRM = 0;
+  int iPRM_Value = 0;
+  char szURL[1024];
+  char szFullEndpoint[1024];
+  char *pszEndpoint;
+  char szRsl[_MAX_RSL_BUFFER];
+
+  memset(szURL, 0, sizeof(szURL));
+  memset(szFullEndpoint, 0, sizeof(szFullEndpoint));
+  memset(szRsl, 0, sizeof(szRsl));
+  /** Query parameter */
+  pszEndpoint = GET_ALL_ROOM_PATH;
+  pTok = strtok_r(NULL, "|", ppszArgs);
+  if ( !bStrIsEmpty(pTok) ) 
+    cQueryPRM = *pTok;
+
+  if ( cQueryPRM == 'I' || cQueryPRM == 'S' ){
+    pszEndpoint = GET_ROOM_BY_ID_PATH;
+    if ( cQueryPRM == 'S') pszEndpoint = GET_ROOM_BY_STS_PATH;
+
+    /** Parameter Value */
+    pTok = strtok_r(NULL, "|", ppszArgs);
+    if ( !bStrIsEmpty(pTok) ) 
+      iPRM_Value = atoi(pTok);
+    
+    if ( !iPRM_Value )
+      return -2;
+
+    sprintf(szFullEndpoint, "%s/%d", pszEndpoint, iPRM_Value);
+  }
+  else if ( cQueryPRM == 'A' ) {
+    sprintf(szFullEndpoint, "%s", pszEndpoint);
+  }
+  else {
+    return -1;
+  }  
+
+  sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  iCurlReq(szURL, szFullEndpoint, "GET", NULL, 0, szRsl);
+
+  vTraceVarArgs("Return from backend:[%s]", szRsl);
 
   return 0;
 }
