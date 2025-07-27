@@ -28,7 +28,7 @@ ifdef _WIN32
 else
   CCOPT += -DLINUX
   MKDIR_CMD = mkdir -p $(OBJ_DIR) $(BIN_DIR)
-  RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) *.log
+  RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) *.log input.txt
 endif
 
 DEBUG_ADD_FLAGS = -O2
