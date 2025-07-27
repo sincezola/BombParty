@@ -17,53 +17,52 @@ process.stdin.on('end', () => {
 
   let parsedString = "";
 
-  // console.log(dataJSON);
+  for (const room of dataJSON) {
+    const roomProps = room.roomProps;
 
-  if ("roomProps" in dataJSON) {
-    parsedString += exportRoomReg + "|";
-    parsedString += roomPropsReg + "|"
+    if ("roomProps" in room) {
+      parsedString += exportRoomReg + "|";
+      parsedString += roomPropsReg + "|";
 
-    parsedString = parsedString + String(dataJSON.roomProps.room_key) + "|";
-    parsedString = parsedString + String(dataJSON.roomProps.room_status) + "|";
-    parsedString = parsedString + String(dataJSON.roomProps.room_name) + "|";
-    parsedString = parsedString + String(dataJSON.roomProps.room_password) + "|";
-    parsedString = parsedString + String(dataJSON.roomProps.room_capacity) + "|";
-    parsedString += String(dataJSON.roomProps.room_level) + "|";
-    parsedString += "\n";
-  }
-
-  if ("status" in dataJSON.roomProps) {
-    parsedString += exportRoomReg + "|";
-    parsedString += statusReg + "|"
-
-    parsedString += String(dataJSON.roomProps.status.status_type_id) + "|";
-    parsedString += String(dataJSON.roomProps.status.code) + "|";
-    parsedString += "\n";
-  }
-
-  if ("level" in dataJSON.roomProps) {
-    parsedString += exportRoomReg + "|";
-    parsedString += levelReg + "|";
-
-    parsedString += String(dataJSON.roomProps.level.level_type_id) + "|";
-    parsedString += String(dataJSON.roomProps.level.code) + "|";
-    parsedString += "\n";
-  }
-
-  if ("players" in dataJSON.roomProps) {
-    for (const rPlayer in dataJSON.roomProps.players) {
-      parsedString += exportRoomReg + "|"
-      parsedString += playerlistReg + "|";
-      const tPlayer = dataJSON.roomProps.players[rPlayer]
-
-      parsedString += String(tPlayer.player.player_key) + "|";
-      parsedString += tPlayer.player.player_name + "|";
+      parsedString += String(roomProps.room_key) + "|";
+      parsedString += String(roomProps.room_status) + "|";
+      parsedString += String(roomProps.room_name) + "|";
+      parsedString += String(roomProps.room_password) + "|";
+      parsedString += String(roomProps.room_capacity) + "|";
+      parsedString += String(roomProps.room_level) + "|";
       parsedString += "\n";
+    }
+
+    if ("status" in roomProps) {
+      parsedString += exportRoomReg + "|";
+      parsedString += statusReg + "|";
+
+      parsedString += String(roomProps.status.status_type_id) + "|";
+      parsedString += String(roomProps.status.code) + "|";
+      parsedString += "\n";
+    }
+
+    if ("level" in roomProps) {
+      parsedString += exportRoomReg + "|";
+      parsedString += levelReg + "|";
+
+      parsedString += String(roomProps.level.level_type_id) + "|";
+      parsedString += String(roomProps.level.code) + "|";
+      parsedString += "\n";
+    }
+
+    if ("players" in roomProps) {
+      for (const tPlayer of roomProps.players) {
+        parsedString += exportRoomReg + "|";
+        parsedString += playerlistReg + "|";
+
+        parsedString += String(tPlayer.player.player_key) + "|";
+        parsedString += tPlayer.player.player_name + "|";
+        parsedString += "\n";
+      }
     }
   }
 
-  parsedString = parsedString.slice(0, -1);
+  parsedString = parsedString.slice(0, -1); // remove último \n
   console.log(parsedString);
-})
-
-// node json-parser.js < input.txt > output.txt
+});
