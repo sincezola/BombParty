@@ -7,4 +7,5 @@ export default abstract class RoomControllerProtocol {
     req: Request,
     res: Response
   ): Promise<void>;
+  protected abstract createRoomPlayerAndAssociate(req: Request, res: Response): Promise<void>;
 }

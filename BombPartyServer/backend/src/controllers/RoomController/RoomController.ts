@@ -14,17 +14,15 @@ class RoomController extends RoomControllerProtocol {
   }
 
   private registerRoutes() {
-    this.router.get(
-      "/api/Room/GetRoomById/:id",
-      this.getRoomById.bind(this)
-    );
+    this.router.get("/api/Room/GetRoomById/:id", this.getRoomById.bind(this));
     this.router.get(
       "/api/Room/GetStatusRooms/:status",
       this.getRoomsByStatus.bind(this)
     );
-    this.router.get(
-      "/api/Room/GetAllRooms/",
-      this.getAllRooms.bind(this)
+    this.router.get("/api/Room/GetAllRooms/", this.getAllRooms.bind(this));
+    this.router.post(
+      "/api/Room/CreateRoom/",
+      this.createRoomPlayerAndAssociate.bind(this)
     );
   }
 
@@ -49,7 +47,10 @@ class RoomController extends RoomControllerProtocol {
       const { status } = req.params;
 
       if (!isValidInteger(status) || Number(status) > 3 || Number(status) < 1) {
-        res.status(HttpStatusCode.BAD_REQUEST).json({ message: `Status ${status} is not a valid status.`})
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: `Status ${status} is not a valid status.` });
+        return;
       }
 
       const receivedRooms = await this.roomService.getRoomsByStatus(
@@ -82,6 +83,54 @@ class RoomController extends RoomControllerProtocol {
       const receivedRoom = await this.roomService.getRoomById(Number(id));
 
       res.status(receivedRoom.statusCode).json(receivedRoom.body);
+    } catch (err) {
+      console.error(err);
+
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: "Sorry, Internal Server Error." });
+    }
+  }
+
+  protected async createRoomPlayerAndAssociate(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const {
+        player_name,
+        room_name,
+        room_capacity,
+        room_level,
+        room_password,
+      } = req.body;
+
+      if (
+        !isValidInteger(room_capacity) ||
+        !isValidInteger(room_level) ||
+        Number(room_capacity) < 2 ||
+        Number(room_capacity) > 5 ||
+        Number(room_level) < 1 ||
+        Number(room_level) > 3
+      ) {
+        res.status(HttpStatusCode.BAD_REQUEST).json({
+          message: `Room capacity: ${room_capacity} or Room level: ${room_level} invalid.`,
+        });
+
+        return;
+      }
+      const receivedAssociation = 
+        await this.roomService.createRoomPlayerAndAssociate(
+          player_name, 
+          room_name,
+          room_capacity,
+          room_level,
+          room_password ? room_password : null
+        );
+
+      const { statusCode, body } = receivedAssociation;
+
+      res.status(statusCode).json(body);
     } catch (err) {
       console.error(err);
 

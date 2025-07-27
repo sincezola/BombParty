@@ -36,6 +36,7 @@ class PlayerController extends PlayerControllerProtocol {
         res
           .status(HttpStatusCode.BAD_REQUEST)
           .json({ message: `Id: ${id} is not a valid id.` });
+        return;
       }
 
       const receivedPlayer = await this.playerService.getPlayerById(Number(id));
@@ -78,9 +79,12 @@ class PlayerController extends PlayerControllerProtocol {
         res
           .status(HttpStatusCode.BAD_REQUEST)
           .json({ message: `Id: ${id} is not a valid id.` });
+        return;
       }
 
-      const deletedPlayer = await this.playerService.deletePlayerById(Number(id));
+      const deletedPlayer = await this.playerService.deletePlayerById(
+        Number(id)
+      );
 
       const { statusCode, body } = deletedPlayer;
 

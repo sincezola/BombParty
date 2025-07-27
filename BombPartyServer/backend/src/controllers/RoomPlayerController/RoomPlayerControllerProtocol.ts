@@ -9,4 +9,8 @@ export default abstract class RoomPlayerControllerProtocol {
     req: Request,
     res: Response
   ): Promise<void>;
+  protected abstract joinRoom(
+    req: Request,
+    res: Response
+  ): Promise<void>
 }

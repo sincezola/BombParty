@@ -45,6 +45,24 @@ class RoomRepository implements RoomRepositoryProtocol {
       return null;
     }
   }
+
+  async createRoom(room_name: string, room_capacity: number, room_level: number, room_password?: string): Promise<RoomWithRelations | null> {
+    try {
+      return await this.prisma.room.create({
+        data: {
+          room_name,
+          room_capacity,
+          room_level,
+          room_status: 1,
+          room_password,
+        }, include: roomInclude
+      })
+    } catch (err) {
+      console.error(err);
+
+      return null;
+    }
+  }
 }
 
 export default RoomRepository;

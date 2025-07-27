@@ -8,7 +8,10 @@ import { RoomPlayerWithRelations } from "../../types/relations/roomplayerrelatio
 import { Player } from "../../entities/Player.ts";
 
 class RoomPlayerService implements RoomPlayerServiceProtocol {
-  constructor(private roomPlayerRepository: RoomPlayerRepository, private playerService: PlayerService) {}
+  constructor(
+    private roomPlayerRepository: RoomPlayerRepository,
+    private playerService: PlayerService,
+  ) {}
 
   private handleError() {
     return {
@@ -22,17 +25,17 @@ class RoomPlayerService implements RoomPlayerServiceProtocol {
   }
 
   async createRoomPlayer(
-    room_id: number,
+    room_key: number,
     player_id: number,
     room_player_type: number
   ): Promise<ApiResponse<{ message: string } | RoomPlayer>> {
     try {
-      const searchedRoomPlayer = await this.roomPlayerRepository.findByRoomAndPlayer(room_id, player_id);
+      const searchedRoomPlayer = await this.roomPlayerRepository.findByRoomAndPlayer(room_key, player_id);
 
       if (searchedRoomPlayer) {
         return {
           statusCode: HttpStatusCode.CONFLICT,
-          body: { message: `Room Id: ${room_id} and Player Id: ${player_id} already exists in database.` }
+          body: { message: `Room Id: ${room_key} and Player Id: ${player_id} already exists in database.` }
         }
       }
 
@@ -48,7 +51,7 @@ class RoomPlayerService implements RoomPlayerServiceProtocol {
       }
       
       const createdRoomPlayer = await this.roomPlayerRepository.createRoomPlayer(
-        room_id,
+        room_key,
         player_id,
         room_player_type
       );

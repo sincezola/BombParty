@@ -4,7 +4,7 @@ const roomInclude = {
   status: true,
   level: true,
   players: {
-    include: { player: true, type: true },
+    include: { player: true },
   },
 } satisfies Prisma.RoomInclude;
 
