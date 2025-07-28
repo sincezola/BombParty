@@ -4,7 +4,6 @@ const roomPlayerInclude = {
   room: true,
   player: true,
   type: true,
-  
 } satisfies Prisma.RoomPlayerInclude;
 
 type RoomPlayerWithRelations = Prisma.RoomPlayerGetPayload<{

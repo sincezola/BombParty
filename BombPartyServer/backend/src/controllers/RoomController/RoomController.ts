@@ -24,6 +24,10 @@ class RoomController extends RoomControllerProtocol {
       "/api/Room/CreateRoom/",
       this.createRoomPlayerAndAssociate.bind(this)
     );
+    this.router.patch(
+      "/api/Room/PatchRoom/",
+      this.changeRoomProperties.bind(this)
+    );
   }
 
   protected async getAllRooms(_req: Request, res: Response): Promise<void> {
@@ -119,9 +123,9 @@ class RoomController extends RoomControllerProtocol {
 
         return;
       }
-      const receivedAssociation = 
+      const receivedAssociation =
         await this.roomService.createRoomPlayerAndAssociate(
-          player_name, 
+          player_name,
           room_name,
           room_capacity,
           room_level,
@@ -129,6 +133,47 @@ class RoomController extends RoomControllerProtocol {
         );
 
       const { statusCode, body } = receivedAssociation;
+
+      res.status(statusCode).json(body);
+    } catch (err) {
+      console.error(err);
+
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: "Sorry, Internal Server Error." });
+    }
+  }
+
+  protected async changeRoomProperties(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const { room_key, room_level, room_capacity } = req.body;
+
+      if (
+        !isValidInteger(room_key) ||
+        !isValidInteger(room_level) ||
+        !isValidInteger(room_capacity) ||
+        Number(room_level) < 1 ||
+        Number(room_level) > 3 ||
+        Number(room_capacity) < 2 ||
+        Number(room_capacity) > 5
+      ) {
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: "Request fields are not valid int's " });
+
+        return;
+      }
+
+      const patchedRoom = await this.roomService.changeRoomProperties(
+        room_key,
+        room_level,
+        room_capacity
+      );
+
+      const { statusCode, body } = patchedRoom;
 
       res.status(statusCode).json(body);
     } catch (err) {

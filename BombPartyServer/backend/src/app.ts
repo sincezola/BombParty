@@ -20,13 +20,13 @@ const router = express.Router();
 const playerService = new PlayerService(new PlayerRepository(prisma)); // One instance (singleton)
 const roomPlayerService = new RoomPlayerService(
   new RoomPlayerRepository(prisma),
-  playerService
+  playerService,
 ); // One instance (singleton)
 const roomService = new RoomService(
   new RoomRepository(prisma),
   playerService,
-  roomPlayerService
-);// One instance (singleton)
+  roomPlayerService,
+); // One instance (singleton)
 
 new RoomController(router, roomService);
 new PlayerController(router, playerService);

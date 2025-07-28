@@ -5,7 +5,14 @@ export default abstract class RoomControllerProtocol {
   protected abstract getRoomById(req: Request, res: Response): Promise<void>;
   protected abstract getRoomsByStatus(
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<void>;
-  protected abstract createRoomPlayerAndAssociate(req: Request, res: Response): Promise<void>;
+  protected abstract createRoomPlayerAndAssociate(
+    req: Request,
+    res: Response,
+  ): Promise<void>;
+  protected abstract changeRoomProperties(
+    req: Request,
+    res: Response,
+  ): Promise<void>;
 }

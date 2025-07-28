@@ -9,7 +9,7 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
   constructor(
     private readonly router: Router,
     private readonly roomPlayerService: RoomPlayerService,
-    private readonly roomService: RoomService
+    private readonly roomService: RoomService,
   ) {
     super();
     this.registerRoutes();
@@ -18,16 +18,13 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
   private registerRoutes() {
     this.router.post(
       "/api/RoomPlayer/Create/",
-      this.createRoomPlayer.bind(this)
+      this.createRoomPlayer.bind(this),
     );
     this.router.delete(
       "/api/RoomPlayer/Delete/:id",
-      this.deleteRoomPlayer.bind(this)
+      this.deleteRoomPlayer.bind(this),
     );
-    this.router.post(
-      "/api/RoomPlayer/JoinRoom/",
-      this.joinRoom.bind(this)
-    )
+    this.router.post("/api/RoomPlayer/JoinRoom/", this.joinRoom.bind(this));
   }
 
   protected async deleteRoomPlayer(req: Request, res: Response): Promise<void> {
@@ -42,7 +39,7 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
       }
 
       const receivedRoomPlayer = await this.roomPlayerService.deleteRoomPlayer(
-        Number(id)
+        Number(id),
       );
 
       const { statusCode, body } = receivedRoomPlayer;
@@ -75,7 +72,7 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
       const createdRoomPlayer = await this.roomPlayerService.createRoomPlayer(
         Number(room_id),
         Number(player_id),
-        Number(room_player_type)
+        Number(room_player_type),
       );
 
       const { statusCode, body } = createdRoomPlayer;
@@ -100,8 +97,11 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
 
         return;
       }
-      
-      const receivedRelation = await this.roomService.joinRoom(player_name, room_key);
+
+      const receivedRelation = await this.roomService.joinRoom(
+        player_name,
+        room_key,
+      );
 
       const { statusCode, body } = receivedRelation;
 

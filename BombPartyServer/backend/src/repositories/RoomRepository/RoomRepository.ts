@@ -1,4 +1,5 @@
 import RoomRepositoryProtocol from "./RoomRepositoryProtocol.ts";
+import PatchData from "../../types/patch_data.ts";
 import {
   roomInclude,
   RoomWithRelations,
@@ -20,7 +21,9 @@ class RoomRepository implements RoomRepositoryProtocol {
     }
   }
 
-  async getRoomsByStatus(room_status: number): Promise<RoomWithRelations[] | null> {
+  async getRoomsByStatus(
+    room_status: number
+  ): Promise<RoomWithRelations[] | null> {
     try {
       return await this.prisma.room.findMany({
         where: { room_status },
@@ -29,7 +32,7 @@ class RoomRepository implements RoomRepositoryProtocol {
     } catch (err) {
       console.error(err);
 
-      return null
+      return null;
     }
   }
 
@@ -46,7 +49,12 @@ class RoomRepository implements RoomRepositoryProtocol {
     }
   }
 
-  async createRoom(room_name: string, room_capacity: number, room_level: number, room_password?: string): Promise<RoomWithRelations | null> {
+  async createRoom(
+    room_name: string,
+    room_capacity: number,
+    room_level: number,
+    room_password?: string
+  ): Promise<RoomWithRelations | null> {
     try {
       return await this.prisma.room.create({
         data: {
@@ -55,11 +63,34 @@ class RoomRepository implements RoomRepositoryProtocol {
           room_level,
           room_status: 1,
           room_password,
-        }, include: roomInclude
-      })
+        },
+        include: roomInclude,
+      });
     } catch (err) {
       console.error(err);
 
+      return null;
+    }
+  }
+
+  async patchRoom(
+    room_key: number,
+    room_level?: number,
+    room_capacity?: number
+  ): Promise<RoomWithRelations | null> {
+    try {
+      const data: PatchData = {};
+
+      if (room_level !== undefined) data.room_level = room_level;
+      if (room_capacity !== undefined) data.room_capacity = room_capacity;
+
+      return await this.prisma.room.update({
+        where: { room_key },
+        data,
+        include: roomInclude,
+      });
+    } catch (err) {
+      console.error(err);
       return null;
     }
   }

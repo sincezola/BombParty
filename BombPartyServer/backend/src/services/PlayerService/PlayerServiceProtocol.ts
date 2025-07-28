@@ -3,12 +3,12 @@ import { Player } from "../../entities/Player.ts";
 
 export default abstract class PlayerServiceProtocol {
   abstract getPlayerById(
-    player_key: number
-  ): Promise<ApiResponse<{ message: string } | Player>>
+    player_key: number,
+  ): Promise<ApiResponse<{ message: string } | Player>>;
   abstract createPlayer(
-    player_name: string
+    player_name: string,
   ): Promise<ApiResponse<{ message: string } | Player>>;
   abstract deletePlayerById(
-    player_key: number
+    player_key: number,
   ): Promise<ApiResponse<{ message: string } | Player>>;
 }

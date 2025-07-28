@@ -8,4 +8,4 @@ type PlayerWithRelations = Prisma.PlayerGetPayload<{
   include: typeof playerInclude;
 }>;
 
-export { PlayerWithRelations, playerInclude }
+export { PlayerWithRelations, playerInclude };

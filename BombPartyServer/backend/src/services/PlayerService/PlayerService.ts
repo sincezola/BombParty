@@ -14,21 +14,26 @@ class PlayerService implements PlayerServiceProtocol {
     };
   }
 
-  async getPlayerById(player_key: number): Promise<ApiResponse<{ message: string; } | Player>> {
+  async getPlayerById(
+    player_key: number,
+  ): Promise<ApiResponse<{ message: string } | Player>> {
     try {
-      const receivedPlayer = await this.playerRepository.getPlayerById(player_key);
+      const receivedPlayer =
+        await this.playerRepository.getPlayerById(player_key);
 
       if (!receivedPlayer) {
         return {
           statusCode: HttpStatusCode.NOT_FOUND,
-          body: { message: `Player with id: ${player_key} is not in the database.` },
-        }
+          body: {
+            message: `Player with id: ${player_key} is not in the database.`,
+          },
+        };
       }
 
       return {
         statusCode: HttpStatusCode.OK,
         body: new Player(receivedPlayer),
-      }
+      };
     } catch (err) {
       console.error(err);
 
@@ -37,12 +42,11 @@ class PlayerService implements PlayerServiceProtocol {
   }
 
   async createPlayer(
-    player_name: string
+    player_name: string,
   ): Promise<ApiResponse<{ message: string } | Player>> {
     try {
-      const receivedPlayer = await this.playerRepository.createPlayer(
-        player_name
-      );
+      const receivedPlayer =
+        await this.playerRepository.createPlayer(player_name);
 
       if (!receivedPlayer) {
         return this.handleError();
@@ -60,12 +64,11 @@ class PlayerService implements PlayerServiceProtocol {
   }
 
   async deletePlayerById(
-    player_key: number
+    player_key: number,
   ): Promise<ApiResponse<{ message: string } | Player>> {
     try {
-      const receivedPlayer = await this.playerRepository.getPlayerById(
-        player_key
-      );
+      const receivedPlayer =
+        await this.playerRepository.getPlayerById(player_key);
 
       if (!receivedPlayer) {
         return {
@@ -76,9 +79,8 @@ class PlayerService implements PlayerServiceProtocol {
         };
       }
 
-      const deletedPlayer = await this.playerRepository.deletePlayerById(
-        player_key
-      );
+      const deletedPlayer =
+        await this.playerRepository.deletePlayerById(player_key);
 
       if (!deletedPlayer) {
         return this.handleError();

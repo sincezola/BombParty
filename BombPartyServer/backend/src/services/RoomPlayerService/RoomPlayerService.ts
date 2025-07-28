@@ -27,16 +27,22 @@ class RoomPlayerService implements RoomPlayerServiceProtocol {
   async createRoomPlayer(
     room_key: number,
     player_id: number,
-    room_player_type: number
+    room_player_type: number,
   ): Promise<ApiResponse<{ message: string } | RoomPlayer>> {
     try {
-      const searchedRoomPlayer = await this.roomPlayerRepository.findByRoomAndPlayer(room_key, player_id);
+      const searchedRoomPlayer =
+        await this.roomPlayerRepository.findByRoomAndPlayer(
+          room_key,
+          player_id,
+        );
 
       if (searchedRoomPlayer) {
         return {
           statusCode: HttpStatusCode.CONFLICT,
-          body: { message: `Room Id: ${room_key} and Player Id: ${player_id} already exists in database.` }
-        }
+          body: {
+            message: `Room Id: ${room_key} and Player Id: ${player_id} already exists in database.`,
+          },
+        };
       }
 
       const getPlayer = await this.playerService.getPlayerById(player_id);
@@ -49,12 +55,13 @@ class RoomPlayerService implements RoomPlayerServiceProtocol {
           body,
         };
       }
-      
-      const createdRoomPlayer = await this.roomPlayerRepository.createRoomPlayer(
-        room_key,
-        player_id,
-        room_player_type
-      );
+
+      const createdRoomPlayer =
+        await this.roomPlayerRepository.createRoomPlayer(
+          room_key,
+          player_id,
+          room_player_type,
+        );
 
       if (!createdRoomPlayer) {
         return {
@@ -74,25 +81,33 @@ class RoomPlayerService implements RoomPlayerServiceProtocol {
     }
   }
 
-  async deleteRoomPlayer(room_player_id: number): Promise<ApiResponse<{ message: string; } | RoomPlayer>> {
+  async deleteRoomPlayer(
+    room_player_id: number,
+  ): Promise<ApiResponse<{ message: string } | RoomPlayer>> {
     try {
-      const searchedRoomPlayer = await this.roomPlayerRepository.getRoomPlayer(room_player_id);
+      const searchedRoomPlayer =
+        await this.roomPlayerRepository.getRoomPlayer(room_player_id);
 
       if (!searchedRoomPlayer) {
         return {
           statusCode: HttpStatusCode.NOT_FOUND,
-          body: { message: `Room player with id: ${room_player_id} is not in the database.`},
-        }
+          body: {
+            message: `Room player with id: ${room_player_id} is not in the database.`,
+          },
+        };
       }
 
-      const deletedRoomPlayer = await this.roomPlayerRepository.deleteRoomPlayer(room_player_id);
+      const deletedRoomPlayer =
+        await this.roomPlayerRepository.deleteRoomPlayer(room_player_id);
 
       if (!deletedRoomPlayer) {
         return this.handleError();
       }
 
       // Deleting the player corresponding to the relation
-      const deletedPlayer = await this.playerService.deletePlayerById(deletedRoomPlayer.player.player_key);
+      const deletedPlayer = await this.playerService.deletePlayerById(
+        deletedRoomPlayer.player.player_key,
+      );
 
       if (!(deletedPlayer.body instanceof Player)) {
         const { statusCode, body } = deletedPlayer;
@@ -106,7 +121,7 @@ class RoomPlayerService implements RoomPlayerServiceProtocol {
       return {
         statusCode: HttpStatusCode.OK,
         body: new RoomPlayer(deletedRoomPlayer),
-      }
+      };
     } catch (err) {
       console.error(err);
 

@@ -7,7 +7,7 @@ import { Request, Response, Router } from "express";
 class PlayerController extends PlayerControllerProtocol {
   constructor(
     private readonly router: Router,
-    private readonly playerService: PlayerService
+    private readonly playerService: PlayerService,
   ) {
     super();
     this.registerRoutes();
@@ -16,15 +16,15 @@ class PlayerController extends PlayerControllerProtocol {
   private registerRoutes() {
     this.router.get(
       "/api/Player/GetPlayerById/:id",
-      this.getPlayerById.bind(this)
+      this.getPlayerById.bind(this),
     );
     this.router.post(
       "/api/Player/CreatePlayer/:name",
-      this.createPlayer.bind(this)
+      this.createPlayer.bind(this),
     );
     this.router.delete(
       "/api/Player/DeletePlayer/:id",
-      this.deletePlayer.bind(this)
+      this.deletePlayer.bind(this),
     );
   }
 
@@ -83,7 +83,7 @@ class PlayerController extends PlayerControllerProtocol {
       }
 
       const deletedPlayer = await this.playerService.deletePlayerById(
-        Number(id)
+        Number(id),
       );
 
       const { statusCode, body } = deletedPlayer;
