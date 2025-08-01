@@ -1,6 +1,8 @@
 import RoomService from "../../services/RoomService/RoomService.ts";
 import HttpStatusCode from "../../types/enums/HttpStatusCode.ts";
 import isValidInteger from "../../utils/isIntegerValue.ts";
+import isValidRoomCapacity from "../../utils/validations/validate_room_capacity.ts";
+import isValidRoomLevel from "../../utils/validations/validate_room_level.ts";
 import RoomControllerProtocol from "./RoomControllerProtocol.ts";
 import { Request, Response, Router } from "express";
 
@@ -110,12 +112,8 @@ class RoomController extends RoomControllerProtocol {
       } = req.body;
 
       if (
-        !isValidInteger(room_capacity) ||
-        !isValidInteger(room_level) ||
-        Number(room_capacity) < 2 ||
-        Number(room_capacity) > 5 ||
-        Number(room_level) < 1 ||
-        Number(room_level) > 3
+        !isValidRoomLevel(room_level) ||
+        !isValidRoomCapacity(room_capacity)
       ) {
         res.status(HttpStatusCode.BAD_REQUEST).json({
           message: `Room capacity: ${room_capacity} or Room level: ${room_level} invalid.`,
@@ -151,18 +149,21 @@ class RoomController extends RoomControllerProtocol {
     try {
       const { room_key, room_level, room_capacity } = req.body;
 
+      console.log(room_level);
+
+      if (room_level == undefined && room_capacity == undefined) {
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: "Missing properties room_level & room_capacity." });
+      }
+
       if (
-        !isValidInteger(room_key) ||
-        !isValidInteger(room_level) ||
-        !isValidInteger(room_capacity) ||
-        Number(room_level) < 1 ||
-        Number(room_level) > 3 ||
-        Number(room_capacity) < 2 ||
-        Number(room_capacity) > 5
+        (room_level != undefined && !isValidRoomLevel(room_level)) ||
+        (room_capacity != undefined && !isValidRoomCapacity(room_capacity))
       ) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: "Request fields are not valid int's " });
+          .json({ message: "Request fields are not valid values." });
 
         return;
       }

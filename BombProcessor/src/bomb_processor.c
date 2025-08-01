@@ -171,6 +171,7 @@ int main(int argc, char *argv[]) {
 
   while (TRUE) {
     pClientSock  = (tSocket *)malloc(sizeof(tSocket));
+
     *pClientSock = accept(iServerSock, (struct sockaddr *)&stClientAddr, &iClientLen);
     if (*pClientSock < 0) {
       perror("Erro ao aceitar conexão");

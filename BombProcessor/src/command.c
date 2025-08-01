@@ -10,9 +10,14 @@
 * CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
 * CMD|001|"Name"|4|1|
 */
+
 int iCMD_CreateRoom(char **ppszArgs) {
   char *pTok;
   STRUCT_ROOM stRoom;
+  char *pszTitle = "createroom.txt";
+  char szRsl[_MAX_RSL_BUFFER];
+  char szUrl[80];
+  char szMsg[80];
 
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   
@@ -38,10 +43,24 @@ int iCMD_CreateRoom(char **ppszArgs) {
   
   /** Password */
   pTok = strtok_r(NULL, "|", ppszArgs);
-  if ( !bStrIsEmpty(pTok) ) 
-    snprintf(stRoom.szPassword, sizeof(stRoom.szPassword), "%s", pTok);
-  
-  // iCurlReq();
+  char szPayload[1024];
+  snprintf(szPayload, sizeof(szPayload),
+    "{ \"player_name\": \"%s\", \"room_name\": \"%s\", \"room_capacity\": %d, \"difficulty_level\": %d, \"password\": \"%s\" }",
+    stRoom.szPlayerName, stRoom.szRoomName, stRoom.iRoomCapacity, stRoom.iDifficultyLevel, stRoom.szPassword);
+
+  sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  iCurlReq(szURL, szFullEndpoint, "POST", NULL, 0, szRsl);
+
+  vTraceVarArgs("Return from backend:[%s]", szRsl);
+
+  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse)) < 0 )
+    return -1;
+
+  strcat(szChildResponse, "\n");
+  sprintf(szMsg, "OK|BYTES|%ld\n", strlen(szChildResponse));
+  send(iSocketClient, szMsg, strlen(szMsg), 0);
+  send(iSocketClient, szChildResponse, strlen(szChildResponse), 0);
+  send(iSocketClient, "BYE\n", strlen("BYE\n"), 0);
 
   return 0;
 }
@@ -183,7 +202,7 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   char szRsl[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
   char szMsg[128];
-  
+  char *pszTitle = "getroom.txt";
 
   memset(szURL, 0, sizeof(szURL));
   memset(szFullEndpoint, 0, sizeof(szFullEndpoint));
@@ -233,9 +252,8 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   return 0;
 }
 
-int iJSON_ExternalParse(char *pszJSON, char *pszRsl, int iRslSz){
+int iJSON_ExternalParse(char *pszJSON, char *pszRsl, int iRslSz, char *pszTitle){
   FILE *pfInput;
-  char *pszTitle = "input.txt";
   char szCmd[1024];
 
   memset(szCmd, 0, sizeof(szCmd));
