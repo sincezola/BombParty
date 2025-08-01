@@ -27,4 +27,5 @@ BombPartyServer/node_modules
 **/*.log
 BombProcessor/log
 BombProcessor/node_scripts/input.txt
-**/**/input.txt
+BombProcessor/getroom.txt
+BombProcessor/createroom.txt
