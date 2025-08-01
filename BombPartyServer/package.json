@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "tsx backend/src/server.ts",
-    "dev": "tsx watch backend/src/server.ts"
+    "start": "prisma generate && tsx backend/src/server.ts",
+    "dev": "prisma generate && tsx watch backend/src/server.ts"
   },
   "keywords": [],
   "author": "",

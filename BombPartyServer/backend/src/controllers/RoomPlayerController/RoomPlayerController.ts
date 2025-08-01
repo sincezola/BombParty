@@ -9,7 +9,7 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
   constructor(
     private readonly router: Router,
     private readonly roomPlayerService: RoomPlayerService,
-    private readonly roomService: RoomService,
+    private readonly roomService: RoomService
   ) {
     super();
     this.registerRoutes();
@@ -18,11 +18,11 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
   private registerRoutes() {
     this.router.post(
       "/api/RoomPlayer/Create/",
-      this.createRoomPlayer.bind(this),
+      this.createRoomPlayer.bind(this)
     );
     this.router.delete(
       "/api/RoomPlayer/Delete/:id",
-      this.deleteRoomPlayer.bind(this),
+      this.deleteRoomPlayer.bind(this)
     );
     this.router.post("/api/RoomPlayer/JoinRoom/", this.joinRoom.bind(this));
   }
@@ -34,12 +34,13 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
       if (!isValidInteger(id)) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `${id} Is not a valid integer.` });
+          .json({ message: `invalid id received.` });
+
         return;
       }
 
       const receivedRoomPlayer = await this.roomPlayerService.deleteRoomPlayer(
-        Number(id),
+        Number(id)
       );
 
       const { statusCode, body } = receivedRoomPlayer;
@@ -55,24 +56,23 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
 
   protected async createRoomPlayer(req: Request, res: Response): Promise<void> {
     try {
-      const { room_id, player_id, room_player_type } = req.body;
-
       if (
-        !isValidInteger(room_id) ||
-        !isValidInteger(player_id) ||
-        !isValidInteger(room_player_type)
+        !isValidInteger(req.body.room_id) ||
+        !isValidInteger(req.body.player_id) ||
+        !isValidInteger(req.body.room_player_type)
       ) {
         res.status(HttpStatusCode.BAD_REQUEST).json({
           message:
-            "room_id, player_id, and room_player_type must be valid integers.",
+            "room_id, player_id, and room_player_type are invalid.",
         });
+        
         return;
       }
 
       const createdRoomPlayer = await this.roomPlayerService.createRoomPlayer(
-        Number(room_id),
-        Number(player_id),
-        Number(room_player_type),
+        Number(req.body.room_id),
+        Number(req.body.player_id),
+        Number(req.body.room_player_type)
       );
 
       const { statusCode, body } = createdRoomPlayer;
@@ -88,19 +88,25 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
 
   protected async joinRoom(req: Request, res: Response): Promise<void> {
     try {
-      const { room_key, player_name } = req.body;
-
-      if (!isValidInteger(room_key)) {
+      if (!isValidInteger(req.body.room_key)) {
         res.status(HttpStatusCode.BAD_REQUEST).json({
-          message: `Room id: ${room_key} invalid.`,
+          message: `room_id is invalid.`,
         });
 
         return;
       }
 
+      if (!(typeof req.body.player_name == "string")) {
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: "player_name is invalid." });
+
+        return;
+      }
+
       const receivedRelation = await this.roomService.joinRoom(
-        player_name,
-        room_key,
+        req.body.player_name,
+        req.body.room_key
       );
 
       const { statusCode, body } = receivedRelation;

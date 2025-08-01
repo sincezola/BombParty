@@ -35,7 +35,8 @@ class PlayerController extends PlayerControllerProtocol {
       if (!isValidInteger(id)) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `Id: ${id} is not a valid id.` });
+          .json({ message: `invalid id received.` });
+
         return;
       }
 
@@ -78,7 +79,8 @@ class PlayerController extends PlayerControllerProtocol {
       if (!isValidInteger(id)) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `Id: ${id} is not a valid id.` });
+          .json({ message: `invalid id received.` });
+
         return;
       }
 

@@ -29,9 +29,10 @@ services:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
       - ./.env.docker:/usr/src/app/.env.docker
+      - /usr/src/app/node_modules # <-- mantém node_modules no container
     networks:
       - appnet
-    command: npm run dev
+    command: sh -c "npx prisma generate && npm run dev"
 
   backend2:
     build:
@@ -42,13 +43,16 @@ services:
       - .env.docker
     ports:
       - "8081:8081"
+    depends_on:
+      - postgres
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
       - ./.env.docker:/usr/src/app/.env.docker
+      - /usr/src/app/node_modules # <-- mantém node_modules no container
     networks:
       - appnet
-    command: npm run dev
+    command: sh -c "npx prisma generate && npm run dev"
 
   nginx:
     image: nginx:latest
