@@ -31,10 +31,10 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
     try {
       const { id } = req.params;
 
-      if (!isValidInteger(id)) {
+      if (!isValidInteger(id) || Number(id) < 1) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `invalid id received.` });
+          .json({ message: `invalid id provided.` });
 
         return;
       }
@@ -56,23 +56,26 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
 
   protected async createRoomPlayer(req: Request, res: Response): Promise<void> {
     try {
+      const { player_id, room_player_type, room_id } = req.body ?? {};
+
       if (
-        !isValidInteger(req.body.room_id) ||
-        !isValidInteger(req.body.player_id) ||
-        !isValidInteger(req.body.room_player_type)
+        !isValidInteger(room_id) ||
+        Number(room_id) < 1 ||
+        !isValidInteger(player_id) ||
+        Number(player_id) < 1 ||
+        !isValidInteger(room_player_type)
       ) {
         res.status(HttpStatusCode.BAD_REQUEST).json({
-          message:
-            "room_id, player_id, and room_player_type are invalid.",
+          message: "room_id, player_id, and room_player_type are invalid.",
         });
-        
+
         return;
       }
 
       const createdRoomPlayer = await this.roomPlayerService.createRoomPlayer(
-        Number(req.body.room_id),
-        Number(req.body.player_id),
-        Number(req.body.room_player_type)
+        Number(room_id),
+        Number(player_id),
+        Number(room_player_type)
       );
 
       const { statusCode, body } = createdRoomPlayer;
@@ -88,15 +91,17 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
 
   protected async joinRoom(req: Request, res: Response): Promise<void> {
     try {
-      if (!isValidInteger(req.body.room_key)) {
+      const { player_name, room_key } = req.body ?? {};
+
+      if (!isValidInteger(room_key) || Number(room_key) < 1) {
         res.status(HttpStatusCode.BAD_REQUEST).json({
-          message: `room_id is invalid.`,
+          message: `room_key is invalid.`,
         });
 
         return;
       }
 
-      if (!(typeof req.body.player_name == "string")) {
+      if (!(typeof player_name == "string")) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
           .json({ message: "player_name is invalid." });
@@ -105,8 +110,8 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
       }
 
       const receivedRelation = await this.roomService.joinRoom(
-        req.body.player_name,
-        req.body.room_key
+        player_name,
+        room_key
       );
 
       const { statusCode, body } = receivedRelation;

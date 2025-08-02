@@ -55,7 +55,7 @@ class RoomController extends RoomControllerProtocol {
       if (!isValidInteger(status) || Number(status) > 3 || Number(status) < 1) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `invalid status received.` });
+          .json({ message: `invalid status provided.` });
 
         return;
       }
@@ -80,10 +80,10 @@ class RoomController extends RoomControllerProtocol {
     try {
       const { id } = req.params;
 
-      if (!isValidInteger(id)) {
+      if (!isValidInteger(id) || Number(id) < 1) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `invalid id received.` });
+          .json({ message: `invalid id provided.` });
 
         return;
       }
@@ -105,9 +105,14 @@ class RoomController extends RoomControllerProtocol {
     res: Response
   ): Promise<void> {
     try {
+      const { room_level, room_capacity, room_name, player_name } =
+        req.body ?? {};
+
       if (
-        !isValidRoomLevel(req.body.room_level as never) ||
-        !isValidRoomCapacity(req.body.room_capacity as never)
+        typeof room_level !== "number" ||
+        typeof room_capacity !== "number" ||
+        !isValidRoomLevel(room_level) ||
+        !isValidRoomCapacity(room_capacity)
       ) {
         res.status(HttpStatusCode.BAD_REQUEST).json({
           message: `room_capacity or room_level invalid.`,
@@ -116,10 +121,7 @@ class RoomController extends RoomControllerProtocol {
         return;
       }
 
-      if (
-        typeof req.body.room_name != "string" ||
-        typeof req.body.player_name != "string"
-      ) {
+      if (typeof room_name != "string" || typeof player_name != "string") {
         res.status(HttpStatusCode.BAD_REQUEST).json({
           message: `Room_name or Player_name are invalid data.`,
         });
@@ -127,7 +129,6 @@ class RoomController extends RoomControllerProtocol {
         return;
       }
       // Fields validated !
-      const { player_name, room_name, room_capacity, room_level } = req.body;
 
       const receivedAssociation =
         await this.roomService.createRoomPlayerAndAssociate(
@@ -155,22 +156,27 @@ class RoomController extends RoomControllerProtocol {
     res: Response
   ): Promise<void> {
     try {
-      if (
-        typeof req.body.room_level != "number" &&
-        typeof req.body.room_capacity != "number"
-      ) {
-        res
-          .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: "Missing properties room_level & room_capacity." });
+      const { room_level, room_capacity, room_key } = req.body ?? {};
+
+      if (!isValidInteger(String(room_key)) || Number(room_key) < 1) {
+        res.status(HttpStatusCode.BAD_REQUEST).json({
+          message: "invalid room_key provided.",
+        });
+
+        return;
+      }
+      if (typeof room_level != "number" && typeof room_capacity != "number") {
+        res.status(HttpStatusCode.BAD_REQUEST).json({
+          message: "Missing properties room_level & room_capacity.",
+        });
 
         return;
       }
 
       if (
-        (typeof req.body.room_level != "number" &&
-          !isValidRoomLevel(req.body.room_level as never)) ||
-        (typeof req.body.room_capacity != "number" &&
-          !isValidRoomCapacity(req.body.room_capacity as never))
+        (typeof room_level != "number" && !isValidRoomLevel(room_level)) ||
+        (typeof room_capacity != "number" &&
+          !isValidRoomCapacity(room_capacity))
       ) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
@@ -180,9 +186,9 @@ class RoomController extends RoomControllerProtocol {
       }
 
       const patchedRoom = await this.roomService.changeRoomProperties(
-        req.body.room_key,
-        req.body.room_level,
-        req.body.room_capacity
+        room_key,
+        room_level,
+        room_capacity
       );
 
       const { statusCode, body } = patchedRoom;
