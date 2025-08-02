@@ -1,5 +1,5 @@
 #include <curl/curl.h>
-#incsadasdlude <string.h>
+#include <string.h>
 #include <trace.h>
 
 size_t ulWriteCallback(void *vContents, size_t ulSize, size_t ulNMemb, void *vUserp) {

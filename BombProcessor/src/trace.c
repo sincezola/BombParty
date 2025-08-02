@@ -48,8 +48,9 @@ void vTraceMsg(char *szMsg) {
            (int)st_tm_Now->tm_hour, (int)st_tm_Now->tm_min,
            (int)st_tm_Now->tm_sec, (long)tv.tv_usec / 1000);
 
-  if ((pfLog = fopen(gszTraceFile, "a+")) == NULL)
-    return;
+  if ((pfLog = fopen(gszTraceFile, "a+")) == NULL){
+      return;
+  }
   if (giNoNL == TRUE)
     fprintf(pfLog, "%s", szMsg);
   else
@@ -105,17 +106,15 @@ void _vTraceVarArgs(const char *kpszModuleName, const int kiLine,
 
   if (!iDIR_IsDir(szPath)) {
     if (!iDIR_MkDir(szPath)) {
-      fprintf(stderr,
-              "E: Impossible create dir %s!\n"
+      fprintf(stderr, "E: Impossible create dir %s!\n"
               "%s\n",
               szPath, strerror(errno));
       exit(EXIT_FAILURE);
     }
   }
   sprintf(gszTraceFile, "%s/%s%s",szPath,szName,szExt);
-  if ((pfLog = fopen(gszTraceFile, "a")) == NULL) {
-    fprintf(stderr,
-            "E: Impossible create or open file %s!\n"
+  if ((pfLog = fopen(gszTraceFile, "a+")) == NULL) {
+    fprintf(stderr, "E: Impossible create or open file %s!\n"
             "%s\n",
             gszTraceFile, strerror(errno));
     exit(EXIT_FAILURE);
@@ -254,20 +253,23 @@ void vSetLogFile(void) {
   memset(szPath, 0x00, sizeof(szPath));
   memset(szName, 0x00, sizeof(szName));
   memset(szExt, 0x00, sizeof(szExt));
+  memset(gszTraceFile, 0x00, sizeof(gszTraceFile));
   strcpy(szFile, gkpszProgramName);
 
   iDIR_SplitFilename(szFile, szPath, szName, szExt);
 
-#ifdef LINUX
-  snprintf(gszTraceFile, sizeof(gszTraceFile), "%s.log", szName);
-  return;
-#else
-  while (gkpszProgramName[ii] != '.') {
-    gszTraceFile[ii] = gkpszProgramName[ii];
-    ii++;
-  }
-  strcat(gszTraceFile, ".log");
-#endif /* LINUX */
+// #ifdef LINUX
+//   snprintf(gszTraceFile, sizeof(gszTraceFile), "%s.log", szName);
+//   // return;
+// #else
+//   while (gkpszProgramName[ii] != '.') {
+//     gszTraceFile[ii] = gkpszProgramName[ii];
+//     ii++;
+//   }
+//   strcat(gszTraceFile, ".log");
+// #endif /* LINUX */
+
+  sprintf(gszTraceFile,"%s", "bombprocessor.log");
 } /* vSetLogFile */
 
 void vInitLogs(void) {

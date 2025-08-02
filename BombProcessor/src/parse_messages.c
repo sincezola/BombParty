@@ -33,19 +33,19 @@ int iParseCommand(char *pszBuffer, int *piCmdId, int iSock) {
   *piCmdId = atoi(pTok);
   switch( *piCmdId ) {
     case CMD_CREATE_ROOM:
-      iRsl = iCMD_CreateRoom(&pszSavePtr);
+      iRsl = iCMD_CreateRoom(&pszSavePtr, iSock);
       break;
     case CMD_JOIN_ROOM:
-      iRsl = iCMD_JoinRoom(&pszSavePtr);
+      iRsl = iCMD_JoinRoom(&pszSavePtr, iSock);
       break;
     case CMD_DELETE_ROOM:
-      iRsl = iCMD_DeleteRoom(&pszSavePtr);
+      iRsl = iCMD_DeleteRoom(&pszSavePtr, iSock);
       break;
     case CMD_LEAVE_ROOM:
-      iRsl = iCMD_LeaveRoom(&pszSavePtr);
+      iRsl = iCMD_LeaveRoom(&pszSavePtr, iSock);
       break;
     case CMD_PATCH_ROOM:
-      iRsl = iCMD_PatchRoom(&pszSavePtr);
+      iRsl = iCMD_PatchRoom(&pszSavePtr, iSock);
       break;
     case CMD_GET_ROOM:
       iRsl = iCMD_GetRoom(&pszSavePtr, iSock);
@@ -60,17 +60,10 @@ int iParseCommand(char *pszBuffer, int *piCmdId, int iSock) {
 
 void vProcessCommand(char *pszCmd, int iSock) {
   int iCmdId;
-  int iArgCount = 0;
-  int ii;
-  char **ppszArgs = NULL;
 
   if (iParseCommand(pszCmd, &iCmdId, iSock) != 0) {
     vTraceVarArgs("Comando inválido: %s", pszCmd);
     return;
   }
-
-  for (ii = 0; ii < iArgCount; ii++)
-    free(ppszArgs[ii]);
-
-  free(ppszArgs);
+  return;
 }

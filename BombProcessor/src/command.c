@@ -6,20 +6,69 @@
 #include <trace.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+
+
+/** 
+*  iRslSts RESULT_OK: 
+*   "OK|BYTES|lBytes\n",
+*  iRslSts RESULT_ERR: 
+*   "ERR|BYTES|lBytes\n",
+*  
+*  OK_MSG  "OK"
+*  ERR_MSG "ERR"
+*  sprintf(szMsg, "OK|BYTES|%ld\n", strlen(szChildResponse));
+*  send(iSocketClient, szMsg, strlen(szMsg), 0);
+*  send(iSocketClient, szChildResponse, strlen(szChildResponse), 0); 
+*/
+void vSendMessageBytes(int iSock, char *pszMessage, long lBytes, int iRslSts) {
+  char szMsg[_MAX_PATH];
+
+  memset(szMsg, 0, sizeof(szMsg));
+
+  sprintf(szMsg, "%s|", OK_MSG);
+
+  if (iRslSts == RESULT_ERR) 
+    sprintf(szMsg, "%s|", ERR_MSG);
+
+  strcat(szMsg, BYTES_MSG);
+  strcat(szMsg, "|");
+  {
+    char szTmp[128];
+    memset(szTmp, 0, sizeof(szTmp));
+    sprintf(szTmp, "%ld\n", lBytes);
+    strcat(szMsg, szTmp);
+  }
+  send(iSock, szMsg, strlen(szMsg), 0);
+  if ( lBytes > 0 )
+    send(iSock, pszMessage, lBytes, 0);
+  
+}
+
+/**
+ * send(iSocketClient, "BYE\n", strlen("BYE\n"), 0);
+ */
+void vSendBye(int iSock) {
+  send(iSock, "BYE\n", strlen("BYE\n"), 0);
+}
+
 /**
 * CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
-* CMD|001|"Name"|4|1|
+* CMD|001|"since gordo"|"Name"|4|1|
 */
-
-int iCMD_CreateRoom(char **ppszArgs) {
+int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
   char *pTok;
   STRUCT_ROOM stRoom;
   char *pszTitle = "createroom.txt";
   char szRsl[_MAX_RSL_BUFFER];
-  char szUrl[80];
-  char szMsg[80];
+  char szChildResponse[_MAX_RSL_BUFFER];
+  char szFullEndpoint[1024];
+  char szURL[1024];
+  char szMsg[258];
+  char szPayload[1024];
 
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
+  memset(szPayload, 0, sizeof(szPayload));
+  memset(szMsg, 0, sizeof(szMsg));
   
   /** Player Name */
   pTok = strtok_r(NULL, "|", ppszArgs);
@@ -43,24 +92,44 @@ int iCMD_CreateRoom(char **ppszArgs) {
   
   /** Password */
   pTok = strtok_r(NULL, "|", ppszArgs);
-  char szPayload[1024];
-  snprintf(szPayload, sizeof(szPayload),
-    "{ \"player_name\": \"%s\", \"room_name\": \"%s\", \"room_capacity\": %d, \"difficulty_level\": %d, \"password\": \"%s\" }",
-    stRoom.szPlayerName, stRoom.szRoomName, stRoom.iRoomCapacity, stRoom.iDifficultyLevel, stRoom.szPassword);
+  if ( !bStrIsEmpty(pTok) ) 
+    snprintf(stRoom.szPassword, sizeof(stRoom.szPassword), "%s", pTok);
 
+  if ( !bStrIsEmpty(stRoom.szPassword) ){
+    sprintf(szMsg, ",\n\t\"password\":\"%s\"\n}", stRoom.szPassword);
+  }
+  else{
+    sprintf(szMsg, "%s", "\n}");
+  }
+
+  snprintf(szPayload, sizeof(szPayload),
+    "{\n"
+    "\t\"player_name\": \"%s\",\n"
+    "\t\"room_name\": \"%s\",\n"
+    "\t\"room_level\": %d,\n"
+    "\t\"room_capacity\": %d"
+    "%s",
+      stRoom.szPlayerName, 
+      stRoom.szRoomName, 
+      stRoom.iDifficultyLevel,
+      stRoom.iRoomCapacity,
+      szMsg
+  );
+
+  vTraceVarArgs("Msg:[%s]", szPayload);
+
+  strcpy(szFullEndpoint, CREATE_ROOM_PATH);
   sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
-  iCurlReq(szURL, szFullEndpoint, "POST", NULL, 0, szRsl);
+  iCurlReq(szURL, szFullEndpoint, "POST", szPayload, strlen(szPayload), szRsl);
 
   vTraceVarArgs("Return from backend:[%s]", szRsl);
 
-  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse)) < 0 )
+  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse), pszTitle) < 0 )
     return -1;
 
   strcat(szChildResponse, "\n");
-  sprintf(szMsg, "OK|BYTES|%ld\n", strlen(szChildResponse));
-  send(iSocketClient, szMsg, strlen(szMsg), 0);
-  send(iSocketClient, szChildResponse, strlen(szChildResponse), 0);
-  send(iSocketClient, "BYE\n", strlen("BYE\n"), 0);
+  vSendMessageBytes(iSocketClient, szChildResponse, strlen(szChildResponse), RESULT_OK);
+  vSendBye(iSocketClient);
 
   return 0;
 }
@@ -69,10 +138,16 @@ int iCMD_CreateRoom(char **ppszArgs) {
 * CMD|CMD_JOIN_ROOM|playername|room_id|
 * CMD|002|
 */
-int iCMD_JoinRoom(char **ppszArgs) {
+int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
   int  iRoomId = 0;
   char *pTok;
   char szPlayerName[128];
+  char szURL[1024];
+  char szRsl[_MAX_RSL_BUFFER];
+  char szPayload[_MAX_RSL_BUFFER];
+  char szChildResponse[_MAX_RSL_BUFFER];
+  char szFullEndpoint[128];
+  char *pszTitle = "joinroom.txt";
 
   /** Player Name */
   memset(szPlayerName, 0, sizeof(szPlayerName));
@@ -85,6 +160,36 @@ int iCMD_JoinRoom(char **ppszArgs) {
   if ( !bStrIsEmpty(pTok) ) 
     iRoomId = atoi(pTok);
   
+  sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  
+  /**
+    room_key
+    player_name
+  */
+
+  strcpy(szFullEndpoint, JOIN_ROOM_PATH);
+  sprintf(szPayload, 
+    "{\n"
+    "\t\"room_key\": %d,\n"
+    "\t\"player_name\": \"%s\"\n"
+    "}",
+      iRoomId,
+      szPlayerName
+  );
+
+  vTraceVarArgs("szPayload:[%s]", szPayload);
+
+  iCurlReq(szURL, szFullEndpoint, "POST", szPayload, strlen(szPayload), szRsl);
+
+  vTraceVarArgs("Return from backend:[%s]", szRsl);
+
+  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse), pszTitle) < 0 )
+    return -1;
+
+  strcat(szChildResponse, "\n");
+  vSendMessageBytes(iSocketClient, szChildResponse, strlen(szChildResponse), RESULT_OK);
+  vSendBye(iSocketClient);
+
   // iCurlReq();
 
   return 0;
@@ -94,9 +199,10 @@ int iCMD_JoinRoom(char **ppszArgs) {
 * CMD|CMD_DELETE_ROOM|room_id|
 * CMD|003|
 */
-int iCMD_DeleteRoom(char **ppszArgs) {
+int iCMD_DeleteRoom(char **ppszArgs, int iSocketClient) {
   int iRoomId = 0;
   char *pTok;
+  char szPayload[1024];
 
   /** Room Id */
   pTok = strtok_r(NULL, "|", ppszArgs);
@@ -104,7 +210,12 @@ int iCMD_DeleteRoom(char **ppszArgs) {
     iRoomId = atoi(pTok);
 
   // iCurlReq();
-
+  snprintf(szPayload, sizeof(szPayload),
+    "{\n"
+    "\t\"room_id\": %d\n"
+    "}",
+     iRoomId
+  );
   return 0;
 }
 
@@ -112,13 +223,15 @@ int iCMD_DeleteRoom(char **ppszArgs) {
 * CMD|CMD_LEAVE_ROOM|player_name|room_id
 * CMD|004|
 */
-int iCMD_LeaveRoom(char **ppszArgs) {
+int iCMD_LeaveRoom(char **ppszArgs, int iSocketClient) {
   char *pTok;
   char szPlayerName[128];
+  char szPayload[1024];
   int iRoomId = 0;
 
   /** Player Name */
   memset(szPlayerName, 0, sizeof(szPlayerName));
+
   pTok = strtok_r(NULL, "|", ppszArgs);
   if ( !bStrIsEmpty(pTok) ) 
     snprintf(szPlayerName, sizeof(szPlayerName), "%s", pTok);
@@ -128,6 +241,13 @@ int iCMD_LeaveRoom(char **ppszArgs) {
   if ( !bStrIsEmpty(pTok) ) 
     iRoomId = atoi(pTok);
   
+
+  snprintf(szPayload, sizeof(szPayload),
+    "{\n"
+    "\t\"room_id\": %d\n"
+    "}",
+     iRoomId
+  );
   // iCurlReq();
 
   return 0;
@@ -143,7 +263,7 @@ int iCMD_LeaveRoom(char **ppszArgs) {
  * CMD|CMD_PATCH_ROOM|room_id|[dificultylevel|-]|[roomcapacity|-]|{Roomtype|}
  * CMD|005|2|[3|-]|[4|-]|{S|}
  */
-int iCMD_PatchRoom(char **ppszArgs) {
+int iCMD_PatchRoom(char **ppszArgs, int iSocketClient) {
   STRUCT_ROOM stRoom;
   char *pTok;
 
@@ -240,14 +360,12 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
 
   vTraceVarArgs("Return from backend:[%s]", szRsl);
 
-  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse)) < 0 )
+  if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse), pszTitle) < 0 )
     return -1;
 
   strcat(szChildResponse, "\n");
-  sprintf(szMsg, "OK|BYTES|%ld\n", strlen(szChildResponse));
-  send(iSocketClient, szMsg, strlen(szMsg), 0);
-  send(iSocketClient, szChildResponse, strlen(szChildResponse), 0);
-  send(iSocketClient, "BYE\n", strlen("BYE\n"), 0);
+  vSendMessageBytes(iSocketClient, szChildResponse, strlen(szChildResponse), RESULT_OK);
+  vSendBye(iSocketClient);
 
   return 0;
 }
@@ -264,7 +382,8 @@ int iJSON_ExternalParse(char *pszJSON, char *pszRsl, int iRslSz, char *pszTitle)
   fprintf(pfInput, "%s", pszJSON);
   fclose(pfInput);
 
-  sprintf(szCmd, "node %s < %s", JSON_PARSER_TITLE, pszTitle);
+  vTraceVarArgs("Command[%s]", szCmd);
+  sprintf(szCmd, "node %s %s < %s", JSON_PARSER_TITLE, pszTitle, pszTitle);
   if ( bRunCmd(szCmd, pszRsl, iRslSz) == FALSE )
     return -1;
 
