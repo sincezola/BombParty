@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isValidRoomLevel = (room_level: any): boolean => {
   if (typeof room_level !== "number") return false;
 
