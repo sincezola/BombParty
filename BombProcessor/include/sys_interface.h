@@ -13,4 +13,13 @@
   int bFileExist(const char *kpszFileName);
   int bStrIsEmpty(const char *kpszStr);
   int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz);
+  
+  #ifdef _WIN32
+  // Implementação simples de stpcpy()
+  static inline char *stpcpy(char *dest, const char *src) {
+      while ((*dest++ = *src++));
+      return dest - 1;
+  }
+  #endif
+
 #endif

@@ -62,7 +62,7 @@ void vProcessCommand(char *pszCmd, int iSock) {
   int iCmdId;
 
   if (iParseCommand(pszCmd, &iCmdId, iSock) != 0) {
-    vTraceVarArgs("Comando inválido: %s", pszCmd);
+    vTraceVarArgs("Comando inválido: %s-%d", pszCmd, iCmdId);
     return;
   }
   return;

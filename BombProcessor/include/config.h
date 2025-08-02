@@ -9,7 +9,9 @@
   #define HARD   3
 
   #define PATH_TO_DB    "db"
+#ifndef _WIN32
   #define _MAX_PATH     256
+#endif
   #define MAX_WORD_LEN  128
 
 #endif

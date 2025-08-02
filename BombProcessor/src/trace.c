@@ -15,13 +15,38 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#endif /* LINUX */
+#else
+#include <windows.h>
+struct timeval {
+    long tv_sec;
+    long tv_usec;
+};
+#endif
 
 char gszTraceFile[_MAX_PATH + _MAX_PATH];
 int giDebugLevel = 0;
 char gszConfFile[_MAX_PATH];
 
 int giNoNL = FALSE;
+
+#ifdef _WIN32
+
+int gettimeofday(struct timeval *tp, void *tzp) {
+    FILETIME ft;
+    ULARGE_INTEGER li;
+    unsigned __int64 t;
+    
+    if ( tzp == NULL ){}
+
+    GetSystemTimeAsFileTime(&ft);
+    li.LowPart = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+    t = li.QuadPart - 116444736000000000ULL; // converte de 1601 para 1970
+    tp->tv_sec = (long)(t / 10000000ULL);
+    tp->tv_usec = (long)((t % 10000000ULL) / 10);
+    return 0;
+}
+#endif
 
 void vTraceMsgNoNL(char *szMsg) {
   giNoNL = TRUE;
@@ -243,33 +268,7 @@ int iGetDebugLevel(const char *kpszConfFile) {
 } /* iGetDebugLevel */
 
 void vSetLogFile(void) {
-  char szPath[_MAX_PATH + _MAX_PATH + 8];
-  char szFile[_MAX_PATH + _MAX_PATH + 8];
-  char szName[_MAX_PATH];
-  char szExt[_MAX_PATH];
-#ifdef _WIN32
-  int ii = 0;
-#endif /* _WIN32 */
-  memset(szPath, 0x00, sizeof(szPath));
-  memset(szName, 0x00, sizeof(szName));
-  memset(szExt, 0x00, sizeof(szExt));
-  memset(gszTraceFile, 0x00, sizeof(gszTraceFile));
-  strcpy(szFile, gkpszProgramName);
-
-  iDIR_SplitFilename(szFile, szPath, szName, szExt);
-
-// #ifdef LINUX
-//   snprintf(gszTraceFile, sizeof(gszTraceFile), "%s.log", szName);
-//   // return;
-// #else
-//   while (gkpszProgramName[ii] != '.') {
-//     gszTraceFile[ii] = gkpszProgramName[ii];
-//     ii++;
-//   }
-//   strcat(gszTraceFile, ".log");
-// #endif /* LINUX */
-
-  sprintf(gszTraceFile,"%s", "bombprocessor.log");
+  sprintf(gszTraceFile, "%s", "bombprocessor.log");
 } /* vSetLogFile */
 
 void vInitLogs(void) {

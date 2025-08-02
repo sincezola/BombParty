@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Comando padrão (será sobrescrito no docker-compose)
-CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "npx tsx prisma/init-lookup.ts && npm run dev"]

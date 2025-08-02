@@ -23,20 +23,25 @@ LIBS          = -lcurl
 CCOPT         = -Wall -Wextra
 ifdef _WIN32
   CCOPT += -D_WIN32
-  MKDIR_CMD = if not exist $(OBJ_DIR) mkdir $(OBJ_DIR) & if not exist $(BIN_DIR) mkdir $(BIN_DIR)
-  RM_CMD = rmdir /S /Q $(OBJ_DIR) & rmdir /S /Q $(BIN_DIR) & del /Q *.log 2>nul || exit 0
+  LIBS += -lws2_32
 else
   CCOPT += -DLINUX
-  MKDIR_CMD = mkdir -p $(OBJ_DIR) $(BIN_DIR)
-  RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) *.log input.txt
 endif
+
+MKDIR_CMD = mkdir -p $(OBJ_DIR) $(BIN_DIR)
+RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) *.log input.txt
 
 DEBUG_ADD_FLAGS = -O2
 ifdef DEBUG
   DEBUG_ADD_FLAGS = -g -ggdb
 endif
 
+
 BOMB_PROC_EXEC = bomb_processor
+ifdef _WIN32
+  BOMB_PROC_EXEC = bomb_processor.exe
+endif
+
 
 OBJS = \
 	$(OBJ_DIR)/bomb_processor.o \
@@ -63,11 +68,9 @@ $(OBJ_DIR)/%.o: $(SRC_PATH)/%.c
 $(OBJ_DIR)/%.o: $(API_PATH)/%.c
 	$(CC) -c $(CCOPT) $(DEBUG_ADD_FLAGS) $(INC_DIR) $< -o $@
 
-# Extra: gerar documentação do Doxygen
 doc:
 	doxygen Doxyfile
 
-# Extra: rodar o servidor
 run: $(BIN_DIR)/$(BOMB_PROC_EXEC)
 	./$(BIN_DIR)/$(BOMB_PROC_EXEC)
 

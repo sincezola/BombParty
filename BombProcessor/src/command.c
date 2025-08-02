@@ -5,8 +5,10 @@
 #include <sys_interface.h>
 #include <trace.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 
+#ifdef LINUX
+#include <sys/socket.h>
+#endif
 
 /** 
 *  iRslSts RESULT_OK: 
@@ -69,6 +71,7 @@ int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   memset(szPayload, 0, sizeof(szPayload));
   memset(szMsg, 0, sizeof(szMsg));
+  memset(szRsl, 0, sizeof(szRsl));
   
   /** Player Name */
   pTok = strtok_r(NULL, "|", ppszArgs);
@@ -118,8 +121,12 @@ int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
 
   vTraceVarArgs("Msg:[%s]", szPayload);
 
-  strcpy(szFullEndpoint, CREATE_ROOM_PATH);
-  sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  strcpy(szFullEndpoint, CREATE_ROOM_PATH); 
+  if ( !bStrIsEmpty(API_HOST_PORT) )
+    sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  else
+    sprintf(szURL, "%s/%s", API_HOST_ADDRESS, BASE_PATH); 
+
   iCurlReq(szURL, szFullEndpoint, "POST", szPayload, strlen(szPayload), szRsl);
 
   vTraceVarArgs("Return from backend:[%s]", szRsl);
@@ -151,6 +158,10 @@ int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
 
   /** Player Name */
   memset(szPlayerName, 0, sizeof(szPlayerName));
+  memset(szChildResponse, 0, sizeof(szChildResponse));
+  memset(szPayload, 0, sizeof(szPayload));
+  memset(szRsl, 0, sizeof(szRsl));
+
   pTok = strtok_r(NULL, "|", ppszArgs);
   if ( !bStrIsEmpty(pTok) ) 
     snprintf(szPlayerName, sizeof(szPlayerName), "%s", pTok);
@@ -160,7 +171,10 @@ int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
   if ( !bStrIsEmpty(pTok) ) 
     iRoomId = atoi(pTok);
   
-  sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  if ( !bStrIsEmpty(API_HOST_PORT) )
+    sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  else
+    sprintf(szURL, "%s/%s", API_HOST_ADDRESS, BASE_PATH); 
   
   /**
     room_key
@@ -321,7 +335,6 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   char *pszEndpoint;
   char szRsl[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
-  char szMsg[128];
   char *pszTitle = "getroom.txt";
 
   memset(szURL, 0, sizeof(szURL));
@@ -355,7 +368,11 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
     return -1;
   }  
 
-  sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  if ( !bStrIsEmpty(API_HOST_PORT) )
+    sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+  else
+    sprintf(szURL, "%s/%s", API_HOST_ADDRESS, BASE_PATH); 
+
   iCurlReq(szURL, szFullEndpoint, "GET", NULL, 0, szRsl);
 
   vTraceVarArgs("Return from backend:[%s]", szRsl);

@@ -12,12 +12,13 @@
 #include <string.h>
 #include <parse_messages.h>
 #include <trace.h>
+#include <sys_interface.h>
 
 #ifdef _WIN32
-  #include <process.h>
   #include <windows.h>
-  #include <winsock2.h>
-  #pragma comment(lib, "ws2_32.lib")
+  #include <process.h>
+  #include <io.h>
+  // #pragma comment(lib, "ws2_32.lib")
   typedef SOCKET tSocket;
 #else /** LINUX */
   #include <arpa/inet.h>
@@ -124,12 +125,22 @@ int main(int argc, char *argv[]) {
   vInitSockets();
 
   /** Creates Socket Server */
+  
+
   iServerSock = socket(AF_INET, SOCK_STREAM, 0);
-  if (iServerSock < 0) {
-    perror("Erro ao criar socket");
-    vCleanupSockets();
-    return EXIT_FAILURE;
-  }
+  #ifdef _WIN32 
+    if (iServerSock == INVALID_SOCKET) {  
+      perror("Erro ao criar socket");
+      vCleanupSockets();
+      return EXIT_FAILURE;
+    }
+  #else
+    if (iServerSock < 0) {
+      perror("Erro ao criar socket");
+      vCleanupSockets();
+      return EXIT_FAILURE;
+    }
+  #endif
 
   /** Set Server Port */
   memset(&stServerAddr, 0, sizeof(stServerAddr));
@@ -173,11 +184,19 @@ int main(int argc, char *argv[]) {
     pClientSock  = (tSocket *)malloc(sizeof(tSocket));
 
     *pClientSock = accept(iServerSock, (struct sockaddr *)&stClientAddr, &iClientLen);
-    if (*pClientSock < 0) {
-      perror("Erro ao aceitar conexão");
-      free(pClientSock);
-      continue;
-    }
+    #ifdef _WIN32
+      if (*pClientSock == INVALID_SOCKET) { 
+        perror("Erro ao aceitar conexão");
+        free(pClientSock);
+        continue;
+      }
+    #else
+      if (*pClientSock < 0) {
+        perror("Erro ao aceitar conexão");
+        free(pClientSock);
+        continue;
+      }
+    #endif
 
 #ifdef _WIN32
     uintptr_t iThread = _beginthreadex(NULL, 0, vHandleClient, (void *)pClientSock, 0, NULL);

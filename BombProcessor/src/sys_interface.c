@@ -4,10 +4,9 @@
 #include <string.h>
 #include <sys_interface.h>
 #ifdef _WIN32
-  #define popen _popen
-  #define popen _pclose
-  #include <direct.h>   // mkdir no Windows
+  #include <direct.h> // mkdir no Windows
   #include <io.h>
+  #include <windows.h> // mkdir no Windows
 #else
   #include <libgen.h>   // dirname, basename
   #include <sys/stat.h> // struct stat, S_ISDIR, mkdir
@@ -15,29 +14,30 @@
 #endif
 
 #ifdef _WIN32
-// Return 0 if error
-int iDIR_MkDir(char *szDir) { return CreateDirectory(szDir, NULL); }
-int iDIR_SplitFilename(char *szFilename, char *szPath, char *szName,
-                       char *szExt) {
-  char szDrive[_MAX_DRIVE];
-  char szDir[_MAX_DIR];
-  _splitpath(szFilename, szDrive, szDir, szName, szExt);
-  strcpy(szPath, szDrive);
-  strcat(szPath, szDir);
-  return 0;
-}
-int iDIR_IsDir(char *szDir) {
-  HANDLE hArquivo;
-  WIN32_FIND_DATA wfdArquivo;
-  hArquivo = FindFirstFile(szDir, &wfdArquivo);
-  if (hArquivo == INVALID_HANDLE_VALUE)
+  // Return 0 if error
+  int iDIR_MkDir(char *szDir) { 
+    return CreateDirectory(szDir, NULL); 
+  }
+  int iDIR_SplitFilename(char *szFilename, char *szPath, char *szName, char *szExt) {
+    char szDrive[_MAX_DRIVE];
+    char szDir[_MAX_DIR];
+    _splitpath(szFilename, szDrive, szDir, szName, szExt);
+    strcpy(szPath, szDrive);
+    strcat(szPath, szDir);
     return 0;
-  FindClose(hArquivo);
-  if (wfdArquivo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    return 1;
-  return 0;
-}
-#else
+  }
+  int iDIR_IsDir(char *szDir) {
+    HANDLE hArquivo;
+    WIN32_FIND_DATA wfdArquivo;
+    hArquivo = FindFirstFile(szDir, &wfdArquivo);
+    if (hArquivo == INVALID_HANDLE_VALUE)
+      return 0;
+    FindClose(hArquivo);
+    if (wfdArquivo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+      return 1;
+    return 0;
+  }
+#else /** LINUX */
 /*
  * Is directory: 1
  * Exists, not directory: 0
@@ -123,27 +123,27 @@ int bFileExist(const char *kpszFileName) {
   return TRUE;
 } /* bFileExist */
 
-int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz){
+int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz) {
   FILE *pfPopen;
   char szLine[1024];
   int iCurrLen = 0;
 
-  if ( (pfPopen = popen(pszCmd, "r")) == NULL )
+  if ((pfPopen = popen(pszCmd, "r")) == NULL)
     return FALSE;
 
-  while ( fgets(szLine, sizeof(szLine), pfPopen) ){
-    if ( ((int)strlen(szLine) + iCurrLen) > iRslSz ){
+  while (fgets(szLine, sizeof(szLine), pfPopen)) {
+    if (((int)strlen(szLine) + iCurrLen) > iRslSz) {
       pclose(pfPopen);
       return FALSE;
     }
     sprintf(&pszRsl[iCurrLen], "%s", szLine);
     iCurrLen += strlen(szLine);
   }
-  
+
   pclose(pfPopen);
-  if ( bStrIsEmpty(pszRsl) )
+  if (bStrIsEmpty(pszRsl))
     return FALSE;
-  
+
   return TRUE;
 }
 
