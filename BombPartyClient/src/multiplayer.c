@@ -12,18 +12,9 @@
 #include <terminal_utils.h>
 #include <time.h>
 #include <word_db.h>
+#include <multiplayer.h>
 
-int giDifficulty = 0;
-int gbBombTimeout = FALSE;
-
-/** Callback do timer (usado no processo/thread da bomba) */
-void vTimerAction(int iSig) {
-  (void)iSig;
-  gbBombTimeout = TRUE;
-  return;
-}
-
-int main() {
+int iRunMultiplayerMode(){
   int iCh;
   int bRestart = FALSE;
   int bFoundWord = FALSE;

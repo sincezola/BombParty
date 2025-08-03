@@ -1,11 +1,11 @@
 # BombParty
 
 **BombParty** is a multiplayer game where players must type words that contain a randomly chosen **substring** before the "bomb" explodes.  
-The project consists of three main modules:  
+The project consists of three main modules:
 
-- **BombParty** – Client in **C** (player).  
-- **BombProcessor** – Intermediate socket server in **C**.  
-- **BombServer** – Backend in **TypeScript** with **Prisma** (API and persistence).  
+- **BombParty** – Client in **C** (player).
+- **BombProcessor** – Intermediate socket server in **C**.
+- **BombServer** – Backend in **TypeScript** with **Prisma** (API and persistence).
 
 ---
 
@@ -19,38 +19,41 @@ The project consists of three main modules:
 ```
 
 - **BombParty (Client):**  
-  Playable interface (terminal), connecting to BombProcessor to join rooms.  
+  Playable interface (terminal), connecting to BombProcessor to join rooms.
 
 - **BombProcessor (Socket Server):**  
   Responsible for managing rooms and communication between multiple clients.  
-  Interacts with BombServer to register matches and players.  
+  Interacts with BombServer to register matches and players.
 
 - **BombServer (Backend):**  
   Developed in **TypeScript**, with **Prisma** for database access.  
-  Provides routes for room creation, player registration, and match management.  
+  Provides routes for room creation, player registration, and match management.
 
 ---
 
 ## Requirements
 
 ### Client and Processor (C):
-- **GCC** or **Clang**  
-- **Make**  
-- **Libraries:**  
-  - `libcurl` (HTTP requests).  
-  - `pthread` (multithreading).  
-  - `imagemagick` (*Optional* compilation that generates the executable icon).  
+
+- **GCC** or **Clang**
+- **Make**
+- **Libraries:**
+  - `libcurl` (HTTP requests).
+  - `pthread` (multithreading).
+  - `imagemagick` (_Optional_ compilation that generates the executable icon).
 
 ### Server (Backend):
-- **Node.js** (>= 18)  
-- **npm** or **yarn**  
-- **Database:** PostgreSQL  
+
+- **Node.js** (>= 18)
+- **npm** or **yarn**
+- **Database:** PostgreSQL
 
 ---
 
 ## Installation
 
 ### 1. Backend (BombServer)
+
 ```bash
 cd BombPartyServer
 npm install
@@ -58,7 +61,8 @@ npx prisma migrate dev
 npm run start
 ```
 
-Create a `.env` file in the `bombserver` folder (check `.env.example`) with:  
+Create a `.env` file in the `bombserver` folder (check `.env.example`) with:
+
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/bombparty"
 ```
@@ -66,35 +70,37 @@ DATABASE_URL="postgresql://user:password@localhost:5432/bombparty"
 ---
 
 ### 2. Socket Server (BombProcessor)
+
 ```bash
 cd BombProcessor
 make
 ./bin/BombProcessor
 ```
 
-The socket server will start and wait for client connections.  
+The socket server will start and wait for client connections.
 
 ---
 
 ### 3. Client (BombParty)
+
 ```bash
 cd BombParty
 make
 ./bin/BombParty
 ```
 
-Connect to the server, create or join a room, and start playing.  
+Connect to the server, create or join a room, and start playing.
 
 ---
 
 ## How to Play
 
-1. Start the **BombServer** (backend).  
-2. Start the **BombProcessor** (room server).  
-3. Open **BombParty** (client) and connect.  
-4. Join or create a room.  
-5. In each round, a **substring** will be randomly selected.  
-6. Type a valid word containing it before time runs out.  
+1. Start the **BombServer** (backend).
+2. Start the **BombProcessor** (room server).
+3. Open **BombParty** (client) and connect.
+4. Join or create a room.
+5. In each round, a **substring** will be randomly selected.
+6. Type a valid word containing it before time runs out.
 
 ---
 
@@ -120,15 +126,18 @@ Connect to the server, create or join a room, and start playing.
 ---
 
 ## Next Steps
-- Implement **ranking** and match history.  
+
+- Implement **ranking** and match history.
 
 ---
 
 ## Contribution
+
 Want to help improve BombParty?  
-Open an **issue** or send a **pull request**.  
+Open an **issue** or send a **pull request**.
 
 ---
 
 ## License
+
 Project distributed under the **MIT** license.

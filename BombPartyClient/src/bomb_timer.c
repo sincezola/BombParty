@@ -7,6 +7,8 @@
 #include <sys_interface.h>
 #include <terminal_utils.h>
 
+int gbBombTimeout = FALSE;
+
 void vDrawBomb(int iTimeout) {
   vGotoBombPosition();
   vSetCursorPosition(2, 10);  printf("           ░  \n");
@@ -20,7 +22,6 @@ void vDrawBomb(int iTimeout) {
   fflush(stdout);
 }
 
-
 int iGetDifficultyTimeout() {
   switch ( giDifficulty ) {
     case HARD:
@@ -32,6 +33,13 @@ int iGetDifficultyTimeout() {
       return EASY_TIMEOUT;
   }
   return EASY_TIMEOUT;
+}
+
+/** Callback do timer (usado no processo/thread da bomba) */
+void vTimerAction(int iSig) {
+  (void)iSig;
+  gbBombTimeout = TRUE;
+  return;
 }
 
 void vHandleBombTimer(int iParentPID) {

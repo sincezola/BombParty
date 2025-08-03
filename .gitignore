@@ -19,7 +19,7 @@ BombParty/latex
 # BombPartyServer
 
 BombPartyServer/.env
-BombPartyServer/.env.docker
+BombPartyServer/.env.prod
 BombPartyServer/node_modules
 
 # BombProcessor
@@ -29,3 +29,4 @@ BombProcessor/log
 BombProcessor/node_scripts/input.txt
 BombProcessor/getroom.txt
 BombProcessor/createroom.txt
+BombProcessor/joinroom.txt

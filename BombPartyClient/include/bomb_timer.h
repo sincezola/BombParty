@@ -6,4 +6,5 @@
   #define HARD_TIMEOUT   10
   
   void vHandleBombTimer(int iParentPID);
+  void vTimerAction(int iSig);
 #endif
