@@ -35,6 +35,8 @@
 int giServerPort = 0;
 const char *gkpszProgramName;
 
+char pszAPI_URL_ADDRESS[1024];
+
 /**
  * @brief Função que lida com a conexão de um cliente (sala).
  * @param pArg - ponteiro para o socket do cliente
@@ -139,6 +141,10 @@ int main(int argc, char *argv[]) {
     giServerPort = iSrvPort;
   }
   
+  if (argc > 2 ) {
+    strcpy(pszAPI_URL_ADDRESS, argv[2]);
+  } 
+
   vInitSockets();
 
   /** Creates Socket Server */

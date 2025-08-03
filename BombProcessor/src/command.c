@@ -118,9 +118,9 @@ int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
 
   strcpy(szFullEndpoint, CREATE_ROOM_PATH); 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", API_HOST_ADDRESS, BASE_PATH); 
+    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, szFullEndpoint, "POST", szPayload, strlen(szPayload), szRsl);
 
@@ -168,9 +168,9 @@ int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
     iRoomId = atoi(pTok);
   
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", API_HOST_ADDRESS, BASE_PATH); 
+    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
   
   /**
     room_key
@@ -258,7 +258,6 @@ int iCMD_LeaveRoom(char **ppszArgs, int iSocketClient) {
   pTok = strtok_r(NULL, "|", ppszArgs);
   if ( !bStrIsEmpty(pTok) ) 
     iRoomId = atoi(pTok);
-  
 
   snprintf(szPayload, sizeof(szPayload),
     "{\n"
@@ -390,9 +389,9 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   }  
 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", API_HOST_ADDRESS, API_HOST_PORT, BASE_PATH);
+    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", API_HOST_ADDRESS, BASE_PATH); 
+    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, szFullEndpoint, "GET", NULL, 0, szRsl);
 

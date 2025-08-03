@@ -1,12 +1,12 @@
 #ifndef ROUTES_API_H
   #define ROUTES_API_H
 
-// #define API_HOST_ADDRESS     "127.0.0.1" // | !NO! NGINX
+// #define pszAPI_URL_ADDRESS     "127.0.0.1" // | !NO! NGINX
 // #define API_HOST_PORT        "8080"      // | !NO! ADDRESS
-// #define API_HOST_ADDRESS     "localhost" // | NGINX
+// #define pszAPI_URL_ADDRESS     "localhost" // | NGINX
 // #define API_HOST_PORT        "80"        // | ADDRESS
-#define API_HOST_ADDRESS     "https://renderbombserver.onrender.com" // | render
-#define API_HOST_PORT        ""      // | render
+extern char pszAPI_URL_ADDRESS[1024];       // | render
+#define API_HOST_PORT        ""             // | render
 #define BASE_PATH            "api"
 #define GET_ALL_ROOM_PATH    "Room/GetAllRooms"
 #define GET_ROOM_BY_ID_PATH  "Room/GetRoomById"
