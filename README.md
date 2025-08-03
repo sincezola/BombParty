@@ -1,16 +1,15 @@
-
 # BombParty
 
-**BombParty** é um jogo multiplayer em que os jogadores precisam digitar palavras que contenham uma **substring** sorteada antes que a “bomba” exploda.  
-O projeto é composto por três módulos principais:  
+**BombParty** is a multiplayer game where players must type words that contain a randomly chosen **substring** before the "bomb" explodes.  
+The project consists of three main modules:  
 
-- **BombParty** – Cliente em **C** (jogador).  
-- **BombProcessor** – Servidor socket intermediário em **C**.  
-- **BombServer** – Backend em **TypeScript** com **Prisma** (API e persistência).  
+- **BombParty** – Client in **C** (player).  
+- **BombProcessor** – Intermediate socket server in **C**.  
+- **BombServer** – Backend in **TypeScript** with **Prisma** (API and persistence).  
 
 ---
 
-## Arquitetura
+## Architecture
 
 ```
 +-----------------+        +-------------------+        +-----------------------+
@@ -19,37 +18,37 @@ O projeto é composto por três módulos principais:
 +-----------------+        +-------------------+        +-----------------------+
 ```
 
-- **BombParty (Cliente):**  
-  Interface jogável (terminal), conectando-se ao BombProcessor para participar das salas.  
+- **BombParty (Client):**  
+  Playable interface (terminal), connecting to BombProcessor to join rooms.  
 
-- **BombProcessor (Servidor Socket):**  
-  Responsável por gerenciar as salas e a comunicação entre múltiplos clientes.  
-  Interage com o BombServer para registrar partidas e jogadores.  
+- **BombProcessor (Socket Server):**  
+  Responsible for managing rooms and communication between multiple clients.  
+  Interacts with BombServer to register matches and players.  
 
 - **BombServer (Backend):**  
-  Desenvolvido em **TypeScript**, com **Prisma** para acesso ao banco.  
-  Fornece as rotas de criação de salas, cadastro de jogadores e gerenciamento de partidas.  
+  Developed in **TypeScript**, with **Prisma** for database access.  
+  Provides routes for room creation, player registration, and match management.  
 
 ---
 
-## Requisitos
+## Requirements
 
-### Cliente e Processor (C):
-- **GCC** ou **Clang**  
+### Client and Processor (C):
+- **GCC** or **Clang**  
 - **Make**  
-- **Bibliotecas:**  
-  - `libcurl` (requisições HTTP).  
-  - `pthread` (multithreading).
-  - `imagemagick` (*Opcional* compilacao que gera o icone do executavel).  
+- **Libraries:**  
+  - `libcurl` (HTTP requests).  
+  - `pthread` (multithreading).  
+  - `imagemagick` (*Optional* compilation that generates the executable icon).  
 
-### Servidor (Backend):
+### Server (Backend):
 - **Node.js** (>= 18)  
-- **npm** ou **yarn**  
-- **Banco de dados:** PostgreSQL  
+- **npm** or **yarn**  
+- **Database:** PostgreSQL  
 
 ---
 
-## Instalação
+## Installation
 
 ### 1. Backend (BombServer)
 ```bash
@@ -59,60 +58,60 @@ npx prisma migrate dev
 npm run start
 ```
 
-Crie um arquivo `.env` na pasta `bombserver` (checar .env.example) com:  
+Create a `.env` file in the `bombserver` folder (check `.env.example`) with:  
 ```env
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/bombparty"
+DATABASE_URL="postgresql://user:password@localhost:5432/bombparty"
 ```
 
 ---
 
-### 2. Servidor Socket (BombProcessor)
+### 2. Socket Server (BombProcessor)
 ```bash
 cd BombProcessor
 make
 ./bin/BombProcessor
 ```
 
-O servidor socket será iniciado e aguardará conexões dos clientes.  
+The socket server will start and wait for client connections.  
 
 ---
 
-### 3. Cliente (BombParty)
+### 3. Client (BombParty)
 ```bash
 cd BombParty
 make
 ./bin/BombParty
 ```
 
-Conecte-se ao servidor, crie ou entre em uma sala e comece a jogar.  
+Connect to the server, create or join a room, and start playing.  
 
 ---
 
-## Como Jogar
+## How to Play
 
-1. Inicie o **BombServer** (backend).  
-2. Inicie o **BombProcessor** (servidor de salas).  
-3. Abra o **BombParty** (cliente) e conecte-se.  
-4. Entre ou crie uma sala.  
-5. A cada rodada, uma **substring** será sorteada.  
-6. Digite uma palavra válida que a contenha antes do tempo acabar.  
+1. Start the **BombServer** (backend).  
+2. Start the **BombProcessor** (room server).  
+3. Open **BombParty** (client) and connect.  
+4. Join or create a room.  
+5. In each round, a **substring** will be randomly selected.  
+6. Type a valid word containing it before time runs out.  
 
 ---
 
-## Estrutura de Pastas
+## Folder Structure
 
 ```
-/BombParty        # Cliente em C
+/BombParty        # Client in C
     ├─ src/
     ├─ include/
     └─ Makefile
 
-/BombProcessor    # Servidor intermediário em C
+/BombProcessor    # Intermediate server in C
     ├─ src/
     ├─ include/
     └─ Makefile
 
-/BombPartyServer  # Backend em TypeScript
+/BombPartyServer  # Backend in TypeScript
     ├─ src/
     ├─ prisma/
     └─ package.json
@@ -120,16 +119,16 @@ Conecte-se ao servidor, crie ou entre em uma sala e comece a jogar.
 
 ---
 
-## Próximos Passos
-- Implementar **ranking** e histórico de partidas.
-  
----
-
-## Contribuição
-Quer ajudar a melhorar o BombParty?  
-Abra uma **issue** ou envie um **pull request**.  
+## Next Steps
+- Implement **ranking** and match history.  
 
 ---
 
-## Licença
-Projeto distribuído sob a licença **MIT**.
+## Contribution
+Want to help improve BombParty?  
+Open an **issue** or send a **pull request**.  
+
+---
+
+## License
+Project distributed under the **MIT** license.
