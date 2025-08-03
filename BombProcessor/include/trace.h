@@ -41,6 +41,7 @@
   #define DEBUG_MORE_MSGS giDebugLevel > 8
 
   #define vTraceVarArgs(FORMAT, ...) _vTraceVarArgs(__FILE__, __LINE__, FORMAT, ##__VA_ARGS__)
+  #define vTraceVarArgsFn(FORMAT, ...) _vTraceVarArgsFn(__FILE__, __LINE__, __func__, FORMAT, ##__VA_ARGS__)
   #define vTraceBegin() vTraceVarArgs("%s - begin", __func__)
   #define vTraceEnd() vTraceVarArgs("%s - end", __func__)
 
@@ -72,6 +73,10 @@
   void _vTraceVarArgs( const char *kpszModuleName,
                        const int kiLine,
                        const char *kpszFmt, ... );
+  void _vTraceVarArgsFn( char *pszModuleName,
+                       const int kiLine,
+                       const char *kpszFmt,
+                       const char *kpszFunctionName, ... );
 
   #define TOKEN_MISMATCH -1
   #define ROOT_PATH_FROM_BIN "../"

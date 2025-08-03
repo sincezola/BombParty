@@ -15,10 +15,5 @@
     DIFFICULTY_HARD
   } eDifficultyList;
 
-  void vHandleCreateRoom(char **ppszArgs, int iArgCount);
-  void vHandleJoinRoom(char **ppszArgs, int iArgCount);
-  void vHandleDeleteRoom(char **ppszArgs, int iArgCount);
-  void vHandleDisconnect();
   int iParseCommand(char *pszBuffer, int *piCmdId, int iSock);
-  void vProcessCommand(char *pszCmd, int iSock);
 #endif

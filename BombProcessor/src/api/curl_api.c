@@ -1,5 +1,6 @@
 #include <curl/curl.h>
 #include <string.h>
+#include <sys_interface.h>
 #include <trace.h>
 
 size_t ulWriteCallback(void *vContents, size_t ulSize, size_t ulNMemb, void *vUserp) {
@@ -14,6 +15,9 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
   struct curl_slist *headers = NULL;
   char szUrl[2048];
   int bUseSSL = FALSE;
+
+  if ( bStrIsEmpty(pszUrl) )
+    return -3;
 
   memset(szUrl, 0, sizeof(szUrl));
   snprintf(szUrl, sizeof(szUrl), "%s/%s", pszUrl, pszEndPoint);
@@ -48,16 +52,16 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
     curlRes = curl_easy_perform(curl);
 
     if (curlRes != CURLE_OK) {
-      vTraceVarArgs("Curl error: %s\n", curl_easy_strerror(curlRes));
+      vTraceVarArgsFn("Error CURL=[%s]\n", curl_easy_strerror(curlRes));
       curl_easy_cleanup(curl);
       return -1;
     }
 
     curl_easy_cleanup(curl);
   } else {
-    return -1;
+    return -2;
   }
 
-  vTraceVarArgs("Retorno [%s]\n", szRsl);
+  vTraceVarArgsFn("Retorno [%s]\n", szRsl);
   return 0;
 }

@@ -18,7 +18,6 @@
   #include <windows.h>
   #include <process.h>
   #include <io.h>
-  // #pragma comment(lib, "ws2_32.lib")
   typedef SOCKET tSocket;
 #else /** LINUX */
   #include <arpa/inet.h>
@@ -42,39 +41,57 @@ const char *gkpszProgramName;
  */
 #ifdef _WIN32
 unsigned __stdcall vHandleClient(void *pArg)
-#else
-void vHandleClient(void *pArg)
-#endif
 {
   char szBuffer[512];
   int iBytes;
+  int iCmdId;
   tSocket iClientSock = *((tSocket *)pArg);
   free(pArg);
 
-  vTraceMsg("[INFO] Nova conexão iniciada.");
+  vTraceVarArgsFn("New client connection.");
 
   while (TRUE) {
     memset(szBuffer, 0, sizeof(szBuffer));
     iBytes = recv(iClientSock, szBuffer, sizeof(szBuffer) - 1, 0);
     if (iBytes <= 0) {
-      vTraceMsg("[INFO] Conexão encerrada.");
+      vTraceVarArgsFn("Connection closed.");
       break;
     }
 
-    vTraceVarArgs("[CLIENTE] %s", szBuffer);
-    vProcessCommand(szBuffer, iClientSock);
-    break;
+    vTraceVarArgsFn("Message recv from client=[%s]", szBuffer);
+    if ( iParseCommand(szBuffer, &iCmdId, iClientSock) == 1 ) 
+      break;  
   }
-
-#ifdef _WIN32
   closesocket(iClientSock);
   _endthreadex(0);
   return 0;
+}
 #else
+void vHandleClient(void *pArg){
+  char szBuffer[512];
+  int iBytes;
+  int iCmdId;
+  tSocket iClientSock = *((tSocket *)pArg);
+  free(pArg);
+
+  vTraceVarArgsFn("New client connection.");
+
+  while (TRUE) {
+    memset(szBuffer, 0, sizeof(szBuffer));
+    iBytes = recv(iClientSock, szBuffer, sizeof(szBuffer) - 1, 0);
+    if (iBytes <= 0) {
+      vTraceVarArgsFn("Connection closed.");
+      break;
+    }
+
+    vTraceVarArgsFn("Message recv from client=[%s]", szBuffer);
+    if ( iParseCommand(szBuffer, &iCmdId, iClientSock) == 1 ) 
+      break;
+  }
   close(iClientSock);
   _exit(0);
-#endif
 }
+#endif
 
 /**
  * @brief Inicializa a biblioteca de sockets (Windows)
@@ -83,7 +100,7 @@ void vInitSockets() {
 #ifdef _WIN32
   WSADATA wsa;
   if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-    vTraceMsg("Erro ao iniciar Winsock.");
+    vTraceVarArgsFn("Erro ao iniciar Winsock.");
     exit(EXIT_FAILURE);
   }
 #endif
@@ -125,7 +142,6 @@ int main(int argc, char *argv[]) {
   vInitSockets();
 
   /** Creates Socket Server */
-  
 
   iServerSock = socket(AF_INET, SOCK_STREAM, 0);
   #ifdef _WIN32 
@@ -173,7 +189,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  vTraceVarArgs("[INFO] Servidor escutando na porta %d...", giServerPort);
+  vTraceVarArgsFn("[INFO] Servidor escutando na porta %d...", giServerPort);
 
 #ifndef _WIN32
   /** Avoid zombie proccess */
@@ -198,31 +214,31 @@ int main(int argc, char *argv[]) {
       }
     #endif
 
-#ifdef _WIN32
-    uintptr_t iThread = _beginthreadex(NULL, 0, vHandleClient, (void *)pClientSock, 0, NULL);
-    if (iThread == 0) {
-      vTraceMsg("Erro ao criar thread.");
-      closesocket(*pClientSock);
-      free(pClientSock);
-    }
-#else /** LINUX */
-    pid_t iPID = fork();
-    if (iPID == 0) {
-      /** Child Process */
-      close(iServerSock);
-      vHandleClient((void *)pClientSock);
-      exit(0);
-    } 
-    else if (iPID > 0) {
-      close(*pClientSock);
-      free(pClientSock);
-    }
-    else {
-      perror("Erro no fork");
-      close(*pClientSock);
-      free(pClientSock);
-    }
-#endif
+    #ifdef _WIN32
+      uintptr_t iThread = _beginthreadex(NULL, 0, vHandleClient, (void *)pClientSock, 0, NULL);
+      if (iThread == 0) {
+        vTraceVarArgsFn("Erro ao criar thread.");
+        closesocket(*pClientSock);
+        free(pClientSock);
+      }
+    #else /** LINUX */
+      pid_t iPID = fork();
+      if (iPID == 0) {
+        /** Child Process */
+        close(iServerSock);
+        vHandleClient((void *)pClientSock);
+        exit(0);
+      } 
+      else if (iPID > 0) {
+        close(*pClientSock);
+        free(pClientSock);
+      }
+      else {
+        perror("Erro no fork");
+        close(*pClientSock);
+        free(pClientSock);
+      }
+    #endif
   }
 
 #ifdef _WIN32

@@ -13,15 +13,18 @@
  * @param piCmdId Retorna o ID do comando
  * @param ppszArgs Retorna um array de argumentos (strings)
  * @param piArgCount Retorna o número de argumentos
- * @return int 0 se OK, -1 se inválido
+ * @return int 0 se OK, -1 se inválido, 1 fechar conexao
  */
 int iParseCommand(char *pszBuffer, int *piCmdId, int iSock) {
   int iRsl = 0;
   char *pTok;
   char *pszSavePtr;
 
-  // Primeiro token: deve ser "CMD"
   pTok = strtok_r(pszBuffer, "|", &pszSavePtr);
+  if (!pTok || memcmp(pTok, "BYE", 3) == 0)
+    return 1;
+
+  // Primeiro token: se não é bye deve ser "CMD"
   if (!pTok || strcmp(pTok, "CMD") != 0)
     return -1;
 
@@ -56,14 +59,4 @@ int iParseCommand(char *pszBuffer, int *piCmdId, int iSock) {
   }
 
   return iRsl;
-}
-
-void vProcessCommand(char *pszCmd, int iSock) {
-  int iCmdId;
-
-  if (iParseCommand(pszCmd, &iCmdId, iSock) != 0) {
-    vTraceVarArgs("Comando inválido: %s-%d", pszCmd, iCmdId);
-    return;
-  }
-  return;
 }

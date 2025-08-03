@@ -104,6 +104,66 @@ void vTracePid(char *szMsg, int iMsgLen) {
   pszMyMsg = NULL;
 } /* vTracePid */
 
+void _vTraceVarArgsFn(char *pszModuleName, const int kiLine, const char *kpszFunctionName,
+                    const char *kpszFmt, ...) {
+  va_list args;
+  FILE *pfLog = NULL;
+  char szPath[_MAX_PATH + _MAX_PATH + 8];
+  char szName[_MAX_PATH];
+  char szExt[_MAX_PATH];
+  char szDbg[2048];
+  struct tm *st_tm_Now;
+  struct timeval tv;
+  time_t lTime;
+
+  time(&lTime);
+  st_tm_Now = localtime(&lTime);
+  gettimeofday(&tv, NULL);
+
+  memset(szDbg, 0x00, sizeof(szDbg));
+  memset(szPath, 0x00, sizeof(szPath));
+  memset(szName, 0x00, sizeof(szName));
+  memset(szExt, 0x00, sizeof(szExt));
+
+  iDIR_SplitFilename(gszTraceFile, szPath, szName, szExt);
+
+  snprintf(szPath, sizeof(szPath), "%s/log", ROOT_PATH_FROM_BIN);
+
+  if (!iDIR_IsDir(szPath)) {
+    if (!iDIR_MkDir(szPath)) {
+      fprintf(stderr, "E: Impossible create dir %s!\n"
+              "%s\n",
+              szPath, strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+  }
+  sprintf(gszTraceFile, "%s/%s%s",szPath,szName,szExt);
+  if ((pfLog = fopen(gszTraceFile, "a+")) == NULL) {
+    fprintf(stderr, "E: Impossible create or open file %s!\n"
+            "%s\n",
+            gszTraceFile, strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  va_start(args, kpszFmt);
+
+  iDIR_SplitFilename(pszModuleName, szPath, szName, szExt);
+  snprintf(szDbg, sizeof(szDbg), "%02d/%02d/%02d %02d:%02d:%02d.%03ld<%s%s:%d>(%s) - ",
+           (int)st_tm_Now->tm_mday, (int)st_tm_Now->tm_mon + 1,
+           (int)st_tm_Now->tm_year - 100, (int)st_tm_Now->tm_hour,
+           (int)st_tm_Now->tm_min, (int)st_tm_Now->tm_sec,
+           (long)tv.tv_usec / 1000, szName, szExt, kiLine, kpszFunctionName);
+
+  strcat(szDbg, kpszFmt);
+  strcat(szDbg, "\n");
+  vfprintf(pfLog, szDbg, args);
+
+  va_end(args);
+
+  fclose(pfLog);
+  pfLog = NULL;
+} /* _vTraceVarArgs */
+
 void _vTraceVarArgs(const char *kpszModuleName, const int kiLine,
                     const char *kpszFmt, ...) {
   va_list args;

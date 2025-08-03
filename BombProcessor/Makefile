@@ -17,6 +17,7 @@ INCLUDE_PATH  = include
 INCLUDE_API   = $(INCLUDE_PATH)/api
 OBJ_DIR       = obj
 BIN_DIR       = bin
+LOG_DIR       = log
 INC_DIR       = -I. -I$(INCLUDE_PATH) -I$(INCLUDE_API)
 LIBS          = -lcurl
 
@@ -29,7 +30,7 @@ else
 endif
 
 MKDIR_CMD = mkdir -p $(OBJ_DIR) $(BIN_DIR)
-RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) *.log input.txt
+RM_CMD = rm -rf $(OBJ_DIR) $(BIN_DIR) $(LOG_DIR) input.txt
 
 DEBUG_ADD_FLAGS = -O2
 ifdef DEBUG
