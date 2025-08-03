@@ -7,8 +7,8 @@
   "scripts": {
     "start": "prisma generate && tsx backend/src/server.ts",
     "dev": "tsx watch backend/src/server.ts",
-    "migrate-both": "tsx prisma/migrate-both-db.ts",
-    "setup-lookup": "node prisma/init-lookup.js"
+    "studio-prod": "npx dotenv -e .env.prod npx prisma studio",
+    "studio-dev": "npx dotenv -e .env npx prisma studio"
   },
   "keywords": [],
   "author": "",
