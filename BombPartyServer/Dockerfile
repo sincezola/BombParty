@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/init-lookup.ts && npm start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && tsx prisma/init-lookup.ts && npm start"]
