@@ -1,4 +1,4 @@
-#include <curl/curl.h>
+  #include <curl/curl.h>
 #include <string.h>
 #include <sys_interface.h>
 #include <trace.h>
@@ -18,6 +18,9 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
 
   if ( bStrIsEmpty(pszUrl) )
     return -3;
+
+  if ( !strcmp(pszMethod, "PATCH") && iPayloadLen <= 0 )
+    return -4;
 
   memset(szUrl, 0, sizeof(szUrl));
   snprintf(szUrl, sizeof(szUrl), "%s/%s", pszUrl, pszEndPoint);
@@ -39,14 +42,18 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
       curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
     }
 
-    if (!strcmp(pszMethod, "POST")) {
-      curl_easy_setopt(curl, CURLOPT_POST, 1L);
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, iPayloadLen);
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, szPayload);
+    if ( iPayloadLen > 0 ) { /** PATCH OR POST */
       headers = curl_slist_append(headers, "Content-Type: application/json");
       curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, iPayloadLen);
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, szPayload);
+    }
+    if (!strcmp(pszMethod, "POST")) {
+      curl_easy_setopt(curl, CURLOPT_POST, 1L);
     } else if (!strcmp(pszMethod, "GET")) {
       curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+    } else if (!strcmp(pszMethod, "DELETE") || !strcmp(pszMethod, "PATCH")) {
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, pszMethod);
     }
 
     curlRes = curl_easy_perform(curl);
