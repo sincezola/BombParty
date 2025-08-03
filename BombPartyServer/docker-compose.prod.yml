@@ -8,8 +8,6 @@ services:
       - .env.docker
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
@@ -28,8 +26,6 @@ services:
       - .env.docker
     ports:
       - "8081:8081"
-    depends_on:
-      - postgres
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
