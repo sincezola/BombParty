@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "prisma generate && tsx backend/src/server.ts",
-    "dev": "prisma generate && tsx watch backend/src/server.ts"
+    "dev": "tsx watch backend/src/server.ts",
+    "migrate-both": "tsx prisma/migrate-both-db.ts",
+    "setup-lookup": "node prisma/init-lookup.js"
   },
   "keywords": [],
   "author": "",
@@ -19,16 +21,17 @@
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.37.0",
     "dotenv": "^17.2.0",
+    "dotenv-cli": "^10.0.0",
     "eslint": "^9.31.0",
     "globals": "^16.3.0",
     "prisma": "^6.13.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.37.0",
-    "tsx": "^4.20.3"
+    "prettier": "^3.6.2"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",
-    "express": "^5.1.0",
-    "prettier": "^3.6.2"
+    "express": "^5.1.0"
   }
 }

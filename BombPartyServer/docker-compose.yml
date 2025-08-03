@@ -28,11 +28,11 @@ services:
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
-      - ./.env.docker:/usr/src/app/.env.docker
+      - ./.env.prod:/usr/src/app/.env.prod
       - /usr/src/app/node_modules # <-- mantém node_modules no container
     networks:
       - appnet
-    command: sh -c "npx prisma generate && npm run dev"
+    command: sh -c "npm run dev"
 
   backend2:
     build:
@@ -40,7 +40,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend2
     env_file:
-      - .env.docker
+      - .env.prod
     ports:
       - "8081:8081"
     depends_on:
@@ -48,11 +48,11 @@ services:
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
-      - ./.env.docker:/usr/src/app/.env.docker
+      - ./.env.prod:/usr/src/app/.env.prod
       - /usr/src/app/node_modules # <-- mantém node_modules no container
     networks:
       - appnet
-    command: sh -c "npx prisma generate && npm run dev"
+    command: sh -c "npm run dev"
 
   nginx:
     image: nginx:latest

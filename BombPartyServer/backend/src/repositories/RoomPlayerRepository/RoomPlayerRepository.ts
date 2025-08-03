@@ -9,7 +9,7 @@ class RoomPlayerRepository implements RoomPlayerRepositoryProtocol {
   constructor(private readonly prisma: PrismaClient) {}
 
   async getRoomPlayer(
-    room_player_id: number,
+    room_player_id: number
   ): Promise<RoomPlayerWithRelations | null> {
     try {
       return await this.prisma.roomPlayer.findUnique({
@@ -23,18 +23,12 @@ class RoomPlayerRepository implements RoomPlayerRepositoryProtocol {
     }
   }
 
-  async findByRoomAndPlayer(
-    room_id: number,
-    player_id: number,
+  async getRoomPlayerByPlayerId(
+    player_id: number
   ): Promise<RoomPlayerWithRelations | null> {
     try {
       return await this.prisma.roomPlayer.findUnique({
-        where: {
-          room_id_player_id: {
-            room_id,
-            player_id,
-          },
-        },
+        where: { player_id },
         include: roomPlayerInclude,
       });
     } catch (err) {
@@ -47,7 +41,7 @@ class RoomPlayerRepository implements RoomPlayerRepositoryProtocol {
   async createRoomPlayer(
     room_id: number,
     player_id: number,
-    room_player_type: number,
+    room_player_type: number
   ): Promise<RoomPlayerWithRelations | null> {
     try {
       return await this.prisma.roomPlayer.create({
@@ -65,12 +59,12 @@ class RoomPlayerRepository implements RoomPlayerRepositoryProtocol {
     }
   }
 
-  async deleteRoomPlayer(
-    room_player_id: number,
+  async deleteRoomPlayerByPlayerId(
+    player_id: number
   ): Promise<RoomPlayerWithRelations | null> {
     try {
       return await this.prisma.roomPlayer.delete({
-        where: { room_player_id },
+        where: { player_id },
         include: {
           room: true,
           player: true,

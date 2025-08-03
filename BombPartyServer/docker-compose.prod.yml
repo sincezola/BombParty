@@ -5,13 +5,13 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     env_file:
-      - .env.docker
+      - .env.prod
     ports:
       - "8080:8080"
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
-      - ./.env.docker:/usr/src/app/.env.docker
+      - ./.env.prod:/usr/src/app/.env.prod
       - /usr/src/app/node_modules # <-- mantém node_modules no container
     networks:
       - appnet
@@ -23,13 +23,13 @@ services:
       dockerfile: Dockerfile
     container_name: backend2
     env_file:
-      - .env.docker
+      - .env.prod
     ports:
       - "8081:8081"
     volumes:
       - ./backend:/usr/src/app/backend
       - ./prisma:/usr/src/app/prisma
-      - ./.env.docker:/usr/src/app/.env.docker
+      - ./.env.prod:/usr/src/app/.env.prod
       - /usr/src/app/node_modules # <-- mantém node_modules no container
     networks:
       - appnet

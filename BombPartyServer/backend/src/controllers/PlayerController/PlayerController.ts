@@ -18,14 +18,6 @@ class PlayerController extends PlayerControllerProtocol {
       "/api/Player/GetPlayerById/:id",
       this.getPlayerById.bind(this)
     );
-    this.router.post(
-      "/api/Player/CreatePlayer/:name",
-      this.createPlayer.bind(this)
-    );
-    this.router.delete(
-      "/api/Player/DeletePlayer/:id",
-      this.deletePlayer.bind(this)
-    );
   }
 
   protected async getPlayerById(req: Request, res: Response): Promise<void> {
@@ -43,52 +35,6 @@ class PlayerController extends PlayerControllerProtocol {
       const receivedPlayer = await this.playerService.getPlayerById(Number(id));
 
       const { statusCode, body } = receivedPlayer;
-
-      res.status(statusCode).json(body);
-    } catch (err) {
-      console.error(err);
-
-      res
-        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-        .json({ message: "Sorry, Internal Server Error." });
-    }
-  }
-
-  protected async createPlayer(req: Request, res: Response): Promise<void> {
-    try {
-      const { name } = req.params;
-
-      const receivedPlayer = await this.playerService.createPlayer(name);
-
-      const { statusCode, body } = receivedPlayer;
-
-      res.status(statusCode).json(body);
-    } catch (err) {
-      console.error(err);
-
-      res
-        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-        .json({ message: "Sorry, Internal Server Error." });
-    }
-  }
-
-  protected async deletePlayer(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-
-      if (!isValidInteger(id) || Number(id) < 1) {
-        res
-          .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `invalid id provided.` });
-
-        return;
-      }
-
-      const deletedPlayer = await this.playerService.deletePlayerById(
-        Number(id)
-      );
-
-      const { statusCode, body } = deletedPlayer;
 
       res.status(statusCode).json(body);
     } catch (err) {

@@ -17,68 +17,30 @@ class RoomPlayerController extends RoomPlayerControllerProtocol {
 
   private registerRoutes() {
     this.router.post(
-      "/api/RoomPlayer/Create/",
-      this.createRoomPlayer.bind(this)
-    );
-    this.router.delete(
-      "/api/RoomPlayer/Delete/:id",
-      this.deleteRoomPlayer.bind(this)
+      "/api/RoomPlayer/LeaveRoom/:player_id",
+      this.leaveRoom.bind(this)
     );
     this.router.post("/api/RoomPlayer/JoinRoom/", this.joinRoom.bind(this));
   }
 
-  protected async deleteRoomPlayer(req: Request, res: Response): Promise<void> {
+  protected async leaveRoom(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      // Delete relation & player by player_id
+      const { player_id } = req.params;
 
-      if (!isValidInteger(id) || Number(id) < 1) {
+      if (!isValidInteger(player_id) || Number(player_id) < 1) {
         res
           .status(HttpStatusCode.BAD_REQUEST)
-          .json({ message: `invalid id provided.` });
+          .json({ message: `invalid player id provided.` });
 
         return;
       }
 
-      const receivedRoomPlayer = await this.roomPlayerService.deleteRoomPlayer(
-        Number(id)
+      const receivedRoomPlayer = await this.roomPlayerService.leaveRoom(
+        Number(player_id)
       );
 
       const { statusCode, body } = receivedRoomPlayer;
-
-      res.status(statusCode).json(body);
-    } catch (err) {
-      console.error(err);
-      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-        message: "Sorry, Internal Server Error",
-      });
-    }
-  }
-
-  protected async createRoomPlayer(req: Request, res: Response): Promise<void> {
-    try {
-      const { player_id, room_player_type, room_id } = req.body ?? {};
-
-      if (
-        !isValidInteger(room_id) ||
-        Number(room_id) < 1 ||
-        !isValidInteger(player_id) ||
-        Number(player_id) < 1 ||
-        !isValidInteger(room_player_type)
-      ) {
-        res.status(HttpStatusCode.BAD_REQUEST).json({
-          message: "room_id, player_id, and room_player_type are invalid.",
-        });
-
-        return;
-      }
-
-      const createdRoomPlayer = await this.roomPlayerService.createRoomPlayer(
-        Number(room_id),
-        Number(player_id),
-        Number(room_player_type)
-      );
-
-      const { statusCode, body } = createdRoomPlayer;
 
       res.status(statusCode).json(body);
     } catch (err) {
