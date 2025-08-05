@@ -4,11 +4,10 @@
 
 int giDifficulty = 0;
 
-int main() {  
-  int iMode;
-  int iRsl;
-
-  switch (iMode) {
+int main() { 
+  int iRsl; 
+  
+  switch ( iReadGameMode() ) {
     case SINGLEPLAYER:
       iRsl = iRunSingleplayerMode();
       break;

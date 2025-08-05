@@ -145,7 +145,26 @@ int iSetDifficultyFromChar(int iCh) {
     iDifficulty = HARD;
   return iDifficulty;
 }
+int iReadGameMode() {
+  char szMode[128];
+  int  iCh;
+  do{
+    vClearTerminal();
+    printf("\n Escolha o modo de jogo :\n");
+    printf("\t[S] SinglePlayer (Um jogador local)\n");
+    printf("\t[M] MultiPlayer  (Mais jogadres Online)\n");
+    printf("Modo: ");
 
+    memset(szMode, 0, sizeof(szMode));
+    if (fgets(szMode, sizeof(szMode), stdin)) {
+      if (strchr(szMode, '\n') == NULL)
+          vFlushInput();
+      }
+    iCh = tolower(szMode[0]);
+  } while (iCh != 's' && iCh != 'm');
+  
+  return (iCh == 's') ? SINGLEPLAYER : MULTIPLAYER;
+}
 /**
  * @brief Captura input do usuário caractere a caractere, com redesenho contínuo
  * @return char* - ponteiro para a string digitada (precisa ser liberado com
