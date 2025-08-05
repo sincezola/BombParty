@@ -145,6 +145,7 @@ int iSetDifficultyFromChar(int iCh) {
     iDifficulty = HARD;
   return iDifficulty;
 }
+
 int iReadGameMode() {
   char szMode[128];
   int  iCh;

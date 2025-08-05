@@ -13,6 +13,8 @@
 #include <time.h>
 #include <word_db.h>
 #include <singleplayer.h>
+#include <bombparty.h>
+
 
 int iRunSingleplayerMode(){
   int iCh;
@@ -75,7 +77,7 @@ int iRunSingleplayerMode(){
         free(pszUserInput);
 
         vClearTerminal();
-        vGotoBombPositions();
+        vGotoBombPosition();
         printf("!! A BOMBA EXPLODIU !! Você perdeu esta rodada.\n");
         fflush(stdout);
         vSleepSeconds(2);
