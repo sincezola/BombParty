@@ -152,8 +152,8 @@ int iReadGameMode() {
   do{
     vClearTerminal();
     printf("\n Escolha o modo de jogo :\n");
-    printf("\t[S] SinglePlayer (Um jogador local)\n");
-    printf("\t[M] MultiPlayer  (Mais jogadres Online)\n");
+    printf("\t[S] Singleplayer (Um jogador local)\n");
+    printf("\t[M] Multiplayer  (Mais jogadores Online)\n");
     printf("Modo: ");
 
     memset(szMode, 0, sizeof(szMode));

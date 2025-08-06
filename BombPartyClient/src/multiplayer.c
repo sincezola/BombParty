@@ -1,8 +1,6 @@
-
-
-int iRunMultiplayerMode(){
+int iRunMultiplayerMode() {
   
-  // vDrawRoomList();
+  vDrawRooms();
   
   // iRoomSelectMenu();
 

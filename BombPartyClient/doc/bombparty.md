@@ -1,3 +1,9 @@
+Maximo de caracteres
+    Nome: 35
+    Complexidade: 16
+    Capacidade: 14
+    Status: 10
+
 Cronometro da bomba por dificuldade
  - 12s easy
  - 11s medium

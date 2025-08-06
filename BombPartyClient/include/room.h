@@ -1,10 +1,12 @@
+#include <player.h>
+
 #ifndef ROOM_H
   #define ROOM_H
 
   typedef struct STRUCT_ROOM_ROLES {
     int iPlayerRole;
-    STRUCT_PLAYER *pstPlayer;
-    STRUCT_ROOM_ROLES *pstNext;
+    PSTRUCT_PLAYER pstPlayer;
+    struct STRUCT_ROOM_ROLES *pstNext;
   } STRUCT_ROOM_ROLES, PSTRUCT_ROOM_ROLES;
 
   typedef struct STRUCT_ROOM {
@@ -13,14 +15,16 @@
     int  iRoomCapacity;
     int  iRoomDifficulty;
     char szRoomName[128];
-    PSTRUCT_ROOM pstNext;
-    STRUCT_ROOM_ROLES pstRoles;
+    struct STRUCT_ROOM *pstNext;
+    PSTRUCT_ROOM_ROLES pstRoles;
   } STRUCT_ROOM, *PSTRUCT_ROOM;
 
   typedef struct STRUCT_ROOM_LIST{
-    STRUCT_ROOM_LIST *pstFirst;
-    STRUCT_ROOM_LIST *pstLast;
-  } STRUCT_ROOM_LIST;
+    PSTRUCT_ROOM pstFirst;
+    PSTRUCT_ROOM pstLast;
+  } STRUCT_ROOM_LIST, *PSTRUCT_ROOM_LIST;
 
-  extern STRUCT_ROOM_LIST *pstRoomList;
+  extern PSTRUCT_ROOM_LIST pstRoomList;
+
+  void vDrawRooms();
 #endif
