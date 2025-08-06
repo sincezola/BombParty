@@ -6,7 +6,9 @@
 #include <fcntl.h>
 #include <sys_interface.h>
 #include <terminal_utils.h>
-
+#ifdef _WIN32
+  #include <windows.h>
+#endif
 int gbBombTimeout = FALSE;
 
 void vDrawBomb(int iTimeout) {
@@ -49,8 +51,10 @@ void vHandleBombTimer(int iParentPID) {
     vDrawBomb(iTimeout--);
     vSleepSeconds(1);
   }
-  
-  vSendSig2Process(iParentPID, SIGUSR1);
-
+  #ifndef _WIN32
+    vSendSig2Process(iParentPID, SIGUSR1);
+  #else
+    vSendSig2Process(iParentPID, 0);
+  #endif
   return;
 }

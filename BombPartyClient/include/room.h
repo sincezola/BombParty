@@ -3,6 +3,16 @@
 #ifndef ROOM_H
   #define ROOM_H
 
+  #define ROOM_MAX_CHARS 81
+  #define ROOM_NAME       "Nome"
+  #define ROOM_DIFFICULTY "Complexidade"
+  #define ROOM_CAPACITY   "Capacidade"
+  #define ROOM_STATUS     "Status"
+  #define NAME_FLD_SIZE       36
+  #define DIFFICULTY_FLD_SIZE 16
+  #define CAPACITY_FLD_SIZE   14
+  #define STATUS_FLD_SIZE     10
+
   typedef struct STRUCT_ROOM_ROLES {
     int iPlayerRole;
     PSTRUCT_PLAYER pstPlayer;
@@ -27,4 +37,5 @@
   extern PSTRUCT_ROOM_LIST pstRoomList;
 
   void vDrawRooms();
+  
 #endif
