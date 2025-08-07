@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <config.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -104,3 +105,11 @@ void vWaitChild() {
   wait(NULL);
 #endif
 }
+
+int bStrIsEmpty(const char *kpszStr) {
+  if (kpszStr == NULL || !strcmp(kpszStr, "") || !strcmp(kpszStr, "\n")) {
+    return TRUE;
+  }
+
+  return FALSE;
+} /* bStrIsEmpty */

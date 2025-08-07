@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <terminal_utils.h>
+#include <sys_interface.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -144,6 +145,38 @@ int iSetDifficultyFromChar(int iCh) {
   else if (iCh == 'h')
     iDifficulty = HARD;
   return iDifficulty;
+}
+
+void vReadPlayerName(char *pszName, int iNameSz) {
+  do{
+    vClearTerminal();
+    printf("\n Escolha seu nome :\n");
+    printf("Nome: ");
+
+    memset(pszName, 0, iNameSz);
+    if (fgets(pszName, iNameSz, stdin)) {
+      if (strchr(pszName, '\n') == NULL)
+          vFlushInput();
+      }
+  } while ( !bStrIsEmpty(pszName) );
+  
+  return;
+}
+
+void vReadRoomName(char *pszName, int iNameSz) {
+  do{
+    vClearTerminal();
+    printf("\n Escolha o nome da sala :\n");
+    printf("Nome: ");
+
+    memset(pszName, 0, iNameSz);
+    if (fgets(pszName, iNameSz, stdin)) {
+      if (strchr(pszName, '\n') == NULL)
+          vFlushInput();
+      }
+  } while ( !bStrIsEmpty(pszName) );
+  
+  return;
 }
 
 int iReadGameMode() {

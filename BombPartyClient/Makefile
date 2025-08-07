@@ -55,7 +55,8 @@ OBJS = \
 	$(OBJ_DIR)/player.o \
 	$(OBJ_DIR)/multiplayer.o \
 	$(OBJ_DIR)/parse_api.o \
-	$(OBJ_DIR)/room.o
+	$(OBJ_DIR)/room.o \
+	$(OBJ_DIR)/command.o
 
 ifneq ("$(wildcard $(OBJ_DIR)/icon.o)","")
   OBJS += $(OBJ_DIR)/icon.o

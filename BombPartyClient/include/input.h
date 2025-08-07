@@ -11,4 +11,5 @@
   int iSetDifficultyFromChar(int iCh);
   void vTrimSpaces(char *pszStr);
   int iReadGameMode();
+void vReadPlayerName(char *pszName, int iNameSz);
 #endif

@@ -17,7 +17,7 @@
     int iPlayerRole;
     PSTRUCT_PLAYER pstPlayer;
     struct STRUCT_ROOM_ROLES *pstNext;
-  } STRUCT_ROOM_ROLES, PSTRUCT_ROOM_ROLES;
+  } STRUCT_ROOM_ROLES, *PSTRUCT_ROOM_ROLES;
 
   typedef struct STRUCT_ROOM {
     int  iRoomId;
@@ -25,8 +25,8 @@
     int  iRoomCapacity;
     int  iRoomDifficulty;
     char szRoomName[128];
-    struct STRUCT_ROOM *pstNext;
-    PSTRUCT_ROOM_ROLES pstRoles;
+    struct STRUCT_ROOM *pstNextRoom;
+    PSTRUCT_ROOM_ROLES pstNextRole;
   } STRUCT_ROOM, *PSTRUCT_ROOM;
 
   typedef struct STRUCT_ROOM_LIST{
@@ -36,6 +36,14 @@
 
   extern STRUCT_ROOM_LIST gstRoomList;
 
-  void vDrawRooms();
-  
+  void vDrawRoom();
+  int iCalcPaddingOffset(int iFieldSize, int *iContentLen);
+  void vInitRoomList();
+  void vAddRoom2List(PSTRUCT_ROOM pstRoom);
+  PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom);
+  void vAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom);
+  int iNewRoom(int iId, char *pszName, int iStatus, int iCapacity, int iDifficulty);
+  void vClearRoomList();
+  PSTRUCT_ROOM pstFindRoom(int iId);
+  int iRoomPlayerCt(PSTRUCT_ROOM pstRoom);
 #endif
