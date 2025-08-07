@@ -34,7 +34,7 @@
     PSTRUCT_ROOM pstLast;
   } STRUCT_ROOM_LIST, *PSTRUCT_ROOM_LIST;
 
-  extern PSTRUCT_ROOM_LIST pstRoomList;
+  extern STRUCT_ROOM_LIST gstRoomList;
 
   void vDrawRooms();
   

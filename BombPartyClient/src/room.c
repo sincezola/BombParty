@@ -10,6 +10,9 @@ char *pszDifficulty[]={
   "Hard",
   NULL
 };
+
+STRUCT_ROOM_LIST gstRoomList;
+
 /**
   Maximo de caracteres
     Nome: 36
@@ -17,7 +20,6 @@ char *pszDifficulty[]={
     Capacidade: 14
     Status: 10
 */
-
 /**
     __________________________________________________________________________
     |     Nome    |     Complexidade     |     Capacidade    |     Status    |
