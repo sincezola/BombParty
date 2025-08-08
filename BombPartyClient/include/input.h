@@ -3,13 +3,23 @@
 #ifndef INPUT_H
   #define INPUT_H
   #define TIMEOUT_STR "XXXXTIMEOUTXXX"
-  int bIsOnlySpaces(const char *str);
+
+  #define ACTION_CREATE 'c'
+  #define ACTION_JOIN   'e'
+
   char *cCatchInput();
+  int bIsOnlySpaces(const char *str);
+  int iSetDifficultyFromChar(int iCh);
+  int iReadGameMode();
+  int iReadMultiplayerAction();
+  int iPortableGetchar();
   void vSleepSeconds(int iSeconds);
   void vClearTerminal();
   void vFlushInput();
-  int iSetDifficultyFromChar(int iCh);
   void vTrimSpaces(char *pszStr);
-  int iReadGameMode();
-void vReadPlayerName(char *pszName, int iNameSz);
+  void vReadPlayerName(char *pszName, int iNameSz);
+  void vReadRoomName(char *pszName, int iNameSz);
+  void vReadRoomDifficulty(int *iDifficulty);
+  void vReadRoomPassword(char *pszPassword, int iPasswdSz);
+  void vReadRoomCapacity(int *iCapacity);
 #endif

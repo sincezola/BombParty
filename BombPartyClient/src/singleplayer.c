@@ -17,40 +17,20 @@
 
 
 int iRunSingleplayerMode(){
-  int iCh;
   int bRestart = FALSE;
   int bFoundWord = FALSE;
   int iBombPid = -1; /** Guarda o processo/thread da bomba */
   char szInfix[8];
   char szInput[MAX_WORD_LEN];
-  char szDifficulty[DIFICULTY_LEN];
   char szLastWrong[MAX_WORD_LEN] = ""; /** Guarda a última palavra incorreta */
   int bHasError = FALSE;
 
   while (TRUE) {
     memset(szInput, 0, sizeof(szInput));
     memset(szInfix, 0, sizeof(szInfix));
-    memset(szDifficulty, 0, sizeof(szDifficulty));
 
     if (!giDifficulty) {
-      do {
-        vClearTerminal();
-        printf("\n Escolha sua a dificuldade :\n");
-        printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
-        printf("\t[M] Medium (%d letras por palavra)\n", MEDIUM_INFIX);
-        printf("\t[H] Hard   (%d letras por palavra)\n", HARD_INFIX);
-        printf("Dificuldade: ");
-
-        if (fgets(szDifficulty, sizeof(szDifficulty), stdin)) {
-          if (strchr(szDifficulty, '\n') == NULL)
-            vFlushInput();
-        }
-
-        iCh = tolower(szDifficulty[0]);
-      } while (iCh != 'e' && iCh != 'm' && iCh != 'h');
-
-      giDifficulty = iSetDifficultyFromChar(iCh);
-      printf("\n\n");
+      vReadRoomDifficulty(&giDifficulty);
     }
 
     vSetSigUsrHandler(vTimerAction);

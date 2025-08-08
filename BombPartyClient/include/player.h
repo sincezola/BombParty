@@ -13,4 +13,10 @@
   } STRUCT_PLAYER_LIST, *PSTRUCT_PLAYER_LIST;
 
   extern STRUCT_PLAYER_LIST gstPlayerList;
+  
+  int iNewPlayer(int iId, char *pszName);
+  void vInitPlayerList();
+  void vClearPlayerList();
+  PSTRUCT_PLAYER pstFindPlayer(int iId);
+  PSTRUCT_PLAYER pstCreatePlayer(PSTRUCT_PLAYER pstPlayer);
 #endif

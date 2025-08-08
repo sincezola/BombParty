@@ -106,6 +106,7 @@ void vInitSockets() {
     exit(EXIT_FAILURE);
   }
 #endif
+
 }
 
 /**

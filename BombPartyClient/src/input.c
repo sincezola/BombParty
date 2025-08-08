@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <terminal_utils.h>
+#include <infix_generator.h>
 #include <sys_interface.h>
 
 #ifdef _WIN32
@@ -179,6 +180,98 @@ void vReadRoomName(char *pszName, int iNameSz) {
   return;
 }
 
+void vReadRoomDifficulty(int *iDifficulty) {
+  char szBuffer[128];
+  int iCh;
+
+  do {
+    vClearTerminal();
+    printf("\n Escolha sua a dificuldade :\n");
+    printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
+    printf("\t[M] Medium (%d letras por palavra)\n", MEDIUM_INFIX);
+    printf("\t[H] Hard   (%d letras por palavra)\n", HARD_INFIX);
+    printf("Dificuldade: ");
+
+    memset(szBuffer, 0, sizeof(szBuffer));
+    if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
+      if (strchr(szBuffer, '\n') == NULL)
+        vFlushInput();
+    }
+
+    iCh = tolower(szBuffer[0]);
+  } while (iCh != 'e' && iCh != 'm' && iCh != 'h');
+
+  *iDifficulty = iSetDifficultyFromChar(iCh);
+  printf("\n\n");
+  
+  return;
+}
+
+void vReadRoomPassword(char *pszPassword, int iPasswdSz) {
+  char szBuffer[128];
+  int iCh;
+
+  memset(pszPassword, 0, iPasswdSz);
+  do {
+    vClearTerminal();
+    printf("\n Deseja criar uma senha para sala?\n");
+    printf("\t [S] - Sim | [N] - Nao\n");
+    printf("Criar senha? ");
+
+    memset(szBuffer, 0, sizeof(szBuffer));
+    if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
+      if (strchr(szBuffer, '\n') == NULL)
+        vFlushInput();
+    }
+    iCh = tolower(szBuffer[0]);
+  } while (iCh != 's' && iCh != 'n');
+  
+  if ( iCh == 'n' ){
+    return;
+  }
+
+  do {
+    vClearTerminal();
+    printf("\n Defina a senha.\n");
+    printf("Senha: ");
+
+    memset(szBuffer, 0, sizeof(szBuffer));
+    if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
+      if (strchr(szBuffer, '\n') == NULL)
+        vFlushInput();
+    }
+    strtok(szBuffer, "\n");
+
+  } while ( bStrIsEmpty(szBuffer) );
+  
+  snprintf(pszPassword, iPasswdSz, "%s", szBuffer);
+
+  return;
+}
+
+
+void vReadRoomCapacity(int *iCapacity) {
+  char szBuffer[128];
+  do {
+    vClearTerminal();
+    printf("\n Escolha a quantidade maxima de jogadores :\n");
+    printf("\t Minimo - 2\t Maximo 5\n");
+    printf("Capacidade da sala: ");
+
+    memset(szBuffer, 0, sizeof(szBuffer));
+    if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
+      if (strchr(szBuffer, '\n') == NULL)
+        vFlushInput();
+    }
+
+  } while ( atoi(szBuffer) < 2 || atoi(szBuffer) > 5);
+  
+  *iCapacity = atoi(szBuffer);
+  printf("\n\n");
+  
+  return;
+}
+
 int iReadGameMode() {
   char szMode[128];
   int  iCh;
@@ -198,6 +291,29 @@ int iReadGameMode() {
   } while (iCh != 's' && iCh != 'm');
   
   return (iCh == 's') ? SINGLEPLAYER : MULTIPLAYER;
+}
+
+int iReadMultiplayerAction() {
+  char szMode[128];
+  int  iCh;
+  
+  printf("\n Escolha uma acao :\n");
+  printf("\t[E] Entrar em uma sala \n");
+  printf("\t[C] Criar  uma sala\n");
+  printf("Opcao: ");
+
+  memset(szMode, 0, sizeof(szMode));
+  if (fgets(szMode, sizeof(szMode), stdin)) {
+    if (strchr(szMode, '\n') == NULL)
+        vFlushInput();
+    }
+ 
+  iCh = tolower(szMode[0]);
+  
+  if ( iCh != 'e' && iCh != 'c')
+    iCh = 0;
+
+  return iCh;
 }
 /**
  * @brief Captura input do usuário caractere a caractere, com redesenho contínuo

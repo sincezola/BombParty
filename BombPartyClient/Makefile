@@ -29,6 +29,7 @@ CCOPT         = -Wall -Wextra
 ifdef _WIN32
   CCOPT += -D_WIN32
   ICON_OBJ = $(OBJ_DIR)/icon.o
+  LIBS  += -lws2_32
 endif
 
 ifdef LINUX
@@ -39,6 +40,10 @@ endif
 DEBUG_ADD_FLAGS = -O2
 ifdef DEBUG
   DEBUG_ADD_FLAGS = -g -ggdb
+endif
+
+ifdef FAKE
+  CCOPT += -DFAKE
 endif
 
 BOMB_EXEC = bombparty
@@ -56,6 +61,7 @@ OBJS = \
 	$(OBJ_DIR)/multiplayer.o \
 	$(OBJ_DIR)/parse_api.o \
 	$(OBJ_DIR)/room.o \
+	$(OBJ_DIR)/trace.o \
 	$(OBJ_DIR)/command.o
 
 ifneq ("$(wildcard $(OBJ_DIR)/icon.o)","")

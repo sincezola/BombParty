@@ -54,20 +54,21 @@ void vSendMessageBytes(int iSock, char *pszMessage, long lBytes, int iRslSts) {
 */
 int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
   char *pTok;
-  STRUCT_ROOM stRoom;
-  char *pszTitle = "createroom.txt";
   char szRsl[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
   char szFullEndpoint[512];
-  char szURL[1024];
+  char szURL[2048];
   char szMsg[258];
   char szPayload[1024];
+  char *pszTitle = "createroom.txt";
+  STRUCT_ROOM stRoom;
 
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   memset(szPayload, 0, sizeof(szPayload));
   memset(szFullEndpoint, 0, sizeof(szFullEndpoint));
   memset(szMsg, 0, sizeof(szMsg));
   memset(szRsl, 0, sizeof(szRsl));
+  memset(szURL, 0, sizeof(szURL));
   
   /** Player Name */
   pTok = strtok_r(NULL, "|", ppszArgs);
@@ -119,9 +120,9 @@ int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
 
   strcpy(szFullEndpoint, CREATE_ROOM_PATH); 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
+    snprintf(szURL, sizeof(szURL), "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
+    snprintf(szURL, sizeof(szURL), "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, szFullEndpoint, "POST", szPayload, strlen(szPayload), szRsl);
 
@@ -147,7 +148,7 @@ int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
   int  iRoomId = 0;
   char *pTok;
   char szPlayerName[128];
-  char szURL[1024];
+  char szURL[2048];
   char szRsl[_MAX_RSL_BUFFER];
   char szPayload[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
@@ -158,6 +159,7 @@ int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
   memset(szChildResponse, 0, sizeof(szChildResponse));
   memset(szPayload, 0, sizeof(szPayload));
   memset(szRsl, 0, sizeof(szRsl));
+  memset(szURL, 0, sizeof(szURL));
 
   /** Player Name */
   pTok = strtok_r(NULL, "|", ppszArgs);
@@ -170,9 +172,9 @@ int iCMD_JoinRoom(char **ppszArgs, int iSocketClient) {
     iRoomId = atoi(pTok);
   
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
+    snprintf(szURL, sizeof(szURL), "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
+    snprintf(szURL, sizeof(szURL), "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
   
   strcpy(szFullEndpoint, JOIN_ROOM_PATH);
   sprintf(szPayload, 
@@ -210,7 +212,7 @@ int iCMD_DeleteRoom(char **ppszArgs, int iSocketClient) {
   int iRoomId = 0;
   char *pTok;
   char szFullEndpoint[512];
-  char szURL[1024];
+  char szURL[2048];
   char szPayload[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
   char szRsl[_MAX_RSL_BUFFER];
@@ -236,9 +238,9 @@ int iCMD_DeleteRoom(char **ppszArgs, int iSocketClient) {
   sprintf(szFullEndpoint, "%s/%d", DELETE_ROOM_PATH, iRoomId);
 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
+    snprintf(szURL, sizeof(szURL), "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
+    snprintf(szURL, sizeof(szURL), "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, szFullEndpoint, METHOD_DELETE, szPayload, strlen(szPayload), szRsl);
   
@@ -262,7 +264,7 @@ int iCMD_LeaveRoom(char **ppszArgs, int iSocketClient) {
   int iPlayerId = 0;
   char *pTok;
   char szFullEndpoint[512];
-  char szURL[1024];
+  char szURL[2048];
   char szPayload[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
   char szRsl[_MAX_RSL_BUFFER];
@@ -281,9 +283,9 @@ int iCMD_LeaveRoom(char **ppszArgs, int iSocketClient) {
   sprintf(szFullEndpoint, "%s/%d", LEAVE_ROOM_PATH, iPlayerId);
 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
+    snprintf(szURL, sizeof(szURL), "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
+    snprintf(szURL, sizeof(szURL), "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, szFullEndpoint, METHOD_POST, NULL, 0, szRsl);
   
@@ -312,7 +314,7 @@ int iCMD_LeaveRoom(char **ppszArgs, int iSocketClient) {
 int iCMD_PatchRoom(char **ppszArgs, int iSocketClient) {
   STRUCT_ROOM stRoom;
   char *pTok;  
-  char szURL[1024];
+  char szURL[2048];
   char szPayload[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
   char szRsl[_MAX_RSL_BUFFER];
@@ -376,9 +378,9 @@ int iCMD_PatchRoom(char **ppszArgs, int iSocketClient) {
   strcat(szPayload, "}");
 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
+    snprintf(szURL, sizeof(szURL), "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
+    snprintf(szURL, sizeof(szURL), "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, PATCH_ROOM_PATH, METHOD_PATCH, szPayload, strlen(szPayload), szRsl);
 
@@ -411,7 +413,7 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   char cQueryPRM = 0;
   char *pTok;
   char *pszEndpoint;
-  char szURL[1024];
+  char szURL[2048];
   char szFullEndpoint[1024];
   char szRsl[_MAX_RSL_BUFFER];
   char szChildResponse[_MAX_RSL_BUFFER];
@@ -449,9 +451,9 @@ int iCMD_GetRoom(char **ppszArgs, int iSocketClient) {
   }  
 
   if ( !bStrIsEmpty(API_HOST_PORT) )
-    sprintf(szURL, "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
+    snprintf(szURL, sizeof(szURL), "%s:%s/%s", pszAPI_URL_ADDRESS, API_HOST_PORT, BASE_PATH);
   else
-    sprintf(szURL, "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
+    snprintf(szURL, sizeof(szURL), "%s/%s", pszAPI_URL_ADDRESS, BASE_PATH); 
 
   iCurlReq(szURL, szFullEndpoint, "GET", NULL, 0, szRsl);
 

@@ -12,6 +12,12 @@
   #define DIFFICULTY_FLD_SIZE 16
   #define CAPACITY_FLD_SIZE   14
   #define STATUS_FLD_SIZE     10
+  
+  typedef enum eRoomRoles {
+    ROLE_OWNER = 1,
+    ROLE_GUEST,
+    ROLE_SPECTATOR
+  } eRoomRoles;
 
   typedef struct STRUCT_ROOM_ROLES {
     int iPlayerRole;
@@ -36,14 +42,19 @@
 
   extern STRUCT_ROOM_LIST gstRoomList;
 
-  void vDrawRoom();
-  int iCalcPaddingOffset(int iFieldSize, int *iContentLen);
-  void vInitRoomList();
-  void vAddRoom2List(PSTRUCT_ROOM pstRoom);
-  PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom);
-  void vAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom);
   int iNewRoom(int iId, char *pszName, int iStatus, int iCapacity, int iDifficulty);
-  void vClearRoomList();
-  PSTRUCT_ROOM pstFindRoom(int iId);
+  int iNewPlayerRoom();
+  int iCalcPaddingOffset(int iFieldSize, int *iContentLen);
   int iRoomPlayerCt(PSTRUCT_ROOM pstRoom);
+  int iFindPlayerRole(PSTRUCT_PLAYER pstPlayer);
+  int iJoinRoom();
+  void vDrawRoom();
+  void vInitRoomList();
+  void vClearRoomList();
+  void vCreateDummyRooms();
+  void vAddRoom2List(PSTRUCT_ROOM pstRoom);
+  void vAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom);
+  PSTRUCT_ROOM pstSelectRoomFromList();
+  PSTRUCT_ROOM pstFindRoom(int iId);
+  PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom);
 #endif
