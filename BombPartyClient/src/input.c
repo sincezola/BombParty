@@ -51,24 +51,65 @@ int iPortableGetchar() {
   HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
   INPUT_RECORD record;
   DWORD read;
+
   while (1) {
     ReadConsoleInput(hStdin, &record, 1, &read);
+
     if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
-      return record.Event.KeyEvent.uChar.AsciiChar;
+      WORD vkCode = record.Event.KeyEvent.wVirtualKeyCode;
+
+      // Debug para Virtual Key Code
+      printf("[DEBUG - WIN] VK = %d\n", vkCode);
+      fflush(stdout);
+
+      switch (vkCode) {
+        case VK_UP:    return -1;
+        case VK_DOWN:  return -2;
+        case VK_RIGHT: return -3;
+        case VK_LEFT:  return -4;
+        case VK_RETURN: return '\n';
+        default:
+          return record.Event.KeyEvent.uChar.AsciiChar;
+      }
     }
   }
 #else
   struct termios stOldt, stNewt;
-  int iCh;
+  int iCh, iSecond = -1, iThird = -1;
+
   tcgetattr(STDIN_FILENO, &stOldt);
   stNewt = stOldt;
   stNewt.c_lflag &= ~(ICANON | ECHO);
   tcsetattr(STDIN_FILENO, TCSANOW, &stNewt);
+
   iCh = getchar();
+
+  if (iCh == 27) { // ESC
+    iSecond = getchar();
+    if (iSecond == '[') {
+      iThird = getchar();
+
+      printf("[DEBUG - LIN] Sequence: ESC (%d), [ (%d), Code (%d)\n", iCh, iSecond, iThird);
+      tcsetattr(STDIN_FILENO, TCSANOW, &stOldt);
+
+      switch (iThird) {
+        case 'A': return -1; // ↑
+        case 'B': return -2; // ↓
+        case 'C': return -3; // →
+        case 'D': return -4; // ←
+        default:
+          return 0;
+      }
+    }
+  } else {
+    printf("[DEBUG - LIN] Key = %d (%c)\n", iCh, (iCh >= 32 && iCh <= 126) ? iCh : '?');
+  }
+
   tcsetattr(STDIN_FILENO, TCSANOW, &stOldt);
   return iCh;
 #endif
 }
+
 
 /**
  * @brief Pausa a execução por um número de segundos (cross-platform)

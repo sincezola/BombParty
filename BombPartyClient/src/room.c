@@ -74,7 +74,7 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
     pstWrkRoom = gstRoomList.pstFirst;
 
     vClearTerminal();
-    printf("Use ↑/↓ para navegar, ENTER para selecionar:\n\n");
+    printf("Use as setas /\\ e \\/ para navegar, ENTER para selecionar:\n\n");
 
     for (iIndex = 0; pstWrkRoom != NULL; pstWrkRoom = pstWrkRoom->pstNextRoom, iIndex++) {
       char szRoomCapacity[32];
@@ -90,16 +90,11 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
       }
     }
 
-    iKey = iPortableGetchar();
-    if (iKey == 27) {
-      if (iPortableGetchar() == '[') {
-        iKey = iPortableGetchar();
-        if (iKey == 'A') { // ↑
-          iSelected = (iSelected - 1 + iRoomCt) % iRoomCt;
-        } else if (iKey == 'B') { // ↓
-          iSelected = (iSelected + 1) % iRoomCt;
-        }
-      }
+     iKey = iPortableGetchar();
+    if (iKey == -1) {         // ↑
+      iSelected = (iSelected - 1 + iRoomCt) % iRoomCt;
+    } else if (iKey == -2) {  // ↓
+      iSelected = (iSelected + 1) % iRoomCt;
     } else if (iKey == '\n' || iKey == '\r') {
       pstRoom = gstRoomList.pstFirst;
       for (int i = 0; i < iSelected && pstRoom != NULL; i++)
