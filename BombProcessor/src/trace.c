@@ -148,7 +148,7 @@ void _vTraceVarArgsFn(char *pszModuleName, const int kiLine, const char *kpszFun
   va_start(args, kpszFmt);
 
   iDIR_SplitFilename(pszModuleName, szPath, szName, szExt);
-  snprintf(szDbg, sizeof(szDbg), "%02d/%02d/%02d %02d:%02d:%02d.%03ld<%s%s:%d>(%s) - ",
+  snprintf(szDbg, sizeof(szDbg), "[%02d/%02d/%02d %02d:%02d:%02d.%03ld]<%s%s:%d>(%s) - ",
            (int)st_tm_Now->tm_mday, (int)st_tm_Now->tm_mon + 1,
            (int)st_tm_Now->tm_year - 100, (int)st_tm_Now->tm_hour,
            (int)st_tm_Now->tm_min, (int)st_tm_Now->tm_sec,

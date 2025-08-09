@@ -61,13 +61,15 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
   int iSelected = 0;
   int iKey = 0;
   int iRoomCt = 0;
+  int ii;
   PSTRUCT_ROOM pstRoom;
   PSTRUCT_ROOM pstWrkRoom;
 
-  for (pstRoom = gstRoomList.pstFirst; pstRoom != NULL; pstRoom = pstRoom->pstNextRoom)
-    iRoomCt++;
-
-  if (iRoomCt == 0) return NULL;
+  if ( (iRoomCt = iGetTotalRoomCt()) == 0 ){
+    vTraceVarArgsFn("No room to select..");
+    return NULL;
+  }
+   
 
   while (TRUE) {
     int iIndex = 0;
@@ -84,20 +86,28 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
       sprintf(szRoomCapacity, "%d/%d", iRoomPlayerCt(pstWrkRoom), pstWrkRoom->iRoomCapacity);
 
       if (iIndex == iSelected) {
-        printf(" \x1b[7m%-16s | %-8s | %-8s | %-8s\x1b[0m\n", pstWrkRoom->szRoomName, pszDiffStr, szRoomCapacity, pszStatusStr);
+        printf(
+      " \x1b[7m%-16s | %-8s | %-8s | %-8s\x1b[0m\n",
+          pstWrkRoom->szRoomName, pszDiffStr, szRoomCapacity, pszStatusStr
+        );
       } else {
-        printf("  %-16s | %-8s | %-8s | %-8s\n", pstWrkRoom->szRoomName, pszDiffStr, szRoomCapacity, pszStatusStr);
+        printf(
+      "  %-16s | %-8s | %-8s | %-8s\n",
+          pstWrkRoom->szRoomName, pszDiffStr, szRoomCapacity, pszStatusStr
+        );
       }
     }
 
-     iKey = iPortableGetchar();
-    if (iKey == -1) {         // ↑
+    iKey = iPortableGetchar();
+    if (iKey == -1) {      
       iSelected = (iSelected - 1 + iRoomCt) % iRoomCt;
-    } else if (iKey == -2) {  // ↓
+    } 
+    else if (iKey == -2) {
       iSelected = (iSelected + 1) % iRoomCt;
-    } else if (iKey == '\n' || iKey == '\r') {
+    } 
+    else if (iKey == '\n' || iKey == '\r') {
       pstRoom = gstRoomList.pstFirst;
-      for (int i = 0; i < iSelected && pstRoom != NULL; i++)
+      for (ii = 0; ii < iSelected && pstRoom != NULL; ii++)
         pstRoom = pstRoom->pstNextRoom;
       return pstRoom;
     }
@@ -118,6 +128,7 @@ void vDrawRoom() {
   PSTRUCT_ROOM pstRoom;
 
   #ifdef FAKE
+    vTraceVarArgsFn("vDrawRoom Dummy Rooms");
     vCreateDummyRooms();
   #endif
   vClearTerminal();
@@ -305,7 +316,12 @@ int iNewPlayerRoom() {
   vReadRoomDifficulty(&iDifficulty);
   vReadRoomCapacity(&iCapacity);
   vReadRoomPassword(szPassword, sizeof(szPassword));
-
+  
+  vTraceVarArgsFn(
+"PName=[%s] RName=[%s] Diff=[%d] Cap=[%d] Pw=[%s]",
+    szRoomName, szPlayerName, iCapacity, iDifficulty, szPassword
+  );  
+  
   pstRoom = pstNewServerRoom(szRoomName, szPlayerName, iCapacity, iDifficulty, szPassword);
   
   if (pstRoom == NULL)
@@ -335,8 +351,6 @@ int iNewRoom(int iId, char *pszName, int iStatus, int iCapacity, int iDifficulty
 
   return 0;
 }
-
-
 
 /* CMD|CMD_JOIN_ROOM|playername|room_id| */
 int iJoinRoom(){
@@ -455,4 +469,14 @@ void vCreateDummyRooms() {
   iNewRoom(103, "Sala3", ROOM_CREATED, 5, HARD);
   vAddPlayer2Room(ROLE_OWNER, pstFindPlayer(3), pstFindRoom(103));
   vAddPlayer2Room(ROLE_GUEST, pstFindPlayer(4), pstFindRoom(103));
+}
+
+int iGetTotalRoomCt(){
+  int iRoomCt = 0;
+  PSTRUCT_ROOM pstRoom;
+
+  for (pstRoom = gstRoomList.pstFirst; pstRoom != NULL; pstRoom = pstRoom->pstNextRoom)
+    iRoomCt++;
+
+  return iRoomCt;
 }

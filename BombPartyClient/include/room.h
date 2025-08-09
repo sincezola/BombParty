@@ -48,6 +48,7 @@
   int iRoomPlayerCt(PSTRUCT_ROOM pstRoom);
   int iFindPlayerRole(PSTRUCT_PLAYER pstPlayer);
   int iJoinRoom();
+  int iGetTotalRoomCt();
   void vDrawRoom();
   void vInitRoomList();
   void vClearRoomList();
