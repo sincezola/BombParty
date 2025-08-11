@@ -3,7 +3,7 @@
 #include <word_db.h>
 
 int bSearchWordDb(char *pszWord) {
-  FILE *pfDb;
+  char *pszDbName;
   char szSearch[1024];
   char szFilePath[_MAX_PATH];
 
@@ -30,7 +30,7 @@ int bSearchWordDb(char *pszWord) {
 }
 
 void vGetWordFromDb(char *pszWord, int iWordSz, int iLine) {
-  FILE *pfDb;
+  char *pszDbName;
   char szSearch[1024];
   char szFilePath[_MAX_PATH];
   int ii = 0;
