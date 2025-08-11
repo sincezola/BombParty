@@ -8,9 +8,11 @@
   #include <windows.h>
   static HANDLE ghBombThread = NULL; /** Handle global para thread da bomba */
 #else
+  #include <libgen.h>
   #include <signal.h>
   #include <sys/types.h>
   #include <sys/wait.h>
+  #include <sys/stat.h>
   #include <unistd.h>
   static int giBombPid = -1; /** PID global do processo da bomba */
 #endif

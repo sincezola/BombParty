@@ -3,9 +3,9 @@
 #include <word_db.h>
 
 int bSearchWordDb(char *pszWord) {
-  char *pszDbName;
   char szSearch[1024];
   char szFilePath[_MAX_PATH];
+  FILE *pfDb;
 
   sprintf(szFilePath, "%s/%s", PATH_TO_DB, WORD_DB_TITLE);
   if ((pfDb = fopen(szFilePath, "r")) == NULL) return FALSE;
@@ -30,10 +30,10 @@ int bSearchWordDb(char *pszWord) {
 }
 
 void vGetWordFromDb(char *pszWord, int iWordSz, int iLine) {
-  char *pszDbName;
   char szSearch[1024];
   char szFilePath[_MAX_PATH];
   int ii = 0;
+  FILE *pfDb;
 
   sprintf(szFilePath, "%s/%s", PATH_TO_DB, WORD_DB_TITLE);
   if ((pfDb = fopen(szFilePath, "r")) == NULL) return ;

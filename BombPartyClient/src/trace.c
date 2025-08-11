@@ -12,15 +12,16 @@
 #include <sys_interface.h>
 
 #ifdef LINUX
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
+  #include <sys/time.h>
+  #include <sys/types.h>
+  #include <unistd.h>
 #else
-#include <windows.h>
-struct timeval {
-    long tv_sec;
-    long tv_usec;
-};
+  #include <windows.h>
+
+    struct timeval {
+      long tv_sec;
+      long tv_usec;
+  };
 #endif
 
 char gszTraceFile[_MAX_PATH + _MAX_PATH];
