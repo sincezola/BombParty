@@ -20,6 +20,9 @@ int iParseCommand(char *pszBuffer, int *piCmdId, int iSock) {
   char *pTok;
   char *pszSavePtr;
 
+
+  strtok(pszBuffer,"\n");
+  
   pTok = strtok_r(pszBuffer, "|", &pszSavePtr);
   if (!pTok || memcmp(pTok, "BYE", 3) == 0)
     return 1;

@@ -1,9 +1,10 @@
 let data = '';
 
-const fileTitle = process.argv[1];
+const fileTitle = process.argv[2];
 const createRoomTitle = "createroom.txt";
 const joinRoomTitle = "joinroom.txt";
 const getRoomTitle = "getroom.txt";
+
 const exportGetRoomReg = "99";
 const exportJoinRoomReg = "98";
 const roomPropsReg = "01";
@@ -11,139 +12,66 @@ const statusReg = "02";
 const levelReg = "03";
 const playerlistReg = "04";
 
-function parseJoinRoom(dataJSON, parsedString) {
+function parseJoinRoom(dataJSON, arr) {
   const roomProps = dataJSON.room;
+  if (!roomProps) return;
 
-  if ("roomProps" in roomProps) {
-    parsedString += exportJoinRoomReg + "|";
-    parsedString += roomPropsReg + "|";
-
-    parsedString += String(roomProps.room_id) + "|";
-    parsedString += String(roomProps.room_status) + "|";
-    parsedString += String(roomProps.room_name) + "|";
-    parsedString += String(roomProps.room_password) + "|";
-    parsedString += String(roomProps.room_capacity) + "|";
-    parsedString += String(roomProps.room_level) + "|";
-    parsedString += "\n";
-  }
-
-  if ("type" in roomProps) {
-    parsedString += exportJoinRoomReg + "|";
-    parsedString += statusReg + "|";
-
-    parsedString += String(roomProps.status.status_type_id) + "|";
-    parsedString += String(roomProps.status.code) + "|";
-    parsedString += "\n";
-  }
-
-  if ("level" in roomProps) {
-    parsedString += exportJoinRoomReg + "|";
-    parsedString += levelReg + "|";
-
-    parsedString += String(roomProps.level.level_type_id) + "|";
-    parsedString += String(roomProps.level.code) + "|";
-    parsedString += "\n";
-  }
-
-  if ("players" in roomProps) {
-    for (const tPlayer of roomProps.players) {
-      parsedString += exportJoinRoomReg + "|";
-      parsedString += playerlistReg + "|";
-
-      parsedString += String(tPlayer.player.player_key) + "|";
-      parsedString += tPlayer.player.player_name + "|";
-      parsedString += "\n";
-    }
-  }
-}
-function parseCreateRoom(dataJSON, parsedString) {
-  const roomProps = dataJSON.roomProps;
-
-  if ("roomProps" in room) {
-    parsedString += exportGetRoomReg + "|";
-    parsedString += roomPropsReg + "|";
-
-    parsedString += String(roomProps.room_key) + "|";
-    parsedString += String(roomProps.room_status) + "|";
-    parsedString += String(roomProps.room_name) + "|";
-    parsedString += String(roomProps.room_password) + "|";
-    parsedString += String(roomProps.room_capacity) + "|";
-    parsedString += String(roomProps.room_level) + "|";
-    parsedString += "\n";
-  }
+  arr.push(`${exportJoinRoomReg}|${roomPropsReg}|${roomProps.room_id}|${roomProps.room_status}|${roomProps.room_name}|${roomProps.room_password}|${roomProps.room_capacity}|${roomProps.room_level}`);
 
   if ("status" in roomProps) {
-    parsedString += exportGetRoomReg + "|";
-    parsedString += statusReg + "|";
-
-    parsedString += String(roomProps.status.status_type_id) + "|";
-    parsedString += String(roomProps.status.code) + "|";
-    parsedString += "\n";
+    arr.push(`${exportJoinRoomReg}|${statusReg}|${roomProps.status.status_type_id}|${roomProps.status.code}`);
   }
 
   if ("level" in roomProps) {
-    parsedString += exportGetRoomReg + "|";
-    parsedString += levelReg + "|";
-
-    parsedString += String(roomProps.level.level_type_id) + "|";
-    parsedString += String(roomProps.level.code) + "|";
-    parsedString += "\n";
+    arr.push(`${exportJoinRoomReg}|${levelReg}|${roomProps.level.level_type_id}|${roomProps.level.code}`);
   }
 
   if ("players" in roomProps) {
     for (const tPlayer of roomProps.players) {
-      parsedString += exportGetRoomReg + "|";
-      parsedString += playerlistReg + "|";
-
-      parsedString += String(tPlayer.player.player_key) + "|";
-      parsedString += tPlayer.player.player_name + "|";
-      parsedString += "\n";
+      arr.push(`${exportJoinRoomReg}|${playerlistReg}|${tPlayer.player.player_key}|${tPlayer.player.player_name}`);
     }
   }
 }
-function parseGetRoom(dataJSON, parsedString) {
-  for (const room of dataJSON) {
-    const roomProps = room.roomProps;
 
-    if ("roomProps" in room) {
-      parsedString += exportGetRoomReg + "|";
-      parsedString += roomPropsReg + "|";
+function parseCreateRoom(dataJSON, arr) {
+  const roomProps = dataJSON.roomProps;
+  if (!roomProps) return;
 
-      parsedString += String(roomProps.room_key) + "|";
-      parsedString += String(roomProps.room_status) + "|";
-      parsedString += String(roomProps.room_name) + "|";
-      parsedString += String(roomProps.room_password) + "|";
-      parsedString += String(roomProps.room_capacity) + "|";
-      parsedString += String(roomProps.room_level) + "|";
-      parsedString += "\n";
+  arr.push(`${exportGetRoomReg}|${roomPropsReg}|${roomProps.room_key}|${roomProps.room_status}|${roomProps.room_name}|${roomProps.room_password}|${roomProps.room_capacity}|${roomProps.room_level}`);
+
+  if ("status" in roomProps) {
+    arr.push(`${exportGetRoomReg}|${statusReg}|${roomProps.status.status_type_id}|${roomProps.status.code}`);
+  }
+
+  if ("level" in roomProps) {
+    arr.push(`${exportGetRoomReg}|${levelReg}|${roomProps.level.level_type_id}|${roomProps.level.code}`);
+  }
+
+  if ("players" in roomProps) {
+    for (const tPlayer of roomProps.players) {
+      arr.push(`${exportGetRoomReg}|${playerlistReg}|${tPlayer.player.player_key}|${tPlayer.player.player_name}`);
+    }
+  }
+}
+
+function parseGetRoom(dataJSON, arr) {
+  const roomProps = dataJSON.roomProps;
+  if (!roomProps) return;
+
+  for (const room of roomProps) {
+    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${room.room_password}|${room.room_capacity}|${room.room_level}`);
+
+    if ("status" in room) {
+      arr.push(`${exportGetRoomReg}|${statusReg}|${room.status.status_type_id}|${room.status.code}`);
     }
 
-    if ("status" in roomProps) {
-      parsedString += exportGetRoomReg + "|";
-      parsedString += statusReg + "|";
-
-      parsedString += String(roomProps.status.status_type_id) + "|";
-      parsedString += String(roomProps.status.code) + "|";
-      parsedString += "\n";
+    if ("level" in room) {
+      arr.push(`${exportGetRoomReg}|${levelReg}|${room.level.level_type_id}|${room.level.code}`);
     }
 
-    if ("level" in roomProps) {
-      parsedString += exportGetRoomReg + "|";
-      parsedString += levelReg + "|";
-
-      parsedString += String(roomProps.level.level_type_id) + "|";
-      parsedString += String(roomProps.level.code) + "|";
-      parsedString += "\n";
-    }
-
-    if ("players" in roomProps) {
-      for (const tPlayer of roomProps.players) {
-        parsedString += exportGetRoomReg + "|";
-        parsedString += playerlistReg + "|";
-
-        parsedString += String(tPlayer.player.player_key) + "|";
-        parsedString += tPlayer.player.player_name + "|";
-        parsedString += "\n";
+    if ("players" in room) {
+      for (const tPlayer of room.players) {
+        arr.push(`${exportGetRoomReg}|${playerlistReg}|${tPlayer.player.player_key}|${tPlayer.player.player_name}`);
       }
     }
   }
@@ -156,18 +84,20 @@ process.stdin.on('data', chunk => {
 });
 
 process.stdin.on('end', () => {
-  const dataJSON = JSON.parse(data);
+  try {
+    const dataJSON = JSON.parse(data);
+    const parsedArray = [];
 
-  let parsedString = "";
+    if (fileTitle === getRoomTitle)
+      parseGetRoom(dataJSON, parsedArray);
+    else if (fileTitle === joinRoomTitle)
+      parseJoinRoom(dataJSON, parsedArray);
+    else if (fileTitle === createRoomTitle)
+      parseCreateRoom(dataJSON, parsedArray);
 
-  if (fileTitle == getRoomTitle)
-    parseGetRoom(dataJSON, parsedString);
-  else if (fileTitle == joinRoomTitle)
-    parseJoinRoom(dataJSON, parsedString);
-  else if (fileTitle == createRoomTitle)
-    parseCreateRoom(dataJSON, parsedString);
-
-
-  parsedString = parsedString.slice(0, -1); // remove último \n
-  console.log(parsedString);
+    const parsedString = parsedArray.join('\n');
+    console.log(parsedString);
+  } catch (err) {
+    console.error('Erro ao processar os dados:', err.message);
+  }
 });

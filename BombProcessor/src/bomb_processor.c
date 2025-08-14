@@ -13,6 +13,7 @@
 #include <parse_messages.h>
 #include <trace.h>
 #include <sys_interface.h>
+#include <routes_api.h>
 
 #ifdef _WIN32
   #include <windows.h>
@@ -141,12 +142,11 @@ int main(int argc, char *argv[]) {
     
     giServerPort = iSrvPort;
   }
-  
+  sprintf(pszAPI_URL_ADDRESS, "%s", API_URL_ADDRESS);
   if (argc > 2 ) {
     strcpy(pszAPI_URL_ADDRESS, argv[2]);
   } 
 
-  vInitSockets();
 
   /** Creates Socket Server */
 

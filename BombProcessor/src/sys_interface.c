@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys_interface.h>
+#include <trace.h>
 #ifdef _WIN32
   #include <direct.h> // mkdir no Windows
   #include <io.h>
@@ -126,8 +127,15 @@ int bFileExist(const char *kpszFileName) {
 int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz) {
   FILE *pfPopen;
   char szLine[1024];
+  char szCWD[_MAX_PATH];
   int iCurrLen = 0;
 
+#ifdef LINUX
+  memset(szCWD, 0, sizeof(szCWD));
+  getcwd(szCWD, sizeof(szCWD));
+  vTraceVarArgsFn("CWD[%s]", szCWD);
+#endif
+  vTraceVarArgsFn("Cmd to run[%s]", pszCmd);
   if ((pfPopen = popen(pszCmd, "r")) == NULL)
     return FALSE;
 

@@ -1,12 +1,13 @@
 #ifndef ROUTES_API_H
   #define ROUTES_API_H
 
-// #define pszAPI_URL_ADDRESS     "127.0.0.1" // | !NO! NGINX
 // #define pszAPI_URL_ADDRESS     "localhost" // | NGINX
 // #define API_HOST_PORT        ""            // | external service
 // #define API_HOST_PORT        "80"          // | ADDRESS
-#define API_HOST_PORT        "8080"           // | !NO! ADDRESS
 extern char pszAPI_URL_ADDRESS[1024];  
+
+#define API_URL_ADDRESS     "127.0.0.1" // | !NO! NGINX
+#define API_HOST_PORT        "8080"           // | !NO! ADDRESS
 #define BASE_PATH            "api"
 #define GET_ALL_ROOM_PATH    "Room/GetAllRooms"
 #define GET_ROOM_BY_ID_PATH  "Room/GetRoomById"

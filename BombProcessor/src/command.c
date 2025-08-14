@@ -44,7 +44,9 @@ void vSendMessageBytes(int iSock, char *pszMessage, long lBytes, int iRslSts) {
   );
 
   vSendMsg(iSock, szMsg, strlen(szMsg));
+  vTraceVarArgsFn("BytesMsg[%s]", szMsg);
   vSendMsg(iSock, pszMessage, lBytes);
+  vTraceVarArgsFn("FinalMsg[%s]", pszMessage);
 }
 
 
@@ -483,10 +485,11 @@ int iJSON_ExternalParse(char *pszJSON, char *pszRsl, int iRslSz, char *pszTitle)
   fprintf(pfInput, "%s", pszJSON);
   fclose(pfInput);
 
-  vTraceVarArgsFn("Command[%s]", szCmd);
   sprintf(szCmd, "node %s %s < %s", JSON_PARSER_TITLE, pszTitle, pszTitle);
+  vTraceVarArgsFn("Command[%s]", szCmd);
   if ( bRunCmd(szCmd, pszRsl, iRslSz) == FALSE )
     return -1;
 
+  vTraceVarArgsFn("Rsl[%s]", pszRsl);
   return 0;
 }
