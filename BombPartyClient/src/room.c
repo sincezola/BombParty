@@ -58,6 +58,7 @@ int iCalcPaddingOffset(int iFieldSize, int *iContentLen) {
 }
 
 PSTRUCT_ROOM pstSelectRoomFromList() {
+  char szLine[1024];
   int iSelected = 0;
   int iKey = 0;
   int iRoomCt = 0;
@@ -70,13 +71,12 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
     return NULL;
   }
    
-
   while (TRUE) {
     int iIndex = 0;
     pstWrkRoom = gstRoomList.pstFirst;
 
     vClearTerminal();
-    printf("Use as setas /\\ e \\/ para navegar, ENTER para selecionar:\n\n");
+    vPrintLine("Use as setas /\\ e \\/ para navegar, ENTER para selecionar:\n", INSERT_NEW_LINE);
 
     for (iIndex = 0; pstWrkRoom != NULL; pstWrkRoom = pstWrkRoom->pstNextRoom, iIndex++) {
       char szRoomCapacity[32];
@@ -86,15 +86,20 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
       sprintf(szRoomCapacity, "%d/%d", iRoomPlayerCt(pstWrkRoom), pstWrkRoom->iRoomCapacity);
 
       if (iIndex == iSelected) {
-        printf(
-      " \x1b[7m%-16s | %-8s | %-8s | %-8s\x1b[0m\n",
+        memset(szLine, 0, sizeof(szLine));
+        sprintf(szLine,
+      "%-16s | %-8s | %-8s | %-8s",
           pstWrkRoom->szRoomName, pszDiffStr, szRoomCapacity, pszStatusStr
         );
+
+        vPrintHighlitedLine(szLine, INSERT_NEW_LINE);
       } else {
-        printf(
-      "  %-16s | %-8s | %-8s | %-8s\n",
+        memset(szLine, 0, sizeof(szLine));
+        sprintf(szLine,
+      "%-16s | %-8s | %-8s | %-8s",
           pstWrkRoom->szRoomName, pszDiffStr, szRoomCapacity, pszStatusStr
         );
+        vPrintLine(szLine, INSERT_NEW_LINE);
       }
     }
 
@@ -124,18 +129,22 @@ void vDrawRoom() {
   int iCapacityOffset;
   int iStatusLen;
   int iStatusOffset;
-  char szLine[128];
+  char szDivLine[128];
+  char szLine[1024];
   PSTRUCT_ROOM pstRoom;
 
   #ifdef FAKE
     vTraceVarArgsFn("vDrawRoom Dummy Rooms");
     vCreateDummyRooms();
+  #else
+    iGetServerRoom();
   #endif
   vClearTerminal();
   /** Separator Line */
   memset(szLine, 0, sizeof(szLine));
-  szLine[0] = ' ';
-  memset(&szLine[1], '_', ROOM_MAX_CHARS - 2);
+  memset(szDivLine, 0, sizeof(szDivLine));
+  szDivLine[0] = ' ';
+  memset(&szDivLine[1], '_', ROOM_MAX_CHARS - 2);
   szLine[ROOM_MAX_CHARS - 1] = ' ';
 
   /** Title Line */
@@ -151,14 +160,16 @@ void vDrawRoom() {
   iStatusLen = strlen(ROOM_STATUS);
   iStatusOffset = iCalcPaddingOffset(STATUS_FLD_SIZE, &iStatusLen);
 
-  printf("%s\n", szLine);
-  printf(
+  vPrintLine(szDivLine, INSERT_NEW_LINE);
+  memset(szLine, 0, sizeof(szLine));
+  sprintf(szLine,
 "|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|\n",
     iNameOffset, iNameOffset, " ", iNameLen, iNameLen, ROOM_NAME, iNameOffset, iNameOffset, " ", 
     iDifficultyOffset, iDifficultyOffset, " ", iDifficultyLen, iDifficultyLen, ROOM_DIFFICULTY, iDifficultyOffset, iDifficultyOffset, " ",
     iCapacityOffset, iCapacityOffset, " ", iCapacityLen, iCapacityLen, ROOM_CAPACITY, iCapacityOffset, iCapacityOffset, " ",
     iStatusOffset, iStatusOffset, " ", iStatusLen, iStatusLen, ROOM_STATUS, iStatusOffset, iStatusOffset, " "
   );
+  vPrintLine(szLine, INSERT_NEW_LINE);
 
   for (pstRoom = gstRoomList.pstFirst; pstRoom != NULL; pstRoom = pstRoom->pstNextRoom) {
     /** Room Line */
@@ -182,16 +193,17 @@ void vDrawRoom() {
     iStatusLen = strlen(pszRoomStatus);
     iStatusOffset = iCalcPaddingOffset(STATUS_FLD_SIZE, &iStatusLen);
 
-    printf(
+    memset(szLine, 0, sizeof(szLine));
+    sprintf(szLine,
   "|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|\n",
       iNameOffset, iNameOffset, " ", iNameLen, iNameLen, pszRoomName, iNameOffset, iNameOffset, " ",
       iDifficultyOffset, iDifficultyOffset, " ", iDifficultyLen, iDifficultyLen, pszRoomDifficulty, iDifficultyOffset, iDifficultyOffset, " ",
       iCapacityOffset, iCapacityOffset, " ", iCapacityLen, iCapacityLen, szRoomCapacity, iCapacityOffset, iCapacityOffset, " ",
       iStatusOffset, iStatusOffset, " ", iStatusLen, iStatusLen, pszRoomStatus, iStatusOffset, iStatusOffset, " "
     );
+    vPrintLine(szLine, INSERT_NEW_LINE);
   }
-
-  printf("%s\n", szLine);
+  vPrintLine(szDivLine, INSERT_NEW_LINE);
 }
 
 void vInitRoomList() {
@@ -264,41 +276,105 @@ int iRoomPlayerCt(PSTRUCT_ROOM pstRoom) {
   
   return iPlayerCt;
 }
-
-/*
-CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
-*/
-PSTRUCT_ROOM pstNewServerRoom(char *pszRoomName, char *pszPlayerName, int iRoomCapacity, int iDifficultyLevel, char *pszPassword) {
+int iGetServerRoom(){
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   PSTRUCT_ROOM pstRoom = NULL;
+  STRUCT_ROOM stRoom;
+  PSTRUCT_PLAYER pstPlayer = NULL;
+  STRUCT_PLAYER stPlayer;
   
-  /** TODO: Toggle comment on parse */
-  /** STRUCT_ROOM stRoom; */
+  memset(szParams, 0, sizeof(szParams));
+  strncpy(szParams, "A", sizeof(szParams));
+#ifndef FAKE
+  if (iSendCommandToProcessor(giSocketClient, CMD_GET_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
+    vTraceVarArgsFn("Erro ao criar sala no servidor. Prms[%s] Rsl=%s", szParams, szRsl);
+    
+    return -1;  
+  }
+#endif
 
-  memset(szParams,0,sizeof(szParams));
+  vClearRoomList();
+  vClearPlayerList();
+
+  memset(&stRoom, 0, sizeof(STRUCT_ROOM));
+  memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
+  if ( iParseCreateRoom(szRsl, &stRoom) ) 
+    return -1;
+    
+  pstRoom = pstCreateRoom(&stRoom);
+  if (pstRoom == NULL)
+    return -1;
+
+  if ( iParsePlayer(szRsl, &stPlayer) < 0 )
+    return -1; 
+
+  pstPlayer = pstCreatePlayer(&stPlayer);
+  vAddPlayer2List(pstPlayer);
+  vAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
+  for (pstPlayer = pstPlayer->pstNext; pstPlayer != NULL; pstPlayer = pstPlayer->pstNext){
+    vAddPlayer2List(pstPlayer);
+    vAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
+  }
+
+  return 0;
+}
+/**
+CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
+*/
+PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRoomCapacity, int iDifficultyLevel, char *pszPassword) {
+  char szParams[256];
+  char szRsl[_MAX_RSL_BUFFER];
+  PSTRUCT_ROOM pstRoom = NULL;
+  STRUCT_ROOM stRoom;
+  PSTRUCT_PLAYER pstPlayer = NULL;
+  STRUCT_PLAYER stPlayer;
+  /** TODO: Toggle comment on parse */
+  
+  memset(szParams, 0, sizeof(szParams));
   snprintf(szParams, sizeof(szParams), "%s|%s|%d|%d", pszPlayerName, pszRoomName, iRoomCapacity, iDifficultyLevel);
   if (!bStrIsEmpty(pszPassword)) {
     strcat(szParams, "|");
     strcat(szParams, pszPassword);
   }
-  strcat(szParams, "\n");
-
+#ifndef FAKE
   if (iSendCommandToProcessor(giSocketClient, CMD_CREATE_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
     vTraceVarArgsFn("Erro ao criar sala no servidor. Prms[%s] Rsl=%s", szParams, szRsl);
-    return NULL;
+    
+    return NULL;  
   }
+#else
+  memset(szRsl,0,sizeof(szRsl));
+  sprintf(szRsl,
+"%s",  
+    "99|01|3|1|Sala de Renatinho|null|5|2\n"
+    "99|02|1|created\n"
+    "99|03|2|medium\n"
+    "99|04|11|Renatinho\n"
+  );
+#endif
 
   /** TODO: Parse Rsl  **/
 
-  /**
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
+  memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
+  if ( iParseCreateRoom(szRsl, &stRoom) ) 
+    return NULL;
+    
   pstRoom = pstCreateRoom(&stRoom);
   if (pstRoom == NULL)
     return NULL;
-  iNewPlayer(iPlayerId, pszPlayerName);
-  vAddPlayer2Room(ROLE_GUEST, pstFindPlayer(iPlayerId), pstRoom);
-  */
+  
+  if ( iParsePlayer(szRsl, &stPlayer) < 0 )
+    return NULL; 
+
+  pstPlayer = pstCreatePlayer(&stPlayer);
+  vAddPlayer2List(pstPlayer);
+  vAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
+  for (pstPlayer = pstPlayer->pstNext; pstPlayer != NULL; pstPlayer = pstPlayer->pstNext){
+    vAddPlayer2List(pstPlayer);
+    vAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
+  }
 
   return pstRoom;
 }
@@ -322,7 +398,7 @@ int iNewPlayerRoom() {
     szRoomName, szPlayerName, iCapacity, iDifficulty, szPassword
   );  
   
-  pstRoom = pstNewServerRoom(szRoomName, szPlayerName, iCapacity, iDifficulty, szPassword);
+  pstRoom = pstCreateServerRoom(szRoomName, szPlayerName, iCapacity, iDifficulty, szPassword);
   
   if (pstRoom == NULL)
     return -1;
@@ -353,14 +429,14 @@ int iNewRoom(int iId, char *pszName, int iStatus, int iCapacity, int iDifficulty
 }
 
 /* CMD|CMD_JOIN_ROOM|playername|room_id| */
-int iJoinRoom(){
+int iJoinRoom() {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   char szPlayerName[128];
   PSTRUCT_ROOM pstRoom;
   
   if ( (pstRoom = pstSelectRoomFromList()) == NULL ) {
-    printf("\t Nenhuma sala selecionada.\n");
+    vPrintLine("\t Nenhuma sala selecionada.", INSERT_NEW_LINE);
     return -1;
   }
 
@@ -370,7 +446,7 @@ int iJoinRoom(){
   snprintf(szParams, sizeof(szParams), "%s|%d\n", szPlayerName, pstRoom->iRoomId);
 
   if (iSendCommandToProcessor(giSocketClient, CMD_JOIN_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
-    vTraceVarArgsFn("Erro ao criar sala no servidor. Prms[%s] Rsl=%s", szParams, szRsl);
+    vTraceVarArgsFn("Erro ao entrar em sala no servidor. Prms[%s] Rsl=%s", szParams, szRsl);
     return -1;
   }
   /** TODO: parse rsl */
@@ -378,6 +454,7 @@ int iJoinRoom(){
     iNewPlayer(iPlayerId, pszPlayerName);
     vAddPlayer2Room(ROLE_GUEST, pstFindPlayer(iPlayerId), pstRoom);
   */
+
   return 0;
 }
 
@@ -453,17 +530,14 @@ void vCreateDummyRooms() {
   vInitRoomList();
   vInitPlayerList();
 
-  // Sala 1
   iNewPlayer(1, "owner1");
   iNewRoom(101, "Sala1", ROOM_CREATED, 5, EASY);
   vAddPlayer2Room(ROLE_OWNER, pstFindPlayer(1), pstFindRoom(101));
 
-  // Sala 2
   iNewPlayer(2, "owner2");
   iNewRoom(102, "Sala2", ROOM_CREATED, 4, MEDIUM);
   vAddPlayer2Room(ROLE_OWNER, pstFindPlayer(2), pstFindRoom(102));
 
-  // Sala 3
   iNewPlayer(3, "owner3");
   iNewPlayer(4, "player1");
   iNewRoom(103, "Sala3", ROOM_CREATED, 5, HARD);

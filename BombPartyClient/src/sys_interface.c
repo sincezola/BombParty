@@ -189,14 +189,14 @@ int iDIR_MkDir(char *szDir) // linux
 }
 #endif
 
-int bOpenFile(FILE **fppFile, const char *kpszFileName, const char *kpszMode) {
+bool bOpenFile(FILE **fppFile, const char *kpszFileName, const char *kpszMode) {
   if ((*fppFile = fopen(kpszFileName, kpszMode)) == NULL) {
     return FALSE;
   }
   return TRUE;
 } /* bOpenFile */
 
-int bCloseFile(FILE **fppFile) {
+bool bCloseFile(FILE **fppFile) {
   if (*fppFile != NULL) {
     fclose(*fppFile);
     *fppFile = NULL;
@@ -206,7 +206,7 @@ int bCloseFile(FILE **fppFile) {
   return FALSE;
 } /* bCloseFile */
 
-int bFileExist(const char *kpszFileName) {
+bool bFileExist(const char *kpszFileName) {
   FILE *fpFile = NULL;
 
   if (!bOpenFile(&fpFile, kpszFileName, "r")) {
@@ -242,7 +242,7 @@ int bRunCmd(char *pszCmd, char *pszRsl, int iRslSz) {
   return TRUE;
 }
 
-int bStrIsEmpty(const char *kpszStr) {
+bool bStrIsEmpty(const char *kpszStr) {
   if (kpszStr == NULL || !strcmp(kpszStr, "") || !strcmp(kpszStr, "\n")) {
     return TRUE;
   }

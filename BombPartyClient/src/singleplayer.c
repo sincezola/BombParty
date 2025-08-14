@@ -15,7 +15,6 @@
 #include <singleplayer.h>
 #include <bombparty.h>
 
-
 int iRunSingleplayerMode(){
   int bRestart = FALSE;
   int bFoundWord = FALSE;
@@ -43,9 +42,9 @@ int iRunSingleplayerMode(){
 
       /** Linha do desafio */
       vSetCursorPosition(9, 1);
-      printf("Encontre uma palavra que tenha: (%s)", szInfix);
+      // vPrintLine("Encontre uma palavra que tenha: (%s)", szInfix);
       if (bHasError) {
-        printf(" ");
+        // vPrintLine(" ");
         vPrintColored(szLastWrong, 31); /** Vermelho */
       }
       fflush(stdout);
@@ -58,7 +57,7 @@ int iRunSingleplayerMode(){
 
         vClearTerminal();
         vGotoBombPosition();
-        printf("!! A BOMBA EXPLODIU !! Você perdeu esta rodada.\n");
+        // vPrintLine("!! A BOMBA EXPLODIU !! Você perdeu esta rodada.\n");
         fflush(stdout);
         vSleepSeconds(2);
         bRestart = TRUE;
@@ -76,7 +75,7 @@ int iRunSingleplayerMode(){
         szLastWrong[MAX_WORD_LEN - 1] = '\0';
         bHasError = TRUE;
         vGotoFeedbackErrorPosition();
-        printf("A palavra digitada não contém a sequência exigida! Tente novamente.\n");
+        // vPrintLine("A palavra digitada não contém a sequência exigida! Tente novamente.\n");
         fflush(stdout);
         vSleepSeconds(2);
       }
@@ -87,7 +86,7 @@ int iRunSingleplayerMode(){
       /** Verifica no banco */
       vGotoFeedbackPosition();
       if (bSearchWordDb(szInput)) {
-        printf("Correto!!\n");
+        // vPrintLine("Correto!!\n");
         fflush(stdout);
         vSleepSeconds(2);
         bHasError = FALSE;
@@ -95,7 +94,7 @@ int iRunSingleplayerMode(){
         bRestart = TRUE;
         szLastWrong[0] = '\0';
       } else {
-        printf("Incorreto, tente novamente!\n");
+        // vPrintLine("Incorreto, tente novamente!\n");
         fflush(stdout);
         strncpy(szLastWrong, szInput, MAX_WORD_LEN - 1);
         szLastWrong[MAX_WORD_LEN - 1] = '\0';

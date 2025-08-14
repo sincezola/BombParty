@@ -59,7 +59,7 @@ int iPortableGetchar() {
       WORD vkCode = record.Event.KeyEvent.wVirtualKeyCode;
 
       // Debug para Virtual Key Code
-      printf("[DEBUG - WIN] VK = %d\n", vkCode);
+      // vPrintLine("[DEBUG - WIN] VK = %d\n", vkCode);
       fflush(stdout);
 
       switch (vkCode) {
@@ -89,7 +89,7 @@ int iPortableGetchar() {
     if (iSecond == '[') {
       iThird = getchar();
 
-      printf("[DEBUG - LIN] Sequence: ESC (%d), [ (%d), Code (%d)\n", iCh, iSecond, iThird);
+      // vPrintLine("[DEBUG - LIN] Sequence: ESC (%d), [ (%d), Code (%d)\n", iCh, iSecond, iThird);
       tcsetattr(STDIN_FILENO, TCSANOW, &stOldt);
 
       switch (iThird) {
@@ -102,7 +102,7 @@ int iPortableGetchar() {
       }
     }
   } else {
-    printf("[DEBUG - LIN] Key = %d (%c)\n", iCh, (iCh >= 32 && iCh <= 126) ? iCh : '?');
+    // vPrintLine("[DEBUG - LIN] Key = %d (%c)\n", iCh, (iCh >= 32 && iCh <= 126) ? iCh : '?');
   }
 
   tcsetattr(STDIN_FILENO, TCSANOW, &stOldt);
@@ -162,9 +162,9 @@ void vToLower(char *pszBuf) {
 /**
  * @brief Verifica se a string contém apenas espaços
  * @param pszStr - string a ser verificada
- * @return int - TRUE se for só espaços, FALSE caso contrário
+ * @return bool - TRUE se for só espaços, FALSE caso contrário
  */
-int bIsOnlySpaces(const char *pszStr) {
+bool bIsOnlySpaces(const char *pszStr) {
   while (*pszStr) {
     if (!((unsigned char)*pszStr == ' '))
       return FALSE;
@@ -190,33 +190,37 @@ int iSetDifficultyFromChar(int iCh) {
 }
 
 void vReadPlayerName(char *pszName, int iNameSz) {
-  do{
+  do {
     vClearTerminal();
-    printf("\n Escolha seu nome :\n");
-    printf("Nome: ");
+    vPrintLine("\n Escolha seu nome :", INSERT_NEW_LINE);
+    vPrintLine("Nome: ", NO_NEW_LINE);
 
     memset(pszName, 0, iNameSz);
     if (fgets(pszName, iNameSz, stdin)) {
       if (strchr(pszName, '\n') == NULL)
-          vFlushInput();
-      }
-  } while ( !bStrIsEmpty(pszName) );
+        vFlushInput();
+    }
+  } while ( bStrIsEmpty(pszName) );
   
+  strtok(pszName, "\n");
+
   return;
 }
 
 void vReadRoomName(char *pszName, int iNameSz) {
   do{
     vClearTerminal();
-    printf("\n Escolha o nome da sala :\n");
-    printf("Nome: ");
+    vPrintLine("\n Escolha o nome da sala :", INSERT_NEW_LINE);
+    vPrintLine("Nome: ", NO_NEW_LINE);
 
     memset(pszName, 0, iNameSz);
     if (fgets(pszName, iNameSz, stdin)) {
       if (strchr(pszName, '\n') == NULL)
           vFlushInput();
-      }
-  } while ( !bStrIsEmpty(pszName) );
+    }
+  } while ( bStrIsEmpty(pszName) );
+
+  strtok(pszName, "\n");
   
   return;
 }
@@ -224,14 +228,18 @@ void vReadRoomName(char *pszName, int iNameSz) {
 void vReadRoomDifficulty(int *iDifficulty) {
   char szBuffer[128];
   int iCh;
+  char szLine[1024];
 
   do {
     vClearTerminal();
-    printf("\n Escolha sua a dificuldade :\n");
-    printf("\t[E] Easy   (%d letras por palavra)\n", EASY_INFIX);
-    printf("\t[M] Medium (%d letras por palavra)\n", MEDIUM_INFIX);
-    printf("\t[H] Hard   (%d letras por palavra)\n", HARD_INFIX);
-    printf("Dificuldade: ");
+    vPrintLine("\n Escolha sua a dificuldade :", INSERT_NEW_LINE);
+    sprintf(szLine, 
+    "\t[E] Easy   (%d letras por palavra)\n"
+    "\t[M] Medium (%d letras por palavra)\n"
+    "\t[H] Hard   (%d letras por palavra)",
+    EASY_INFIX, MEDIUM_INFIX, HARD_INFIX);
+    vPrintLine(szLine, INSERT_NEW_LINE);
+    vPrintLine("Dificuldade: ", NO_NEW_LINE);
 
     memset(szBuffer, 0, sizeof(szBuffer));
     if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
@@ -243,7 +251,7 @@ void vReadRoomDifficulty(int *iDifficulty) {
   } while (iCh != 'e' && iCh != 'm' && iCh != 'h');
 
   *iDifficulty = iSetDifficultyFromChar(iCh);
-  printf("\n\n");
+  vPrintLine("\n", INSERT_NEW_LINE);
   
   return;
 }
@@ -255,9 +263,9 @@ void vReadRoomPassword(char *pszPassword, int iPasswdSz) {
   memset(pszPassword, 0, iPasswdSz);
   do {
     vClearTerminal();
-    printf("\n Deseja criar uma senha para sala?\n");
-    printf("\t [S] - Sim | [N] - Nao\n");
-    printf("Criar senha? ");
+    vPrintLine("\n Deseja criar uma senha para sala?\n", INSERT_NEW_LINE);
+    vPrintLine("\t [S] - Sim | [N] - Nao\n", INSERT_NEW_LINE);
+    vPrintLine("Criar senha? ", NO_NEW_LINE);
 
     memset(szBuffer, 0, sizeof(szBuffer));
     if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
@@ -273,8 +281,8 @@ void vReadRoomPassword(char *pszPassword, int iPasswdSz) {
 
   do {
     vClearTerminal();
-    printf("\n Defina a senha.\n");
-    printf("Senha: ");
+    vPrintLine("\n Defina a senha.", INSERT_NEW_LINE);
+    vPrintLine("Senha: ", NO_NEW_LINE);
 
     memset(szBuffer, 0, sizeof(szBuffer));
     if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
@@ -287,6 +295,8 @@ void vReadRoomPassword(char *pszPassword, int iPasswdSz) {
   
   snprintf(pszPassword, iPasswdSz, "%s", szBuffer);
 
+  strtok(pszPassword, "\n");
+
   return;
 }
 
@@ -295,9 +305,9 @@ void vReadRoomCapacity(int *iCapacity) {
   char szBuffer[128];
   do {
     vClearTerminal();
-    printf("\n Escolha a quantidade maxima de jogadores :\n");
-    printf("\t Minimo - 2\t Maximo 5\n");
-    printf("Capacidade da sala: ");
+    vPrintLine("\n Escolha a quantidade maxima de jogadores :", INSERT_NEW_LINE);
+    vPrintLine("\t Minimo - 2\t Maximo 5", INSERT_NEW_LINE);
+    vPrintLine("Capacidade da sala: ", NO_NEW_LINE);
 
     memset(szBuffer, 0, sizeof(szBuffer));
     if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
@@ -308,7 +318,7 @@ void vReadRoomCapacity(int *iCapacity) {
   } while ( atoi(szBuffer) < 2 || atoi(szBuffer) > 5);
   
   *iCapacity = atoi(szBuffer);
-  printf("\n\n");
+  vPrintLine("\n", NO_NEW_LINE);
   
   return;
 }
@@ -318,10 +328,10 @@ int iReadGameMode() {
   int  iCh;
   do{
     vClearTerminal();
-    printf("\n Escolha o modo de jogo :\n");
-    printf("\t[S] Singleplayer (Um jogador local)\n");
-    printf("\t[M] Multiplayer  (Mais jogadores Online)\n");
-    printf("Modo: ");
+    vPrintLine("\n Escolha o modo de jogo :", INSERT_NEW_LINE);
+    vPrintLine("\t[S] Singleplayer (Um jogador local)", INSERT_NEW_LINE);
+    vPrintLine("\t[M] Multiplayer  (Mais jogadores Online)", INSERT_NEW_LINE);
+    vPrintLine("Modo: ", NO_NEW_LINE);
 
     memset(szMode, 0, sizeof(szMode));
     if (fgets(szMode, sizeof(szMode), stdin)) {
@@ -338,10 +348,10 @@ int iReadMultiplayerAction() {
   char szMode[128];
   int  iCh;
   
-  printf("\n Escolha uma acao :\n");
-  printf("\t[E] Entrar em uma sala \n");
-  printf("\t[C] Criar  uma sala\n");
-  printf("Opcao: ");
+  vPrintLine("\n Escolha uma acao :", INSERT_NEW_LINE);
+  vPrintLine("\t[E] Entrar em uma sala ", INSERT_NEW_LINE);
+  vPrintLine("\t[C] Criar  uma sala", INSERT_NEW_LINE);
+  vPrintLine("Opcao: ", NO_NEW_LINE);
 
   memset(szMode, 0, sizeof(szMode));
   if (fgets(szMode, sizeof(szMode), stdin)) {
@@ -374,7 +384,7 @@ char *cCatchInput() {
   while (TRUE) {
     /** Redesenha linha de input */
     vGotoInputPosition();
-    printf("Digite sua palavra: %s", pszBuffer);
+    // vPrintLine("Digite sua palavra: %s", pszBuffer);
     vClearLineFromCursor();
     fflush(stdout);
 
@@ -383,7 +393,7 @@ char *cCatchInput() {
 
     /** Verifica se a bomba explodiu */
     if (gbBombTimeout) {
-      sprintf(pszBuffer, "%s", TIMEOUT_STR);
+      // vPrintLine(pszBuffer, "%s", TIMEOUT_STR);
       return pszBuffer;
     }
 
@@ -391,7 +401,7 @@ char *cCatchInput() {
       if (iBufferLen > 0 && !bIsOnlySpaces(pszBuffer))
         break; /** Input válido */
       vGotoFeedbackPosition();
-      printf("Você deve digitar uma palavra!\n");
+      vPrintLine("Você deve digitar uma palavra!", INSERT_NEW_LINE);
       fflush(stdout);
       vSleepSeconds(1);
       continue;

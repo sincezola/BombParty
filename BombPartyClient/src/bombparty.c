@@ -7,17 +7,21 @@
 #include <trace.h>
 
 int giDifficulty = 0;
-const char *gkpszProgramName;
+char *gkpszProgramName;
+int *giArgc;
+char **gapszArgv;
 
 int main(int argc, char *argv[]) { 
   int iRsl; 
   
   gkpszProgramName = argv[0];
+  giArgc = &argc;
+  gapszArgv = argv;
+  vInitLogs();
 
   if ( iInitSockets(argc, argv) < 0 )
     return -1;
 
-  vInitLogs();
   
   switch ( iReadGameMode() ) {
     case SINGLEPLAYER:
@@ -26,7 +30,6 @@ int main(int argc, char *argv[]) {
     case MULTIPLAYER:
       iRsl = iRunMultiplayerMode();
       break;
-    
     default:
       iRsl = -1;
       break;

@@ -8,7 +8,7 @@
   #define ACTION_JOIN   'e'
 
   char *cCatchInput();
-  int bIsOnlySpaces(const char *str);
+  bool bIsOnlySpaces(const char *str);
   int iSetDifficultyFromChar(int iCh);
   int iReadGameMode();
   int iReadMultiplayerAction();

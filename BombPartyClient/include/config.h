@@ -5,6 +5,9 @@
 
   extern int giDifficulty;
 
+  // Bool definition
+  typedef int bool;
+
   #define FALSE 0
   #define TRUE  1
 
@@ -22,5 +25,4 @@
 #endif
   #define MAX_WORD_LEN  128
   #define DIFICULTY_LEN   8 
-
 #endif

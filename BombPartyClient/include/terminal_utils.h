@@ -1,6 +1,10 @@
+#include <config.h>
+
 #ifndef TERMINAL_UTILS_H
 #define TERMINAL_UTILS_H
 
+#define NO_NEW_LINE     0
+#define INSERT_NEW_LINE 1
 /**
  * @brief Move o cursor para uma posição específica no terminal.
  * @param iRow Linha (1-based)
@@ -46,5 +50,7 @@ void vPrintColored(const char *pszText, int iColor);
  * @brief Limpa do cursor até o final da linha atual.
  */
 void vClearLineFromCursor();
+void vPrintLine(char *pszLine, bool bNewLine);
+void vPrintHighlitedLine(char *pszLine, bool bNewLine);
 
 #endif

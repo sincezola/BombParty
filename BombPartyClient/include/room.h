@@ -30,6 +30,7 @@
     int  iRoomStatus;
     int  iRoomCapacity;
     int  iRoomDifficulty;
+    char szRoomPassword[128];
     char szRoomName[128];
     struct STRUCT_ROOM *pstNextRoom;
     PSTRUCT_ROOM_ROLES pstNextRole;
@@ -53,6 +54,7 @@
   void vInitRoomList();
   void vClearRoomList();
   void vCreateDummyRooms();
+  int iGetServerRoom();
   void vAddRoom2List(PSTRUCT_ROOM pstRoom);
   void vAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom);
   PSTRUCT_ROOM pstSelectRoomFromList();

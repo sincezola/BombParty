@@ -50,14 +50,14 @@ void vOutputWordList(PSTRUCT_WORDLIST pstList) {
   PSTRUCT_WORDLIST pstCurrentNode;
 
   for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext)
-    printf("[%-30.30s] -> [%-30.30s]\n", pstCurrentNode->pszDefaultWord, pstCurrentNode->pszParsedWord);
+    vPrintLine("[%-30.30s] -> [%-30.30s]\n", pstCurrentNode->pszDefaultWord, pstCurrentNode->pszParsedWord);
 }
 
 void vOutputRawWordList(PSTRUCT_WORDLIST pstList) {
   PSTRUCT_WORDLIST pstCurrentNode;
 
   for (pstCurrentNode = pstList; pstCurrentNode != NULL; pstCurrentNode = pstCurrentNode->pstNext) {
-    printf("%s\n", pstCurrentNode->pszParsedWord);
+    vPrintLine("%s\n", pstCurrentNode->pszParsedWord);
   }
 }
 
@@ -121,7 +121,7 @@ PSTRUCT_WORDLIST pstParseApi(char *pszApiContent) {
 //   PSTRUCT_WORDLIST pstPointer;
 // 
 //   for (pstPointer = pstWordList; pstPointer != NULL; pstPointer = pstPointer->pstNext) {
-//      printf("\nPSZWORD: %s PSZPARSED WORD: %s", pszWord, pstPointer->pszParsedWord);
+//      vPrintLine("\nPSZWORD: %s PSZPARSED WORD: %s", pszWord, pstPointer->pszParsedWord);
 // 
 //     if (strcmp(pszWord, pstPointer->pszParsedWord) == 0) return TRUE;
 //   }

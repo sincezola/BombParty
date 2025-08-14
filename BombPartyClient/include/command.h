@@ -1,7 +1,18 @@
 #include <config.h>
+#include <room.h>
 
 #ifndef COMMAND_H
   #define COMMAND_H
+  
+  #define ROOM_REG_ID 99
+  #define SECTION_ROOM 1
+  #define SECTION_STATUS 2
+  #define SECTION_LEVEL  3
+  #define SECTION_PLAYER 4
+  
+  #define OK_MSG    "OK"
+  #define ERR_MSG   "ERR"
+  #define BYTES_MSG "BYTES"
 
   #define MAX_MSG 512
   #define _MAX_RSL_BUFFER 904800
@@ -23,6 +34,9 @@
   } eCMDList;
 
   int iConnectToProcessor();
+  void vCloseConnection();
   int iSendCommandToProcessor(int iSockClient, int iCmdId, const char *pszParam, char *pszRsl, int iRslSz);
-  int iInitSockets(int iArgCt, char *paszArgv[]);
+  int iInitSockets();
+  int iParseCreateRoom(char *pszLayout, PSTRUCT_ROOM pstRoom);
+  int iParsePlayer(char *pszInput, PSTRUCT_PLAYER pstPlayer);
 #endif

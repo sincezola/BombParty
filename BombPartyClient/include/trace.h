@@ -78,7 +78,7 @@
                        const char *kpszFunctionName, ... );
 
   #define TOKEN_MISMATCH -1
-  #define ROOT_PATH_FROM_BIN "../"
+  #define ROOT_PATH_FROM_BIN ".."
  
   /******************************************************************************
    *                                                                            *

@@ -1,5 +1,18 @@
 #include <stdio.h>  
 #include <terminal_utils.h>
+#include <config.h>
+
+void vPrintLine(char *pszLine, bool bNewLine) {
+  printf("%s", pszLine);
+  if ( bNewLine )
+    printf("\n");
+}
+
+void vPrintHighlitedLine(char *pszLine, bool bNewLine) {
+  printf("\x1b[7m%s\x1b[0m", pszLine);
+  if ( bNewLine )
+    printf("\n");
+}
 
 void vSetCursorPosition(int iRow, int iCol) {
   printf("\033[%d;%dH", iRow, iCol);
