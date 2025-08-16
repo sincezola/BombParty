@@ -50,13 +50,14 @@
   int iFindPlayerRole(PSTRUCT_PLAYER pstPlayer);
   int iJoinRoom();
   int iGetTotalRoomCt();
-  void vDrawRoom();
+  int iGetServerRoom();
+  int iAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom);
+  void vDrawRooms();
   void vInitRoomList();
   void vClearRoomList();
   void vCreateDummyRooms();
-  int iGetServerRoom();
+  void vLogRoomList();
   void vAddRoom2List(PSTRUCT_ROOM pstRoom);
-  void vAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom);
   PSTRUCT_ROOM pstSelectRoomFromList();
   PSTRUCT_ROOM pstFindRoom(int iId);
   PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom);

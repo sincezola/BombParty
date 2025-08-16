@@ -1,3 +1,4 @@
+#include <trace.h>
 #include <config.h>
 #include <player.h>
 #include <stdlib.h>
@@ -5,7 +6,7 @@
 
 STRUCT_PLAYER_LIST gstPlayerList;
 
-void vInitPlayerList(){
+void vInitPlayerList() {
   gstPlayerList.pstFirst = NULL;
   gstPlayerList.pstLast = NULL;
 }
@@ -53,6 +54,28 @@ int iNewPlayer(int iId, char *pszName) {
   vAddPlayer2List(pstPlayer);
 
   return 0;
+}
+
+void vLogPlayer(PSTRUCT_PLAYER pstPlayer) {
+  vTraceVarArgs(
+    "[Player Id: %d\n"
+    "Player Name: %s\n]",
+    pstPlayer->iPlayerId,
+    pstPlayer->szPlayerName
+  );
+}
+
+void vLogPlayerList() {
+  PSTRUCT_PLAYER pWrk;
+
+  for (pWrk = gstPlayerList.pstFirst; pWrk != NULL; pWrk = pWrk->pstNext) {
+    vTraceVarArgs(
+      "[Player Id: %d\n"
+      "Player Name: %s\n]",
+      pWrk->iPlayerId,
+      pWrk->szPlayerName
+    );
+  }
 }
 
 void vClearPlayerList() {

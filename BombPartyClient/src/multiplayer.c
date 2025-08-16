@@ -6,7 +6,7 @@ int iRunMultiplayerMode() {
   while ( TRUE ) {
     int iAction = 0;
     
-    vDrawRoom();
+    vDrawRooms();
 
     if ( !(iAction = iReadMultiplayerAction()) ) continue;
 

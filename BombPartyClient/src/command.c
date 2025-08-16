@@ -43,6 +43,7 @@ void vSendMsg(int iSock, char *pszMsg, int iLen) {
 void vSendBye(int iSock) {
   vSendMsg(iSock, "BYE\n", strlen("BYE\n"));
 }
+
 char *pszNext_token(char *input) {
   return strtok(input, "|");
 }
@@ -64,13 +65,19 @@ int iNext_line(char *pszInput) {
   99|03|2|medium
   99|04|9|since 
 */
-int iParseCreateRoom(char *pszInput, PSTRUCT_ROOM pstRoom) {
+int iParseCreateRoom(char *pszInput, unsigned long ulInputLen, PSTRUCT_ROOM pstRoom) {
+  char *pszData;
+
   if ( !memcmp(pszInput, "ERR", 3) )
     return -1;
 
+  pszData = (char *)malloc(ulInputLen);
+
+  strcpy(pszData, pszInput);
+
   vTraceVarArgsFn("Parse Input[%s]", pszInput);
   
-  iNext_int(pszInput);
+  iNext_int(pszData);
   iNext_int(NULL);
 
   pstRoom->iRoomId        = iNext_int(NULL);
@@ -105,40 +112,52 @@ int iParseCreateRoom(char *pszInput, PSTRUCT_ROOM pstRoom) {
   99|04|9|since 
   99|04|9|since 
 **/
-int iParsePlayer(char *pszInput, PSTRUCT_PLAYER pstPlayer) {
-  PSTRUCT_PLAYER pstWrkPlayer = pstPlayer;
-  char *pCh;
+int iParsePlayer(char *pszInput, unsigned long ulInputLen, PSTRUCT_PLAYER pstPlayer) {
+  char *pszData = malloc(ulInputLen + 1);
   
-  if ( !memcmp(pszInput, "ERR", 3) )
+  if (!pszData)
     return -1;
 
-  pCh = pszInput;
+  strcpy(pszData, pszInput);
 
-  vTraceVarArgsFn("Parse Input[%s]", pszInput);
-  
-  do {
-    pCh += 3;
+  char *pLine = strtok(pszData, "\n");
+  PSTRUCT_PLAYER pstWrkPlayer = pstPlayer;
+  int firstPlayer = 1;
 
-    if (!memcmp(pCh, "04", 2)) {
+  while (pLine != NULL) {
+    if (strncmp(pLine + 3, "04", 2) == 0) {
       char *pTok;
-      if ( pstWrkPlayer->iPlayerId > 0 ){
-        pstWrkPlayer->pstNext = (PSTRUCT_PLAYER)malloc(sizeof(STRUCT_PLAYER));
+
+      if (!firstPlayer) {
+        pstWrkPlayer->pstNext = malloc(sizeof(STRUCT_PLAYER));
+        if (!pstWrkPlayer->pstNext) {
+          free(pszData);
+          return -1;
+        }
         pstWrkPlayer = pstWrkPlayer->pstNext;
+        memset(pstWrkPlayer, 0, sizeof(STRUCT_PLAYER));
         pstWrkPlayer->pstNext = NULL;
       }
-      pTok = strtok(&pszInput[6], "|");
+      firstPlayer = 0;
 
-      pstWrkPlayer->iPlayerId = atoi(pTok);
+      pTok = strtok(pLine, "|");
+      pTok = strtok(NULL, "|");
+      pTok = strtok(NULL, "|");
+      if (pTok)
+        pstWrkPlayer->iPlayerId = atoi(pTok);
 
-      pTok++;
-      pTok = strtok(NULL, "|\n");
-
-      strcpy(pstWrkPlayer->szPlayerName, pTok);
+      pTok = strtok(NULL, "|");
+      if (pTok)
+        strcpy(pstWrkPlayer->szPlayerName, pTok);
     }
-  } while (!iNext_line(pszInput));
-  
+
+    pLine = strtok(NULL, "\n");
+  }
+
+  free(pszData);
   return 0;
 }
+
 
 // OK|BYTES|XXX
 int iParseRcvMsg(char *pszMsg, int iMsgLen){

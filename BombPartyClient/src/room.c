@@ -120,7 +120,8 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
 
   return NULL;
 }
-void vDrawRoom() {
+
+void vDrawRooms() {
   int iNameLen;
   int iNameOffset;
   int iDifficultyLen;
@@ -134,7 +135,7 @@ void vDrawRoom() {
   PSTRUCT_ROOM pstRoom;
 
   #ifdef FAKE
-    vTraceVarArgsFn("vDrawRoom Dummy Rooms");
+    vTraceVarArgsFn("vDrawRooms Dummy Rooms");
     vCreateDummyRooms();
   #else
     iGetServerRoom();
@@ -239,33 +240,36 @@ PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom) {
   return pstNewRoom;
 }
 
-void vAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom) {
+int iAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom) {
   PSTRUCT_ROOM_ROLES pstRoomRole;
-  PSTRUCT_ROOM_ROLES pstWrkRoles;
-
+  PSTRUCT_ROOM_ROLES pTmp;
+  
   if (pstPlayer == NULL || pstRoom == NULL)
-    return;
+      return -1;
 
-  if ((pstRoomRole = (PSTRUCT_ROOM_ROLES)malloc(sizeof(STRUCT_ROOM_ROLES))) == NULL)
-    return;
+  pstRoomRole = malloc(sizeof(STRUCT_ROOM_ROLES));
+  if (pstRoomRole == NULL)
+      return -2; // Erro: malloc falhou
 
   memset(pstRoomRole, 0, sizeof(STRUCT_ROOM_ROLES));
-
   pstRoomRole->iPlayerRole = iRole;
   pstRoomRole->pstPlayer = pstPlayer;
   pstRoomRole->pstNext = NULL;
 
-  pstWrkRoles = pstRoom->pstNextRole;
-  if (pstWrkRoles == NULL) {
-    pstRoom->pstNextRole = pstRoomRole;
-
-    return;
+  if (pstRoom->pstNextRole == NULL) {
+      pstRoom->pstNextRole = pstRoomRole;
+  } else {
+      pTmp = pstRoom->pstNextRole;
+      while (pTmp->pstNext != NULL)
+          pTmp = pTmp->pstNext;
+      pTmp->pstNext = pstRoomRole;
   }
 
-  for (; pstWrkRoles->pstNext != NULL; pstWrkRoles = pstWrkRoles->pstNext);
+  vTraceVarArgs("Player %s adicionado à sala %s com role %d", pstPlayer->szPlayerName, pstRoom->szRoomName, iRole);
 
-  pstWrkRoles->pstNext = pstRoomRole;
+  return 0;
 }
+
 
 int iRoomPlayerCt(PSTRUCT_ROOM pstRoom) {
   int iPlayerCt = 0;
@@ -276,49 +280,112 @@ int iRoomPlayerCt(PSTRUCT_ROOM pstRoom) {
   
   return iPlayerCt;
 }
-int iGetServerRoom(){
+
+int iGetServerRoom() {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   PSTRUCT_ROOM pstRoom = NULL;
-  STRUCT_ROOM stRoom;
   PSTRUCT_PLAYER pstPlayer = NULL;
+  STRUCT_ROOM stRoom;
   STRUCT_PLAYER stPlayer;
   
   memset(szParams, 0, sizeof(szParams));
   strncpy(szParams, "A", sizeof(szParams));
 #ifndef FAKE
   if (iSendCommandToProcessor(giSocketClient, CMD_GET_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
-    vTraceVarArgsFn("Erro ao criar sala no servidor. Prms[%s] Rsl=%s", szParams, szRsl);
+    vTraceVarArgsFn("Erro ao pegar salas do servidor. Prms[%s] Rsl=%s", szParams, szRsl);
     
     return -1;  
   }
 #endif
-
-  vClearRoomList();
-  vClearPlayerList();
+  vInitRoomList(); 
+  vInitPlayerList();
 
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
-  if ( iParseCreateRoom(szRsl, &stRoom) ) 
+
+  if ( iParseCreateRoom(szRsl, sizeof(szRsl), &stRoom) ) 
     return -1;
     
   pstRoom = pstCreateRoom(&stRoom);
+  vAddRoom2List(pstRoom);
+
   if (pstRoom == NULL)
     return -1;
 
-  if ( iParsePlayer(szRsl, &stPlayer) < 0 )
+  vTraceVarArgs("SZ RSL!!: %s", szRsl);
+  if ( iParsePlayer(szRsl, sizeof(szRsl), &stPlayer) < 0 )
     return -1; 
-
+  
   pstPlayer = pstCreatePlayer(&stPlayer);
+
+  vLogPlayerList();
+
   vAddPlayer2List(pstPlayer);
-  vAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
+  iAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
+  
   for (pstPlayer = pstPlayer->pstNext; pstPlayer != NULL; pstPlayer = pstPlayer->pstNext){
     vAddPlayer2List(pstPlayer);
-    vAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
+    iAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
   }
-
+  
   return 0;
 }
+
+void vLogRoom(PSTRUCT_ROOM pstRoom) {
+  PSTRUCT_ROOM pWrk;
+
+  if (pstRoom == NULL) return;
+
+  pWrk = pstRoom;
+
+  vTraceVarArgs(
+    "[Room Id: %d\n"
+    "Room Status: %d\n"
+    "Room Capacity: %d\n"
+    "Room Difficulty: %d\n"
+    "Room Password: %s\n"
+    "Room Name: %s\n]",
+    pWrk->iRoomId,
+    pWrk->iRoomStatus,
+    pWrk->iRoomCapacity,
+    pWrk->iRoomDifficulty,
+    (pWrk->szRoomPassword[0] != 0x00) ? pWrk->szRoomPassword : "XXX",
+    pWrk->szRoomName
+  );
+}
+
+void vLogRoomList() {
+  PSTRUCT_ROOM pWrk;
+
+  for (pWrk = gstRoomList.pstFirst; pWrk != NULL; pWrk = pWrk->pstNextRoom) {
+    vTraceVarArgs(
+      "[Room Id: %d\n"
+      " Room Status: %d\n"
+      " Room Capacity: %d\n"
+      " Room Difficulty: %d\n"
+      " Room Password: %s\n"
+      " Room Name: %s\n]",
+      pWrk->iRoomId,
+      pWrk->iRoomStatus,
+      pWrk->iRoomCapacity,
+      pWrk->iRoomDifficulty,
+      (pWrk->szRoomPassword[0] != '\0') ? pWrk->szRoomPassword : "XXX",
+      pWrk->szRoomName
+    );
+
+    PSTRUCT_ROOM_ROLES pRole = pWrk->pstNextRole;
+    while (pRole != NULL) {
+      vTraceVarArgs(
+        "  [Player Role: %d, Player Name: %s]",
+        pRole->iPlayerRole,
+        pRole->pstPlayer ? pRole->pstPlayer->szPlayerName : "Unknown"
+      );
+      pRole = pRole->pstNext;
+    }
+  }
+}
+
 /**
 CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
 */
@@ -358,22 +425,22 @@ PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRo
 
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
-  if ( iParseCreateRoom(szRsl, &stRoom) ) 
+  if ( iParseCreateRoom(szRsl, sizeof(szRsl), &stRoom) ) 
     return NULL;
     
   pstRoom = pstCreateRoom(&stRoom);
   if (pstRoom == NULL)
     return NULL;
   
-  if ( iParsePlayer(szRsl, &stPlayer) < 0 )
+  if ( iParsePlayer(szRsl, sizeof(szRsl), &stPlayer) < 0 )
     return NULL; 
 
   pstPlayer = pstCreatePlayer(&stPlayer);
   vAddPlayer2List(pstPlayer);
-  vAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
+  iAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
   for (pstPlayer = pstPlayer->pstNext; pstPlayer != NULL; pstPlayer = pstPlayer->pstNext){
     vAddPlayer2List(pstPlayer);
-    vAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
+    iAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
   }
 
   return pstRoom;
@@ -452,7 +519,7 @@ int iJoinRoom() {
   /** TODO: parse rsl */
   /*
     iNewPlayer(iPlayerId, pszPlayerName);
-    vAddPlayer2Room(ROLE_GUEST, pstFindPlayer(iPlayerId), pstRoom);
+    iAddPlayer2Room(ROLE_GUEST, pstFindPlayer(iPlayerId), pstRoom);
   */
 
   return 0;
@@ -532,20 +599,20 @@ void vCreateDummyRooms() {
 
   iNewPlayer(1, "owner1");
   iNewRoom(101, "Sala1", ROOM_CREATED, 5, EASY);
-  vAddPlayer2Room(ROLE_OWNER, pstFindPlayer(1), pstFindRoom(101));
+  iAddPlayer2Room(ROLE_OWNER, pstFindPlayer(1), pstFindRoom(101));
 
   iNewPlayer(2, "owner2");
   iNewRoom(102, "Sala2", ROOM_CREATED, 4, MEDIUM);
-  vAddPlayer2Room(ROLE_OWNER, pstFindPlayer(2), pstFindRoom(102));
+  iAddPlayer2Room(ROLE_OWNER, pstFindPlayer(2), pstFindRoom(102));
 
   iNewPlayer(3, "owner3");
   iNewPlayer(4, "player1");
   iNewRoom(103, "Sala3", ROOM_CREATED, 5, HARD);
-  vAddPlayer2Room(ROLE_OWNER, pstFindPlayer(3), pstFindRoom(103));
-  vAddPlayer2Room(ROLE_GUEST, pstFindPlayer(4), pstFindRoom(103));
+  iAddPlayer2Room(ROLE_OWNER, pstFindPlayer(3), pstFindRoom(103));
+  iAddPlayer2Room(ROLE_GUEST, pstFindPlayer(4), pstFindRoom(103));
 }
 
-int iGetTotalRoomCt(){
+int iGetTotalRoomCt() {
   int iRoomCt = 0;
   PSTRUCT_ROOM pstRoom;
 

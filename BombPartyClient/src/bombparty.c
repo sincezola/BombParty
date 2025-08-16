@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
   if ( iInitSockets(argc, argv) < 0 )
     return -1;
 
-  
   switch ( iReadGameMode() ) {
     case SINGLEPLAYER:
       iRsl = iRunSingleplayerMode();
