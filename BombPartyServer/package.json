@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "prisma generate && tsx backend/src/server.ts",
+    "start:local": "npx dotenv -e .env.prod tsx backend/src/server.ts",
     "dev": "tsx watch backend/src/server.ts",
     "studio-prod": "npx dotenv -e .env.prod npx prisma studio",
     "studio-dev": "npx dotenv -e .env npx prisma studio"

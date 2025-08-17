@@ -30,3 +30,4 @@ BombProcessor/node_scripts/input.txt
 BombProcessor/getroom.txt
 BombProcessor/createroom.txt
 BombProcessor/joinroom.txt
+BombProcessor/test_output.txt

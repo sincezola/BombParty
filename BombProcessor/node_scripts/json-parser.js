@@ -13,26 +13,24 @@ const levelReg = "03";
 const playerlistReg = "04";
 
 // ---------------- Funções de Parse ---------------- //
+// "room":{"room_key":3,"room_status":1,"room_name":"SALA RENATO","room_password":null,"room_capacity":4,"room_level":1,"created_at":"2025-08-16T14:54:26.312Z","last_changed":"2025-08-16T14:54:26.312Z"},"player":{"player_key":6,"player_name":"since"},"type":{"room_player_type_id":2,"code":"participant"}}}] **/
 
 function parseJoinRoom(dataJSON, arr) {
-  const roomProps = dataJSON.room;
+  const roomProps = dataJSON.roomPlayerProps.room;
+  const player = dataJSON.roomPlayerProps.player;
   if (!roomProps) return;
 
-  arr.push(`${exportJoinRoomReg}|${roomPropsReg}|${roomProps.room_id}|${roomProps.room_status}|${roomProps.room_name}|${roomProps.room_password}|${roomProps.room_capacity}|${roomProps.room_level}`);
+  arr.push(`${exportJoinRoomReg}|${roomPropsReg}|${roomProps.room_key}|${roomProps.room_status}|${roomProps.room_name}|${roomProps.room_password ?? "-1"}|${roomProps.room_capacity}|${roomProps.room_level}`);
 
-  if ("status" in roomProps) {
-    arr.push(`${exportJoinRoomReg}|${statusReg}|${roomProps.status.status_type_id}|${roomProps.status.code}`);
-  }
+  // if ("status" in roomProps) {
+  //   arr.push(`${exportJoinRoomReg}|${statusReg}|${roomProps.status.status_type_id}|${roomProps.status.code}`);
+  // }
 
-  if ("level" in roomProps) {
-    arr.push(`${exportJoinRoomReg}|${levelReg}|${roomProps.level.level_type_id}|${roomProps.level.code}`);
-  }
+  // if ("level" in roomProps) {
+  //   arr.push(`${exportJoinRoomReg}|${levelReg}|${roomProps.level.level_type_id}|${roomProps.level.code}`);
+  // }
 
-  if ("players" in roomProps) {
-    for (const tPlayer of roomProps.players) {
-      arr.push(`${exportJoinRoomReg}|${playerlistReg}|${tPlayer.player.player_key}|${tPlayer.player.player_name}`);
-    }
-  }
+  arr.push(`${exportJoinRoomReg}|${playerlistReg}|${player.player_key}|${player.player_name}`);
 }
 
 function parseCreateRoom(dataJSON, arr) {
@@ -45,7 +43,7 @@ function parseCreateRoom(dataJSON, arr) {
   }
 
   for (const room of roomProps) {
-    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${room.room_password}|${room.room_capacity}|${room.room_level}`);
+    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${roomProps.room_password ? roomProps.room_password : "-1"}|${room.room_capacity}|${room.room_level}`);
 
     if ("status" in room) {
       arr.push(`${exportGetRoomReg}|${statusReg}|${room.status.status_type_id}|${room.status.code}`);
@@ -64,16 +62,13 @@ function parseCreateRoom(dataJSON, arr) {
 }
 
 function parseGetRoom(dataJSON, arr) {
-  let roomProps = dataJSON.roomProps;
-  if (!roomProps) return;
+  if (!Array.isArray(dataJSON)) return;
 
-  // Garante que seja array
-  if (!Array.isArray(roomProps)) {
-    roomProps = [roomProps];
-  }
+  for (const obj of dataJSON) {
+    const room = obj.roomProps;
+    if (!room) continue;
 
-  for (const room of roomProps) {
-    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${room.room_password}|${room.room_capacity}|${room.room_level}`);
+    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${room.room_password ? room.room_password : "-1"}|${room.room_capacity}|${room.room_level}`);
 
     if ("status" in room) {
       arr.push(`${exportGetRoomReg}|${statusReg}|${room.status.status_type_id}|${room.status.code}`);
