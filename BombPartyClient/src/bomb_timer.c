@@ -12,12 +12,14 @@
 int gbBombTimeout = FALSE;
 
 void vDrawBomb(int iTimeout) {
+  (void)iTimeout; /* Avoid compiler warnings **/ 
+
   vGotoBombPosition();
   vSetCursorPosition(2, 10);  vPrintLine("           ░  ", INSERT_NEW_LINE);
   vSetCursorPosition(3, 10);  vPrintLine("       ░░░░  " , INSERT_NEW_LINE);
   vSetCursorPosition(4, 10);  vPrintLine("      ░       ", INSERT_NEW_LINE);
   vSetCursorPosition(5, 10);  vPrintLine(" ░░░░░░░░░░  " , INSERT_NEW_LINE);
-  // vSetCursorPosition(6, 10);  vPrintLine(" ░░░░%02d░░░░" , INSERT_NEW_LINE iTimeout);
+  /** vSetCursorPosition(6, 10);  vPrintLine(" ░░░░%02d░░░░" , INSERT_NEW_LINE iTimeout);*/
   vSetCursorPosition(7, 10);  vPrintLine(" ░░░░░░░░░░  " , INSERT_NEW_LINE);
   
   vGotoInputTextPosition();  /** <- reposiciona cursor para o input */

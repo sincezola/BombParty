@@ -4,8 +4,9 @@
   #define INPUT_H
   #define TIMEOUT_STR "XXXXTIMEOUTXXX"
 
-  #define ACTION_CREATE 'c'
-  #define ACTION_JOIN   'e'
+  #define ACTION_CREATE     'c'
+  #define ACTION_JOIN       'e'
+  #define REFRESH_ROOM_LIST 'a'
 
   char *cCatchInput();
   bool bIsOnlySpaces(const char *str);

@@ -351,6 +351,7 @@ int iReadMultiplayerAction() {
   vPrintLine("\n Escolha uma acao :", INSERT_NEW_LINE);
   vPrintLine("\t[E] Entrar em uma sala ", INSERT_NEW_LINE);
   vPrintLine("\t[C] Criar  uma sala", INSERT_NEW_LINE);
+  vPrintLine("\n\t[A] Atualizar lista de salas", INSERT_NEW_LINE);
   vPrintLine("Opcao: ", NO_NEW_LINE);
 
   memset(szMode, 0, sizeof(szMode));
@@ -361,7 +362,7 @@ int iReadMultiplayerAction() {
  
   iCh = tolower(szMode[0]);
   
-  if ( iCh != 'e' && iCh != 'c')
+  if ( iCh != 'e' && iCh != 'c' && iCh != 'a')
     iCh = 0;
 
   return iCh;

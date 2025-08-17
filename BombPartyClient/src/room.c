@@ -285,7 +285,6 @@ int iGetServerRoom() {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   PSTRUCT_ROOM pstRoom = NULL;
-  PSTRUCT_PLAYER pstPlayer = NULL;
   STRUCT_ROOM stRoom;
   STRUCT_PLAYER stPlayer;
   
@@ -304,7 +303,7 @@ int iGetServerRoom() {
   memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
 
-  if ( iParseCreateRoom(szRsl, sizeof(szRsl), &stRoom) ) 
+  if ( iParseResult(szRsl, sizeof(szRsl)) ) 
     return -1;
     
   pstRoom = pstCreateRoom(&stRoom);
@@ -313,21 +312,8 @@ int iGetServerRoom() {
   if (pstRoom == NULL)
     return -1;
 
-  vTraceVarArgs("SZ RSL!!: %s", szRsl);
-  if ( iParsePlayer(szRsl, sizeof(szRsl), &stPlayer) < 0 )
-    return -1; 
-  
-  pstPlayer = pstCreatePlayer(&stPlayer);
-
+  vLogRoomList();
   vLogPlayerList();
-
-  vAddPlayer2List(pstPlayer);
-  iAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
-  
-  for (pstPlayer = pstPlayer->pstNext; pstPlayer != NULL; pstPlayer = pstPlayer->pstNext){
-    vAddPlayer2List(pstPlayer);
-    iAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
-  }
   
   return 0;
 }
@@ -357,9 +343,10 @@ void vLogRoom(PSTRUCT_ROOM pstRoom) {
 
 void vLogRoomList() {
   PSTRUCT_ROOM pWrk;
+  PSTRUCT_ROOM_ROLES pRole;
 
   for (pWrk = gstRoomList.pstFirst; pWrk != NULL; pWrk = pWrk->pstNextRoom) {
-    vTraceVarArgs(
+    vTraceVarArgsFn(
       "[Room Id: %d\n"
       " Room Status: %d\n"
       " Room Capacity: %d\n"
@@ -374,9 +361,9 @@ void vLogRoomList() {
       pWrk->szRoomName
     );
 
-    PSTRUCT_ROOM_ROLES pRole = pWrk->pstNextRole;
+    pRole = pWrk->pstNextRole;
     while (pRole != NULL) {
-      vTraceVarArgs(
+      vTraceVarArgsFn(
         "  [Player Role: %d, Player Name: %s]",
         pRole->iPlayerRole,
         pRole->pstPlayer ? pRole->pstPlayer->szPlayerName : "Unknown"
@@ -393,9 +380,6 @@ PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRo
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   PSTRUCT_ROOM pstRoom = NULL;
-  STRUCT_ROOM stRoom;
-  PSTRUCT_PLAYER pstPlayer = NULL;
-  STRUCT_PLAYER stPlayer;
   /** TODO: Toggle comment on parse */
   
   memset(szParams, 0, sizeof(szParams));
@@ -422,26 +406,13 @@ PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRo
 #endif
 
   /** TODO: Parse Rsl  **/
-
-  memset(&stRoom, 0, sizeof(STRUCT_ROOM));
-  memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
-  if ( iParseCreateRoom(szRsl, sizeof(szRsl), &stRoom) ) 
+  if ( iParseResult(szRsl, sizeof(szRsl)) ) 
     return NULL;
     
-  pstRoom = pstCreateRoom(&stRoom);
-  if (pstRoom == NULL)
-    return NULL;
+  // pstRoom = pstCreateRoom(&stRoom);
+  // if (pstRoom == NULL)
+  //   return NULL;
   
-  if ( iParsePlayer(szRsl, sizeof(szRsl), &stPlayer) < 0 )
-    return NULL; 
-
-  pstPlayer = pstCreatePlayer(&stPlayer);
-  vAddPlayer2List(pstPlayer);
-  iAddPlayer2Room(ROLE_OWNER, pstPlayer, pstRoom);
-  for (pstPlayer = pstPlayer->pstNext; pstPlayer != NULL; pstPlayer = pstPlayer->pstNext){
-    vAddPlayer2List(pstPlayer);
-    iAddPlayer2Room(ROLE_GUEST, pstPlayer, pstRoom);
-  }
 
   return pstRoom;
 }

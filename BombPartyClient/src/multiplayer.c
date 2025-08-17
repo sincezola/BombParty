@@ -18,6 +18,9 @@ int iRunMultiplayerMode() {
     }
     else if ( iAction == ACTION_JOIN ) { 
       iJoinRoom();
+    }    
+    else if ( iAction == REFRESH_ROOM_LIST ) { 
+      vDrawRooms();
     }
   }
   
