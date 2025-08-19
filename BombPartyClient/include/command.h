@@ -33,8 +33,8 @@
     CMD_GET_ROOM
   } eCMDList;
 
-  int iConnectToProcessor();
   void vCloseConnection();
+  int iConnectToProcessor();
   int iSendCommandToProcessor(int iSockClient, int iCmdId, const char *pszParam, char *pszRsl, int iRslSz);
   int iInitSockets();
   int iParseResult(char *pszLayout, unsigned long ulInputLen);

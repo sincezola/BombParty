@@ -11,7 +11,7 @@ int iRunMultiplayerMode() {
     if ( !(iAction = iReadMultiplayerAction()) ) continue;
 
     if ( iAction == ACTION_CREATE ) {
-      if ( iNewPlayerRoom() < 0 ){
+      if ( iNewPlayerRoom() < 0 ) {
         vPrintLine("Erro ao criar sala", INSERT_NEW_LINE);
         return -1; 
       }
@@ -19,7 +19,7 @@ int iRunMultiplayerMode() {
     else if ( iAction == ACTION_JOIN ) { 
       iJoinRoom();
     }    
-    else if ( iAction == REFRESH_ROOM_LIST ) { 
+    else if ( iAction == ACTION_REFRESH_LIST ) { 
       vDrawRooms();
     }
   }

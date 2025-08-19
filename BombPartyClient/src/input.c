@@ -256,6 +256,14 @@ void vReadRoomDifficulty(int *iDifficulty) {
   return;
 }
 
+void vReadRoomPlayerPassword(char *pszBuff, int iBuffLen) {
+  vClearTerminal();
+  vPrintLine("Insira a senha: ", INSERT_NEW_LINE);
+  memset(pszBuff, 0, iBuffLen);
+
+  if (fgets(pszBuff, iBuffLen, stdin) == NULL) return;
+}
+
 void vReadRoomPassword(char *pszPassword, int iPasswdSz) {
   char szBuffer[128];
   int iCh;

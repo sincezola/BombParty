@@ -12,6 +12,8 @@
   #define DIFFICULTY_FLD_SIZE 16
   #define CAPACITY_FLD_SIZE   14
   #define STATUS_FLD_SIZE     10
+  #define STATUS_NOT_READY    0
+  #define STATUS_READY        1
   
   typedef enum eRoomRoles {
     ROLE_OWNER = 1,
@@ -21,6 +23,7 @@
 
   typedef struct STRUCT_ROOM_ROLES {
     int iPlayerRole;
+    bool bReadyStatus;
     PSTRUCT_PLAYER pstPlayer;
     struct STRUCT_ROOM_ROLES *pstNext;
   } STRUCT_ROOM_ROLES, *PSTRUCT_ROOM_ROLES;

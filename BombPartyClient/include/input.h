@@ -4,9 +4,10 @@
   #define INPUT_H
   #define TIMEOUT_STR "XXXXTIMEOUTXXX"
 
-  #define ACTION_CREATE     'c'
-  #define ACTION_JOIN       'e'
-  #define REFRESH_ROOM_LIST 'a'
+  #define ACTION_CREATE       'c'
+  #define ACTION_JOIN         'e'
+  #define ACTION_REFRESH_LIST 'a'
+  #define ACTION_DESTROY_ROOM 'd'
 
   char *cCatchInput();
   bool bIsOnlySpaces(const char *str);
@@ -23,4 +24,5 @@
   void vReadRoomDifficulty(int *iDifficulty);
   void vReadRoomPassword(char *pszPassword, int iPasswdSz);
   void vReadRoomCapacity(int *iCapacity);
+  void vReadRoomPlayerPassword(char *pszBuff, int iBuffLen);
 #endif

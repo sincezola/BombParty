@@ -14,7 +14,7 @@ level_type_desc varchar255 not null {'easy', 'medium', 'hard'}
 
 status_type
 status_type_id smallint key -> room_status
-status_type_desc varchar255 not null {'created', 'in game', 'closed'}
+status_type_desc varchar255 not null {'available', 'in game', 'closed'}
 
 room_player
 room_id smallint key -> room_key

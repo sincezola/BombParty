@@ -24,20 +24,20 @@ STRUCT_ROOM_LIST gstRoomList;
     Complexidade: 16
     Capacidade: 14
     Status: 10
-    __________________________________________________________________________
-    |     Nome    |     Complexidade     |     Capacidade    |     Status    |
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
-    |-------------|---------------------|-------------------|----------------|
+    ____________________________________________________________________________
+    |     Nome    |     Complexidade     |     Capacidade     |     Status     |
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
+    |-------------|----------------------|--------------------|----------------|
 */
 
 int iCalcPaddingOffset(int iFieldSize, int *iContentLen) {
@@ -253,6 +253,7 @@ int iAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom) {
 
   memset(pstRoomRole, 0, sizeof(STRUCT_ROOM_ROLES));
   pstRoomRole->iPlayerRole = iRole;
+  pstRoomRole->bReadyStatus = STATUS_NOT_READY;
   pstRoomRole->pstPlayer = pstPlayer;
   pstRoomRole->pstNext = NULL;
 
@@ -280,6 +281,17 @@ int iRoomPlayerCt(PSTRUCT_ROOM pstRoom) {
   
   return iPlayerCt;
 }
+
+int iRoomReadyCt(PSTRUCT_ROOM pstRoom) {
+  int iReadyCt = 0;
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+  
+  for (pstRoomRoles = pstRoom->pstNextRole; pstRoomRoles != NULL; pstRoomRoles = pstRoomRoles->pstNext)
+    if (pstRoomRoles->bReadyStatus) iReadyCt++;
+  
+  return iReadyCt;
+}
+
 
 int iGetServerRoom() {
   char szParams[256];
@@ -468,7 +480,9 @@ int iNewRoom(int iId, char *pszName, int iStatus, int iCapacity, int iDifficulty
 
 /* CMD|CMD_JOIN_ROOM|playername|room_id| */
 int iJoinRoom() {
+  int iCount = 0;
   char szParams[256];
+  char szRoomPw[128];
   char szRsl[_MAX_RSL_BUFFER];
   char szPlayerName[128];
   PSTRUCT_ROOM pstRoom;
@@ -478,13 +492,31 @@ int iJoinRoom() {
     return -1;
   }
 
-  vReadPlayerName(szPlayerName, sizeof(szPlayerName));
+  memset(szRoomPw, 0, sizeof(szRoomPw));
 
-  memset(szParams,0,sizeof(szParams));
-  snprintf(szParams, sizeof(szParams), "%s|%d\n", szPlayerName, pstRoom->iRoomId);
+  vReadPlayerName(szPlayerName, sizeof(szPlayerName));
+  if ( !bStrIsEmpty(pstRoom.szRoomPassword) ) {
+    do {
+      vReadRoomPlayerPassword(szRoomPw, sizeof(szRoomPw));
+
+      iCount++;
+    } while (strcmp(pstRoom.szRoomPassword, szRoomPw) && iCount < 3);
+
+    if (iCount >= 3) memset(szRoomPw, 0, sizeof(szRoomPw));
+  }
+
+  memset(szParams, 0, sizeof(szParams));
+  snprintf(szParams, sizeof(szParams), "%s|%d", szPlayerName, pstRoom->iRoomId);
+
+  if (!bStrIsEmpty(pstRoom->szRoomPassword)) {
+    strcat(szParams, "|");
+    strcat(szParams, szRoomPw);
+  }
+
+  strcat(szParams, "\n");
 
   if (iSendCommandToProcessor(giSocketClient, CMD_JOIN_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
-    vTraceVarArgsFn("Erro ao entrar em sala no servidor. Prms[%s] Rsl=%s", szParams, szRsl);
+    vTraceVarArgsFn("Erro ao entrar em sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
     return -1;
   }
   /** TODO: parse rsl */
@@ -492,6 +524,46 @@ int iJoinRoom() {
     iNewPlayer(iPlayerId, pszPlayerName);
     iAddPlayer2Room(ROLE_GUEST, pstFindPlayer(iPlayerId), pstRoom);
   */
+
+  return 0;
+}
+
+int iDeleteRoom(int iRoomId) {
+  char szParams[256];
+  char szRsl[_MAX_RSL_BUFFER];
+
+  memset(szParams, 0, sizeof(szParams));
+  memset(szRsl, 0, sizeof(szRsl));
+
+  snprintf(szParams, sizeof(szParams), "%d\n", iRoomId);
+
+  if (iSendCommandToProcessor(giSocketClient, CMD_DELETE_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
+    vTraceVarArgsFn("Erro ao deletar da sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
+
+    return -1;
+  }
+
+  /** maybe parse rsl later */
+
+  return 0;
+}
+
+int iDestroyRoom(int iRoomId) {
+    char szParams[256];
+  char szRsl[_MAX_RSL_BUFFER];
+
+  memset(szParams, 0, sizeof(szParams));
+  memset(szRsl, 0, sizeof(szRsl));
+
+  snprintf(szParams, sizeof(szParams), "%d\n", iPlayerId);
+
+  if (iSendCommandToProcessor(giSocketClient, CMD_LEAVE_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
+    vTraceVarArgsFn("Erro ao sair da sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
+
+    return -1;
+  }
+
+  /** maybe parse rsl later */
 
   return 0;
 }
@@ -550,18 +622,37 @@ PSTRUCT_ROOM pstFindRoomByPlayer(PSTRUCT_PLAYER pstPlayer) {
   return NULL;
 }
 
-int iFindPlayerRole(PSTRUCT_PLAYER pstPlayer) {
-  PSTRUCT_ROOM pstRoom;
+PSTRUCT_ROOM_ROLES pstFindPlayerRole(PSTRUCT_PLAYER pstPlayer) {
   PSTRUCT_ROOM_ROLES pstRoomRoles;
 
   for (pstRoom = gstRoomList.pstFirst; pstRoom != NULL; pstRoom = pstRoom->pstNextRoom) {
     for (pstRoomRoles = pstRoom->pstNextRole; pstRoomRoles != NULL; pstRoomRoles = pstRoomRoles->pstNext) {
       if (pstRoomRoles->pstPlayer == pstPlayer)
-        return pstRoomRoles->iPlayerRole;
+        return pstRoomRoles;
     }
   }
 
-  return -1;
+  return NULL;
+}
+
+int iFindPlayerRole(PSTRUCT_PLAYER pstPlayer) {
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+
+  if ( (pstRoomRoles = pstFindPlayerRole(pstPlayer)) == NULL )
+    return -1;
+
+  return pstRoomRoles->iPlayerRole;
+}
+
+int iTogglePlayerRdyStatus(PSTRUCT_PLAYER pstPlayer){
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+
+  if ( (pstRoomRoles = pstFindPlayerRole(pstPlayer)) == NULL )
+    return -1;
+
+  pstRoomRoles->bReadyStatus = !pstRoomRoles->bReadyStatus;
+  
+  return 0;
 }
 
 void vCreateDummyRooms() {
