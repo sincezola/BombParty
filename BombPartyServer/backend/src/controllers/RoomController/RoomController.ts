@@ -136,7 +136,7 @@ class RoomController extends RoomControllerProtocol {
           room_name,
           room_capacity,
           room_level,
-          req.body.room_password ? req.body.room_password : null
+          req.body.room_password ?? null
         );
 
       const { statusCode, body } = receivedAssociation;

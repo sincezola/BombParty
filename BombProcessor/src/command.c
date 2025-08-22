@@ -98,7 +98,7 @@ int iCMD_CreateRoom(char **ppszArgs, int iSocketClient) {
     snprintf(stRoom.szPassword, sizeof(stRoom.szPassword), "%s", pTok);
 
   if ( !bStrIsEmpty(stRoom.szPassword) ){
-    sprintf(szMsg, ",\n\t\"password\":\"%s\"\n}", stRoom.szPassword);
+    sprintf(szMsg, ",\n\t\"room_password\":\"%s\"\n}", stRoom.szPassword);
   }
   else{
     sprintf(szMsg, "%s", "\n}");
@@ -246,6 +246,8 @@ int iCMD_DeleteRoom(char **ppszArgs, int iSocketClient) {
 
   iCurlReq(szURL, szFullEndpoint, METHOD_DELETE, szPayload, strlen(szPayload), szRsl);
   
+  vTraceVarArgsFn("Return from backend:[%s]", szRsl);
+
   if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse), pszTitle) < 0 ){
     vSendMsg(iSocketClient, "ERR|DELETE_ROOM\n", strlen("ERR|DELETE_ROOM\n"));
     vSendBye(iSocketClient);
@@ -291,6 +293,8 @@ int iCMD_LeaveRoom(char **ppszArgs, int iSocketClient) {
 
   iCurlReq(szURL, szFullEndpoint, METHOD_POST, NULL, 0, szRsl);
   
+  vTraceVarArgsFn("Return from backend:[%s]", szRsl);
+
   if ( iJSON_ExternalParse(szRsl, szChildResponse, sizeof(szChildResponse), pszTitle) < 0 ){
     vSendMsg(iSocketClient, "ERR|LEAVE_ROOM\n", strlen("ERR|LEAVE_ROOM\n"));
     vSendBye(iSocketClient);

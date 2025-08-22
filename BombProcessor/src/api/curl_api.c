@@ -29,12 +29,19 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
     bUseSSL = TRUE;
   }
 
+  vTraceVarArgsFn("URL [%s]\n", szUrl);
+
+
+  curl_global_init(CURL_GLOBAL_ALL); 
+
   curl = curl_easy_init();
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, szUrl);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ulWriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, szRsl);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30000);
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     if (bUseSSL) {
       curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
@@ -49,6 +56,9 @@ int iCurlReq(char *pszUrl, char *pszEndPoint, char *pszMethod, char *szPayload, 
       curl_easy_setopt(curl, CURLOPT_POSTFIELDS, szPayload);
     }
     if (!strcmp(pszMethod, "POST")) {
+      if ( iPayloadLen <= 0 )
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+
       curl_easy_setopt(curl, CURLOPT_POST, 1L);
     } else if (!strcmp(pszMethod, "GET")) {
       curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);

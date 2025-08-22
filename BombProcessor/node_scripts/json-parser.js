@@ -43,7 +43,7 @@ function parseCreateRoom(dataJSON, arr) {
   }
 
   for (const room of roomProps) {
-    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${roomProps.room_password ? roomProps.room_password : "-1"}|${room.room_capacity}|${room.room_level}`);
+    arr.push(`${exportGetRoomReg}|${roomPropsReg}|${room.room_key}|${room.room_status}|${room.room_name}|${room.room_password ?? "-1"}|${room.room_capacity}|${room.room_level}`);
 
     if ("status" in room) {
       arr.push(`${exportGetRoomReg}|${statusReg}|${room.status.status_type_id}|${room.status.code}`);
