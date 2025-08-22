@@ -46,7 +46,7 @@ The project consists of three main modules:
 
 - **Node.js** (>= 18)
 - **npm** or **yarn**
-- **Database:** PostgreSQL
+- **Database:** PostgreSQL | MySql
 
 ---
 
