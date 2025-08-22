@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <input.h>
+#include <hud.h>
 #include <sys_interface.h>
 #include <trace.h>
 #include <terminal_utils.h> 
@@ -24,8 +25,9 @@ STRUCT_ROOM_LIST gstRoomList;
     Complexidade: 16
     Capacidade: 14
     Status: 10
-    ____________________________________________________________________________
-    |     Nome    |     Complexidade     |     Capacidade     |     Status     |
+    Password: 12
+    __________________________________________________________________________________________
+    |     Nome    |     Complexidade     |     Capacidade     |     Status     |   Password   |
     |-------------|----------------------|--------------------|----------------|
     |-------------|----------------------|--------------------|----------------|
     |-------------|----------------------|--------------------|----------------|
@@ -121,6 +123,122 @@ PSTRUCT_ROOM pstSelectRoomFromList() {
   return NULL;
 }
 
+int iSelectPlayer(PSTRUCT_ROOM pstRoom) {
+  char szLine[1024];
+  int iSelected = 0;
+  int iKey = 0;
+  int iPlayerCt = 0;
+  int ii;
+  PSTRUCT_ROOM_ROLES pstWrkRole;
+
+  if ( (iPlayerCt = iRoomPlayerCt(pstRoom)) == 0 ){
+    vTraceVarArgsFn("No player to select..");
+    return -1;
+  }
+   
+  while (TRUE) {
+    int iIndex = 0;
+
+    vClearTerminal();
+    vPrintLine("Use as setas /\\ e \\/ para navegar, ENTER para selecionar:\n", INSERT_NEW_LINE);
+
+    for (iIndex = 0, pstWrkRole = pstRoom->pstNextRole; pstWrkRole != NULL; pstWrkRole = pstWrkRole->pstNext, iIndex++) {
+      PSTRUCT_PLAYER pstWrkPlayer = pstWrkRole->pstPlayer; 
+      memset(szLine, 0, sizeof(szLine));
+      sprintf(szLine,
+    "%-16s",
+        pstWrkPlayer->szPlayerName
+      );
+      if (iIndex == iSelected) {
+        vPrintHighlitedLine(szLine, INSERT_NEW_LINE);
+      } else {
+        vPrintLine(szLine, INSERT_NEW_LINE);
+      }
+    }
+
+    iKey = iPortableGetchar();
+    if (iKey == -1) {      
+      iSelected = (iSelected - 1 + iPlayerCt) % iPlayerCt;
+    } 
+    else if (iKey == -2) {
+      iSelected = (iSelected + 1) % iPlayerCt;
+    } 
+    else if (iKey == '\n' || iKey == '\r') {
+      PSTRUCT_ROOM_ROLES pRole = pstRoom->pstNextRole;
+      PSTRUCT_PLAYER pstPlayer =NULL;
+      for (ii = 0; ii < iSelected && pRole != NULL; ii++){
+        if ( pRole->pstPlayer == NULL )
+          return -1;
+        pstPlayer = pRole->pstPlayer;
+        pRole = pRole->pstNext;
+      }
+      if ( pstPlayer != NULL )
+        return pstPlayer->iPlayerId;
+    }
+  }
+
+  return -1;
+}
+
+int iGetOptionCtFromChoice(int iChoice){
+  switch(iChoice){
+    case EDITABLE_OPT_CAPACITY:
+      return MAX_CAPACITY;
+    case EDITABLE_OPT_DIFFICULTY:
+      return MAX_DIFFICULTY;
+    case EDITABLE_OPT_BOTH:
+      return EDITABLE_OPT_BOTH;
+  }
+  return iChoice;
+}
+
+int iChooseEditable(PSTRUCT_ROOM pstRoom) {
+  char szLine[1024];
+  int iOpt = iReadEditable();
+  int iSelected = 0;
+
+  while (TRUE) {
+    int iIndex;
+    int iMaxOpt = iGetOptionCtFromChoice(iOpt);
+    
+    if ( iMaxOpt == MAX_CAPACITY || iMaxOpt == EDITABLE_OPT_BOTH ){
+      int iLeftEditable = iMaxOpt - pstRoom->iRoomCapacity + iRoomPlayerCt(pstRoom);
+      for (iIndex = 0; iIndex < (iLeftEditable + iIndex) ; iIndex++) {
+        memset(szLine, 0, sizeof(szLine));
+        sprintf(szLine,
+          "%d/%d", iRoomPlayerCt(pstRoom), (iLeftEditable+iIndex)
+        );
+        if (iIndex == iSelected) 
+          vPrintHighlitedLine(szLine, INSERT_NEW_LINE);
+        else
+          vPrintLine(szLine, INSERT_NEW_LINE);
+      }
+    }
+    if ( iMaxOpt == MAX_DIFFICULTY || iMaxOpt == EDITABLE_OPT_BOTH ){
+    }
+  }
+  return 0;
+}
+
+int iEditRoom(PSTRUCT_ROOM pstRoom){
+  char szParams[256];
+  char szRsl[_MAX_RSL_BUFFER];
+  
+  memset(szParams, 0, sizeof(szParams));
+
+  if (iSendCommandToProcessor(giSocketClient, CMD_PATCH_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
+    vTraceVarArgsFn("Erro ao pegar salas do servidor. Prms[%s] Rsl=%s", szParams, szRsl);
+    
+    return -1;  
+  }
+
+  if ( iParseResult(szRsl, sizeof(szRsl), NULL) ) 
+    return -1;
+
+  
+  return 0;
+}
+
 void vDrawRooms() {
   int iNameLen;
   int iNameOffset;
@@ -130,6 +248,8 @@ void vDrawRooms() {
   int iCapacityOffset;
   int iStatusLen;
   int iStatusOffset;
+  int iPasswordLen;
+  int iPasswordOffset;
   char szDivLine[128];
   char szLine[1024];
   PSTRUCT_ROOM pstRoom;
@@ -161,14 +281,18 @@ void vDrawRooms() {
   iStatusLen = strlen(ROOM_STATUS);
   iStatusOffset = iCalcPaddingOffset(STATUS_FLD_SIZE, &iStatusLen);
 
+  iPasswordLen = strlen(ROOM_PASSWORD);
+  iPasswordOffset = iCalcPaddingOffset(PASSWORD_FLD_SIZE, &iPasswordLen);
+
   vPrintLine(szDivLine, INSERT_NEW_LINE);
   memset(szLine, 0, sizeof(szLine));
   sprintf(szLine,
-"|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|\n",
+"|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s\n",
     iNameOffset, iNameOffset, " ", iNameLen, iNameLen, ROOM_NAME, iNameOffset, iNameOffset, " ", 
     iDifficultyOffset, iDifficultyOffset, " ", iDifficultyLen, iDifficultyLen, ROOM_DIFFICULTY, iDifficultyOffset, iDifficultyOffset, " ",
     iCapacityOffset, iCapacityOffset, " ", iCapacityLen, iCapacityLen, ROOM_CAPACITY, iCapacityOffset, iCapacityOffset, " ",
-    iStatusOffset, iStatusOffset, " ", iStatusLen, iStatusLen, ROOM_STATUS, iStatusOffset, iStatusOffset, " "
+    iStatusOffset, iStatusOffset, " ", iStatusLen, iStatusLen, ROOM_STATUS, iStatusOffset, iStatusOffset, " ",
+    iPasswordOffset, iPasswordOffset, " ", iPasswordLen, iPasswordLen, ROOM_PASSWORD, iPasswordOffset, iPasswordOffset, " "
   );
   vPrintLine(szLine, INSERT_NEW_LINE);
 
@@ -178,6 +302,7 @@ void vDrawRooms() {
     char *pszRoomDifficulty = pszDifficulty[pstRoom->iRoomDifficulty];
     char szRoomCapacity[64];
     char *pszRoomStatus = pszStatus[pstRoom->iRoomStatus];
+    char szPw[64];
 
     memset(szRoomCapacity, 0, sizeof(szRoomCapacity));
     sprintf(szRoomCapacity, "%d/%d", iRoomPlayerCt(pstRoom), pstRoom->iRoomCapacity);
@@ -194,13 +319,22 @@ void vDrawRooms() {
     iStatusLen = strlen(pszRoomStatus);
     iStatusOffset = iCalcPaddingOffset(STATUS_FLD_SIZE, &iStatusLen);
 
+    iPasswordLen = 1;
+    iPasswordOffset = iCalcPaddingOffset(PASSWORD_FLD_SIZE, &iPasswordLen);
+    
+    memset(szPw, 0, sizeof(szPw));
+    sprintf(szPw, "%c", PASSWORD_NO); 
+    if ( !bStrIsEmpty(pstRoom->szRoomPassword) )
+      sprintf(szPw, "%c", PASSWORD_YES); 
+
     memset(szLine, 0, sizeof(szLine));
     sprintf(szLine,
-  "|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|\n",
+  "|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|%*.*s%-*.*s%*.*s|\n",
       iNameOffset, iNameOffset, " ", iNameLen, iNameLen, pszRoomName, iNameOffset, iNameOffset, " ",
       iDifficultyOffset, iDifficultyOffset, " ", iDifficultyLen, iDifficultyLen, pszRoomDifficulty, iDifficultyOffset, iDifficultyOffset, " ",
       iCapacityOffset, iCapacityOffset, " ", iCapacityLen, iCapacityLen, szRoomCapacity, iCapacityOffset, iCapacityOffset, " ",
-      iStatusOffset, iStatusOffset, " ", iStatusLen, iStatusLen, pszRoomStatus, iStatusOffset, iStatusOffset, " "
+      iStatusOffset, iStatusOffset, " ", iStatusLen, iStatusLen, pszRoomStatus, iStatusOffset, iStatusOffset, " ",
+      iPasswordOffset, iPasswordOffset, " ", iPasswordLen, iPasswordLen, szPw, iPasswordOffset, iPasswordOffset, " "
     );
     vPrintLine(szLine, INSERT_NEW_LINE);
   }
@@ -266,7 +400,7 @@ int iAddPlayer2Room(int iRole, PSTRUCT_PLAYER pstPlayer, PSTRUCT_ROOM pstRoom) {
       pTmp->pstNext = pstRoomRole;
   }
 
-  vTraceVarArgs("Player %s adicionado à sala %s com role %d", pstPlayer->szPlayerName, pstRoom->szRoomName, iRole);
+  vTraceVarArgsFn("Player %s adicionado à sala %s com role %d", pstPlayer->szPlayerName, pstRoom->szRoomName, iRole);
 
   return 0;
 }
@@ -296,8 +430,6 @@ int iRoomReadyCt(PSTRUCT_ROOM pstRoom) {
 int iGetServerRoom() {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
-  PSTRUCT_ROOM pstRoom = NULL;
-  STRUCT_ROOM stRoom;
   STRUCT_PLAYER stPlayer;
   
   memset(szParams, 0, sizeof(szParams));
@@ -312,22 +444,28 @@ int iGetServerRoom() {
   vInitRoomList(); 
   vInitPlayerList();
 
-  memset(&stRoom, 0, sizeof(STRUCT_ROOM));
   memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
 
-  if ( iParseResult(szRsl, sizeof(szRsl)) ) 
-    return -1;
-    
-  pstRoom = pstCreateRoom(&stRoom);
-  vAddRoom2List(pstRoom);
-
-  if (pstRoom == NULL)
+  if ( iParseResult(szRsl, sizeof(szRsl), NULL) ) 
     return -1;
 
   vLogRoomList();
   vLogPlayerList();
   
   return 0;
+}
+void vLogRoomRoles(PSTRUCT_ROOM pstRoom){
+  PSTRUCT_ROOM_ROLES pRole;
+
+  pRole = pstRoom->pstNextRole;
+  while (pRole != NULL) {
+    vTraceVarArgsFn(
+      "  [Player Role: %d, Player Name: %s]",
+      pRole->iPlayerRole,
+      pRole->pstPlayer ? pRole->pstPlayer->szPlayerName : "Unknown"
+    );
+    pRole = pRole->pstNext;
+  }
 }
 
 void vLogRoom(PSTRUCT_ROOM pstRoom) {
@@ -351,11 +489,12 @@ void vLogRoom(PSTRUCT_ROOM pstRoom) {
     (pWrk->szRoomPassword[0] != 0x00) ? pWrk->szRoomPassword : "XXX",
     pWrk->szRoomName
   );
+  vLogRoomRoles(pWrk);
 }
+
 
 void vLogRoomList() {
   PSTRUCT_ROOM pWrk;
-  PSTRUCT_ROOM_ROLES pRole;
 
   for (pWrk = gstRoomList.pstFirst; pWrk != NULL; pWrk = pWrk->pstNextRoom) {
     vTraceVarArgsFn(
@@ -372,26 +511,18 @@ void vLogRoomList() {
       (pWrk->szRoomPassword[0] != '\0') ? pWrk->szRoomPassword : "XXX",
       pWrk->szRoomName
     );
-
-    pRole = pWrk->pstNextRole;
-    while (pRole != NULL) {
-      vTraceVarArgsFn(
-        "  [Player Role: %d, Player Name: %s]",
-        pRole->iPlayerRole,
-        pRole->pstPlayer ? pRole->pstPlayer->szPlayerName : "Unknown"
-      );
-      pRole = pRole->pstNext;
-    }
+    vLogRoomRoles(pWrk);
   }
 }
 
 /**
-CMD|CMD_CREATE_ROOM|playername|roomname|roomcapacity|dificultylevel|{password}
+CMD|CMD_CREATE_ROOM|playername|roomname|password|roomcapacity|dificultylevel|
 */
 PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRoomCapacity, int iDifficultyLevel, char *pszPassword) {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   PSTRUCT_ROOM pstRoom = NULL;
+  STRUCT_ROOM stRoom;
   /** TODO: Toggle comment on parse */
   
   memset(szParams, 0, sizeof(szParams));
@@ -418,14 +549,13 @@ PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRo
 #endif
 
   /** TODO: Parse Rsl  **/
-  if ( iParseResult(szRsl, sizeof(szRsl)) ) 
+  memset(&stRoom, 0, sizeof(STRUCT_ROOM));
+  if ( iParseResult(szRsl, sizeof(szRsl), &stRoom) ) 
     return NULL;
     
-  // pstRoom = pstCreateRoom(&stRoom);
-  // if (pstRoom == NULL)
-  //   return NULL;
+  if ( (pstRoom = pstFindRoom(stRoom.iRoomId)) == NULL )
+    return NULL;
   
-
   return pstRoom;
 }
 
@@ -455,6 +585,8 @@ int iNewPlayerRoom() {
 
   vAddRoom2List(pstRoom);
   
+  vDrawHud(pstRoom, pstRoom->pstNextRole->pstPlayer);
+
   return 0;
 }
 
@@ -495,12 +627,12 @@ int iJoinRoom() {
   memset(szRoomPw, 0, sizeof(szRoomPw));
 
   vReadPlayerName(szPlayerName, sizeof(szPlayerName));
-  if ( !bStrIsEmpty(pstRoom.szRoomPassword) ) {
+  if ( !bStrIsEmpty(pstRoom->szRoomPassword) ) {
     do {
       vReadRoomPlayerPassword(szRoomPw, sizeof(szRoomPw));
 
       iCount++;
-    } while (strcmp(pstRoom.szRoomPassword, szRoomPw) && iCount < 3);
+    } while (strcmp(pstRoom->szRoomPassword, szRoomPw) && iCount < 3);
 
     if (iCount >= 3) memset(szRoomPw, 0, sizeof(szRoomPw));
   }
@@ -519,16 +651,31 @@ int iJoinRoom() {
     vTraceVarArgsFn("Erro ao entrar em sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
     return -1;
   }
-  /** TODO: parse rsl */
-  /*
-    iNewPlayer(iPlayerId, pszPlayerName);
-    iAddPlayer2Room(ROLE_GUEST, pstFindPlayer(iPlayerId), pstRoom);
-  */
 
   return 0;
 }
 
-int iDeleteRoom(int iRoomId) {
+int iLeaveRoom(int iPlayerId) {
+  char szParams[256];
+  char szRsl[_MAX_RSL_BUFFER];
+
+  memset(szParams, 0, sizeof(szParams));
+  memset(szRsl, 0, sizeof(szRsl));
+
+  snprintf(szParams, sizeof(szParams), "%d\n", iPlayerId);
+  
+  vTraceVarArgsFn("CMD_LEAVE_ROOM. Prms[%s]", szParams);
+
+  if (iSendCommandToProcessor(giSocketClient, CMD_LEAVE_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
+    vTraceVarArgsFn("Erro ao deletar da sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
+
+    return -1;
+  }
+
+  return 0;
+}
+
+int iDestroyRoom(int iRoomId) {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
 
@@ -538,32 +685,10 @@ int iDeleteRoom(int iRoomId) {
   snprintf(szParams, sizeof(szParams), "%d\n", iRoomId);
 
   if (iSendCommandToProcessor(giSocketClient, CMD_DELETE_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
-    vTraceVarArgsFn("Erro ao deletar da sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
-
-    return -1;
-  }
-
-  /** maybe parse rsl later */
-
-  return 0;
-}
-
-int iDestroyRoom(int iRoomId) {
-    char szParams[256];
-  char szRsl[_MAX_RSL_BUFFER];
-
-  memset(szParams, 0, sizeof(szParams));
-  memset(szRsl, 0, sizeof(szRsl));
-
-  snprintf(szParams, sizeof(szParams), "%d\n", iPlayerId);
-
-  if (iSendCommandToProcessor(giSocketClient, CMD_LEAVE_ROOM, szParams, szRsl, sizeof(szRsl)) != 0) {
     vTraceVarArgsFn("Erro ao sair da sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
 
     return -1;
   }
-
-  /** maybe parse rsl later */
 
   return 0;
 }
@@ -624,6 +749,7 @@ PSTRUCT_ROOM pstFindRoomByPlayer(PSTRUCT_PLAYER pstPlayer) {
 
 PSTRUCT_ROOM_ROLES pstFindPlayerRole(PSTRUCT_PLAYER pstPlayer) {
   PSTRUCT_ROOM_ROLES pstRoomRoles;
+  PSTRUCT_ROOM pstRoom;
 
   for (pstRoom = gstRoomList.pstFirst; pstRoom != NULL; pstRoom = pstRoom->pstNextRoom) {
     for (pstRoomRoles = pstRoom->pstNextRole; pstRoomRoles != NULL; pstRoomRoles = pstRoomRoles->pstNext) {
@@ -644,6 +770,36 @@ int iFindPlayerRole(PSTRUCT_PLAYER pstPlayer) {
   return pstRoomRoles->iPlayerRole;
 }
 
+PSTRUCT_ROOM pstFindPlayerRoom(PSTRUCT_PLAYER pstPlayer) {
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+  PSTRUCT_ROOM pstRoom;
+
+  for (pstRoom = gstRoomList.pstFirst; pstRoom != NULL; pstRoom = pstRoom->pstNextRoom) {
+    for (pstRoomRoles = pstRoom->pstNextRole; pstRoomRoles != NULL; pstRoomRoles = pstRoomRoles->pstNext) {
+      if (pstRoomRoles->pstPlayer == pstPlayer)
+        return pstRoom;
+    }
+  }
+
+  return NULL;
+}
+
+void vInitServerGame(PSTRUCT_ROOM pstRoom) {
+  char szParams[256];
+  char szRsl[_MAX_RSL_BUFFER];
+
+  memset(szParams, 0, sizeof(szParams));
+  memset(szRsl, 0, sizeof(szRsl));
+
+  snprintf(szParams, sizeof(szParams), "%d|%d|%d|%d\n", pstRoom->iRoomId, pstRoom->iRoomDifficulty, pstRoom->iRoomCapacity, ROOM_IN_GAME);
+
+  if (iSendCommandToProcessor(giSocketClient, CMD_PATCH_ROOM, szParams, szRsl, sizeof(szRsl)) != 0)
+    vTraceVarArgsFn("Erro ao sair da sala no servidor. Prms[%s] Rsl[%s]", szParams, szRsl);
+  
+
+  return;
+}
+
 int iTogglePlayerRdyStatus(PSTRUCT_PLAYER pstPlayer){
   PSTRUCT_ROOM_ROLES pstRoomRoles;
 
@@ -651,8 +807,20 @@ int iTogglePlayerRdyStatus(PSTRUCT_PLAYER pstPlayer){
     return -1;
 
   pstRoomRoles->bReadyStatus = !pstRoomRoles->bReadyStatus;
+
   
+  vTraceVarArgsFn("Alterado ready de player=[%s] para %s", pstPlayer->szPlayerName, pstRoomRoles->bReadyStatus ? "Pronto" : "Nao pronto");
+
   return 0;
+}
+
+int iGetReadyStatus(PSTRUCT_PLAYER pstPlayer) {
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+
+  if ( (pstRoomRoles = pstFindPlayerRole(pstPlayer)) == NULL )
+    return -1;
+      
+  return pstRoomRoles->bReadyStatus;
 }
 
 void vCreateDummyRooms() {

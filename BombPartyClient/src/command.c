@@ -70,7 +70,7 @@ int iNext_line(char *pszInput) {
   99|03|1|easy
   99|04|5|RENATO
 **/
-int iParseResult(char *pszInput, unsigned long ulInputLen) {
+int iParseResult(char *pszInput, unsigned long ulInputLen, PSTRUCT_ROOM pstRoom) {
   PSTRUCT_ROOM pstWrkRoom;
   PSTRUCT_ROOM pstFirstRoom;
   char *pszData;
@@ -163,19 +163,27 @@ int iParseResult(char *pszInput, unsigned long ulInputLen) {
 
       vAddRoom2List(pstWrkRoom);
     }
+
+    vLogRoom(pstWrkRoom);
+
     pLine = strtok_r(NULL, "\n", &pszSavePtrLine);
 
     if ( (iRsl = iParsePlayer(pszSavePtrLine, strlen(pszSavePtrLine), pstWrkRoom, pszData, ulInputLen + 1)) < 0)
       return -1;
     
-    if ( iRsl == 1 )
+    vTraceVarArgsFn("iParsePlayer Rsl=%d", iRsl);
+
+    if ( iRsl == 1 ){
+      if ( pstRoom != NULL && pstWrkRoom != NULL )
+        memcpy(pstRoom, pstWrkRoom, sizeof(STRUCT_ROOM));
       break;
+    }
 
     pLine = pszData;
   }
 
   free(pszData);
-  return 1;
+  return 0;
 }
 
 /*
@@ -252,8 +260,10 @@ int iParsePlayer(char *pszInput, unsigned long ulInputLen,
     iAddPlayer2Room(iRole, pstWrkPlayer, pstRoom);
   }
 
+  vTraceVarArgsFn("Fim");
+
   free(pszData);
-  return 0;
+  return 1;
 }
 
 // OK|BYTES|XXX

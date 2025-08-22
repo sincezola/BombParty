@@ -37,6 +37,6 @@
   int iConnectToProcessor();
   int iSendCommandToProcessor(int iSockClient, int iCmdId, const char *pszParam, char *pszRsl, int iRslSz);
   int iInitSockets();
-  int iParseResult(char *pszLayout, unsigned long ulInputLen);
+  int iParseResult(char *pszLayout, unsigned long ulInputLen, PSTRUCT_ROOM pstRoom);
   int iParsePlayer(char *pszInput, unsigned long ulInputLen, PSTRUCT_ROOM pstRoom, char *pszOut, int iOutLen);
 #endif

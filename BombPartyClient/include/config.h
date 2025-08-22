@@ -14,6 +14,8 @@
   #define EASY   1
   #define MEDIUM 2
   #define HARD   3
+  #define MAX_DIFFICULTY HARD
+  #define MAX_CAPACITY   5
 
   #define ROOM_CREATED 1
   #define ROOM_IN_GAME 2

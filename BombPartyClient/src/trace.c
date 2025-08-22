@@ -71,7 +71,7 @@ void vTraceMsg(char *szMsg) {
   memset(szDateTimeNow_us, 0, sizeof(szDateTimeNow_us));
 
   snprintf(szDateTimeNow_us, sizeof(szDateTimeNow_us),
-           "[%02d/%02d/%04d %02d:%02d:%02d.%03ld] ", (int)st_tm_Now->tm_mday,
+           "[%02d/%02d/%02d %02d:%02d:%02d.%03ld] ", (int)st_tm_Now->tm_mday,
            (int)st_tm_Now->tm_mon + 1, (int)st_tm_Now->tm_year + 1900,
            (int)st_tm_Now->tm_hour, (int)st_tm_Now->tm_min,
            (int)st_tm_Now->tm_sec, (long)tv.tv_usec / 1000);
@@ -187,7 +187,7 @@ void _vTraceVarArgs(const char *kpszModuleName, const int kiLine, const char *kp
 
   va_start(args, kpszFmt);
 
-  snprintf(szDbg, sizeof(szDbg), "[%02d/%02d/%04d %02d:%02d:%02d.%03ld] %s:%d ",
+  snprintf(szDbg, sizeof(szDbg), "[%02d/%02d/%02d %02d:%02d:%02d.%03ld] %s:%d ",
            (int)st_tm_Now->tm_mday, (int)st_tm_Now->tm_mon + 1,
            (int)st_tm_Now->tm_year + 1900, (int)st_tm_Now->tm_hour,
            (int)st_tm_Now->tm_min, (int)st_tm_Now->tm_sec,

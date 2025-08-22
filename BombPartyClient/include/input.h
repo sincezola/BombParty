@@ -9,12 +9,12 @@
   #define ACTION_REFRESH_LIST 'a'
   #define ACTION_DESTROY_ROOM 'd'
 
-  char *cCatchInput();
-  bool bIsOnlySpaces(const char *str);
   int iSetDifficultyFromChar(int iCh);
   int iReadGameMode();
   int iReadMultiplayerAction();
   int iPortableGetchar();
+  int iReadEditable();
+  bool bIsOnlySpaces(const char *str);
   void vSleepSeconds(int iSeconds);
   void vClearTerminal();
   void vFlushInput();
@@ -25,4 +25,6 @@
   void vReadRoomPassword(char *pszPassword, int iPasswdSz);
   void vReadRoomCapacity(int *iCapacity);
   void vReadRoomPlayerPassword(char *pszBuff, int iBuffLen);
+  char *cCatchInput();
+  int iReadOptions(); 
 #endif

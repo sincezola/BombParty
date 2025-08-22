@@ -1,3 +1,6 @@
+#include <room.h>
+#include <player.h>
+#include <hud.h>
 #include <bombparty.h>
 #include <ctype.h>
 #include <input.h>
@@ -207,8 +210,43 @@ void vReadPlayerName(char *pszName, int iNameSz) {
   return;
 }
 
+int iReadEditable() {
+  int iRsl;
+  int iCh;
+  char szBuffer[128];
+
+  char szLine[1024];
+  do {
+    vClearTerminal();
+    vPrintLine("\n Escolha sua o que deseja editar :", INSERT_NEW_LINE);
+    sprintf(szLine, 
+    "\t[C] Capacidade\n"
+    "\t[D] Dificuldade\n"
+    "\t[A] Ambos");
+    vPrintLine(szLine, INSERT_NEW_LINE);
+    vPrintLine("Opcao: ", NO_NEW_LINE);
+
+    memset(szBuffer, 0, sizeof(szBuffer));
+    if (fgets(szBuffer, sizeof(szBuffer), stdin)) {
+      if (strchr(szBuffer, '\n') == NULL)
+        vFlushInput();
+    }
+
+    iCh = tolower(szBuffer[0]);
+  } while (iCh != 'c' && iCh != 'd' && iCh != 'a');
+
+  if ( iCh == 'c' )
+    iRsl = EDITABLE_OPT_CAPACITY;
+  else if ( iCh == 'd' )
+    iRsl = EDITABLE_OPT_DIFFICULTY;
+  else 
+    iRsl = EDITABLE_OPT_BOTH;
+
+  return iRsl;
+}
+
 void vReadRoomName(char *pszName, int iNameSz) {
-  do{
+  do {
     vClearTerminal();
     vPrintLine("\n Escolha o nome da sala :", INSERT_NEW_LINE);
     vPrintLine("Nome: ", NO_NEW_LINE);
@@ -223,6 +261,10 @@ void vReadRoomName(char *pszName, int iNameSz) {
   strtok(pszName, "\n");
   
   return;
+}
+
+int iReadOptions() {
+  return fgetc(stdin);
 }
 
 void vReadRoomDifficulty(int *iDifficulty) {
@@ -307,7 +349,6 @@ void vReadRoomPassword(char *pszPassword, int iPasswdSz) {
 
   return;
 }
-
 
 void vReadRoomCapacity(int *iCapacity) {
   char szBuffer[128];

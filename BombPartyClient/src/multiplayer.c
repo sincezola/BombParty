@@ -1,12 +1,21 @@
 #include <room.h>
 #include <input.h>
 #include <terminal_utils.h>
+#include <hud.h>
 
 int iRunMultiplayerMode() {
   while ( TRUE ) {
     int iAction = 0;
     
     vDrawRooms();
+
+    #ifdef FAKE
+      vDrawHud(pstFindRoom(103), pstFindPlayer(3));// owner
+      // vDrawHud(pstFindRoom(103), pstFindPlayer(4));    //guest
+      // vDrawHud(gstRoomList.pstFirst, gstPlayerList.pstFirst);
+
+      return 0;
+    #endif
 
     if ( !(iAction = iReadMultiplayerAction()) ) continue;
 

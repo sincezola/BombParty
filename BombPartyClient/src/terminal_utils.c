@@ -1,5 +1,6 @@
 #include <stdio.h>  
 #include <terminal_utils.h>
+#include <input.h>
 #include <config.h>
 
 void vPrintLine(char *pszLine, bool bNewLine) {
@@ -20,7 +21,8 @@ void vSetCursorPosition(int iRow, int iCol) {
 }
 
 void vClearScreen() {
-  printf("\033[2J\033[1;1H");  /** Limpa a tela e volta para (1,1) */
+  vClearTerminal();
+    printf("\033[2J\033[1;1H");  /** Limpa a tela e volta para (1,1) */
   fflush(stdout);
 }
 

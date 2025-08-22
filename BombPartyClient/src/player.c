@@ -1,6 +1,7 @@
 #include <trace.h>
 #include <config.h>
 #include <player.h>
+#include <room.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -57,23 +58,38 @@ int iNewPlayer(int iId, char *pszName) {
 }
 
 void vLogPlayer(PSTRUCT_PLAYER pstPlayer) {
+  PSTRUCT_ROOM pWrkRoom;
+  char szRoom[256];
+  memset(szRoom, 0, sizeof(szRoom));
+  strcpy(szRoom, " ");
+  if ( (pWrkRoom = pstFindPlayerRoom(pstPlayer)) != NULL ){
+    sprintf(szRoom, " Sala=%s ", pWrkRoom->szRoomName);
+  }
+
   vTraceVarArgs(
-    "[Player Id: %d\n"
-    "Player Name: %s\n]",
+  "[ Player Id=%d Name=%s%s]",
     pstPlayer->iPlayerId,
-    pstPlayer->szPlayerName
+    pstPlayer->szPlayerName,
+    szRoom
   );
 }
 
 void vLogPlayerList() {
   PSTRUCT_PLAYER pWrk;
-
+  PSTRUCT_ROOM pWrkRoom;
   for (pWrk = gstPlayerList.pstFirst; pWrk != NULL; pWrk = pWrk->pstNext) {
+    char szRoom[256];
+    memset(szRoom, 0, sizeof(szRoom));
+    strcpy(szRoom, " ");
+    if ( (pWrkRoom = pstFindPlayerRoom(pWrk)) != NULL ){
+      sprintf(szRoom, " Sala=%s ", pWrkRoom->szRoomName);
+    }
+
     vTraceVarArgs(
-      "[Player Id: %d\n"
-      "Player Name: %s\n]",
+    "[ Player Id=%d Name=%s%s]",
       pWrk->iPlayerId,
-      pWrk->szPlayerName
+      pWrk->szPlayerName,
+      szRoom
     );
   }
 }
