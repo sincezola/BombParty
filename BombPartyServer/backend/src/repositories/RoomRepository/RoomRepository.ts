@@ -91,6 +91,20 @@ class RoomRepository implements RoomRepositoryProtocol {
       });
     } catch (err) {
       console.error(err);
+
+      return null;
+    }
+  }
+
+  async deleteRoomById(room_key: number): Promise<RoomWithRelations | null> {
+    try {
+      return await this.prisma.room.delete({
+        where: { room_key },
+        include: roomInclude,
+      });
+    } catch (err) {   
+      console.error(err);
+
       return null;
     }
   }

@@ -30,6 +30,10 @@ class RoomController extends RoomControllerProtocol {
       "/api/Room/PatchRoom/",
       this.changeRoomProperties.bind(this)
     );
+    this.router.delete(
+      "/api/Room/DestroyRoom/:id",
+      this.destroyRoom.bind(this)
+    );
   }
 
   protected async getAllRooms(_req: Request, res: Response): Promise<void> {
@@ -192,6 +196,32 @@ class RoomController extends RoomControllerProtocol {
       );
 
       const { statusCode, body } = patchedRoom;
+
+      res.status(statusCode).json(body);
+    } catch (err) {
+      console.error(err);
+
+      res
+        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        .json({ message: "Sorry, Internal Server Error." });
+    }
+  }
+
+  protected async destroyRoom(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!isValidInteger(id) || Number(id) < 0) {
+        res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .json({ message: "invalid room_key provided." });
+
+        return;
+      }
+
+      const receivedRoom = await this.roomService.destroyRoom(Number(id));
+
+      const { statusCode, body } = receivedRoom;
 
       res.status(statusCode).json(body);
     } catch (err) {

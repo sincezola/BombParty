@@ -217,6 +217,34 @@ class RoomService implements RoomServiceProtocol {
       return this.handleError();
     }
   }
+
+  async destroyRoom(
+    room_key: number
+  ): Promise<ApiResponse<{ message: string } | Room>> {
+    try {
+      const receivedRoom = await this.getRoomById(room_key);
+
+      if (!(receivedRoom.body instanceof Room)) {
+        return {
+          statusCode: HttpStatusCode.NOT_FOUND,
+          body: { message: `Room with id: ${room_key} is not in the database` },
+        };
+      }
+
+      const deletedRoom = await this.roomRepository.deleteRoomById(room_key);
+
+      if (!deletedRoom) return this.handleError();
+
+      return {
+        statusCode: HttpStatusCode.OK,
+        body: new Room(deletedRoom),
+      };
+    } catch (err) {
+      console.error(err);
+
+      return this.handleError();
+    }
+  }
 }
 
 export default RoomService;
