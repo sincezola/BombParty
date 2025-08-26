@@ -4,33 +4,41 @@ const fileTitle = process.argv[2];
 const createRoomTitle = "createroom.txt";
 const joinRoomTitle = "joinroom.txt";
 const getRoomTitle = "getroom.txt";
+const deleteRoomTitle = "deleteroom.txt";
 
 const exportGetRoomReg = "99";
 const exportJoinRoomReg = "98";
+const exportDeleteRoomReg = "97";
 const roomPropsReg = "01";
 const statusReg = "02";
 const levelReg = "03";
 const playerlistReg = "04";
 
 // ---------------- Funções de Parse ---------------- //
-// "room":{"room_key":3,"room_status":1,"room_name":"SALA RENATO","room_password":null,"room_capacity":4,"room_level":1,"created_at":"2025-08-16T14:54:26.312Z","last_changed":"2025-08-16T14:54:26.312Z"},"player":{"player_key":6,"player_name":"since"},"type":{"room_player_type_id":2,"code":"participant"}}}] **/
+// "roomProps":{"room_key":3,"room_status":1,"room_name":"SALA RENATO","room_password":null,"room_capacity":4,"room_level":1,"created_at":"2025-08-16T14:54:26.312Z","last_changed":"2025-08-16T14:54:26.312Z"},"player":{"player_key":6,"player_name":"since"},"type":{"room_player_type_id":2,"code":"participant"}}}] **/
+
+function parseDeleteRoom(dataJSON, arr) {
+  const roomProps = dataJSON.roomProps;
+  const players = dataJSON.roomProps.players; // <-- array
+
+  if (!roomProps) return;
+
+  arr.push(`${exportDeleteRoomReg}|${roomPropsReg}|${roomProps.room_key}|${roomProps.room_status}|${roomProps.room_name}|${roomProps.room_password ?? "-1"}|${roomProps.room_capacity}|${roomProps.room_level}`);
+
+  for (const player in players)
+    arr.push(`${exportDeleteRoomReg}|${playerlistReg}|${player.player_key}|${player.player_name}`);
+}
 
 function parseJoinRoom(dataJSON, arr) {
-  const roomProps = dataJSON.roomPlayerProps.room;
-  const player = dataJSON.roomPlayerProps.player;
+  const roomProps = dataJSON.roomProps;
+  const players = dataJSON.roomProps.players; // <-- array
+
   if (!roomProps) return;
 
   arr.push(`${exportJoinRoomReg}|${roomPropsReg}|${roomProps.room_key}|${roomProps.room_status}|${roomProps.room_name}|${roomProps.room_password ?? "-1"}|${roomProps.room_capacity}|${roomProps.room_level}`);
 
-  // if ("status" in roomProps) {
-  //   arr.push(`${exportJoinRoomReg}|${statusReg}|${roomProps.status.status_type_id}|${roomProps.status.code}`);
-  // }
-
-  // if ("level" in roomProps) {
-  //   arr.push(`${exportJoinRoomReg}|${levelReg}|${roomProps.level.level_type_id}|${roomProps.level.code}`);
-  // }
-
-  arr.push(`${exportJoinRoomReg}|${playerlistReg}|${player.player_key}|${player.player_name}`);
+  for (const player in players)
+    arr.push(`${exportDeleteRoomReg}|${playerlistReg}|${player.player_key}|${player.player_name}`);
 }
 
 function parseCreateRoom(dataJSON, arr) {
@@ -110,6 +118,8 @@ process.stdin.on('end', () => {
     else if (fileTitle === joinRoomTitle)
       parseJoinRoom(dataJSON, parsedArray);
     else if (fileTitle === createRoomTitle)
+      parseCreateRoom(dataJSON, parsedArray);
+    else if (fileTitle === deleteRoomTitle)
       parseCreateRoom(dataJSON, parsedArray);
 
     const parsedString = parsedArray.join('\n');

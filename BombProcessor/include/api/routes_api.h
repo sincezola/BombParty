@@ -16,6 +16,6 @@ extern char pszAPI_URL_ADDRESS[1024];
 #define JOIN_ROOM_PATH       "RoomPlayer/JoinRoom"
 #define LEAVE_ROOM_PATH      "RoomPlayer/LeaveRoom"
 #define PATCH_ROOM_PATH      "Room/PatchRoom"
-#define DELETE_ROOM_PATH     "RoomPlayer/LeaveRoom"
+#define DELETE_ROOM_PATH     "Room/DestroyRoom"
 
 #endif
