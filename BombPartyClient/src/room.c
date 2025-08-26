@@ -18,6 +18,7 @@ char *pszStatus[] = {"-", "Created", "In game", "Closed", NULL};
 char *pszRoles[] = {"-", "Owner", "Guest", "Spectator", NULL};
 
 STRUCT_ROOM_LIST gstRoomList;
+PSTRUCT_ROOM gpstCurrentRoom;
 
 /**
   Maximo de caracteres
@@ -220,7 +221,7 @@ int iChooseEditable(PSTRUCT_ROOM pstRoom) {
   return 0;
 }
 
-int iEditRoom(PSTRUCT_ROOM pstRoom){
+int iEditRoom(PSTRUCT_ROOM pstRoom) {
   char szParams[256];
   char szRsl[_MAX_RSL_BUFFER];
   
@@ -234,7 +235,6 @@ int iEditRoom(PSTRUCT_ROOM pstRoom){
 
   if ( iParseResult(szRsl, sizeof(szRsl), NULL) ) 
     return -1;
-
   
   return 0;
 }
@@ -254,12 +254,7 @@ void vDrawRooms() {
   char szLine[1024];
   PSTRUCT_ROOM pstRoom;
 
-  #ifdef FAKE
-    vTraceVarArgsFn("vDrawRooms Dummy Rooms");
-    vCreateDummyRooms();
-  #else
-    iGetServerRoom();
-  #endif
+  iGetServerRoom();
   vClearTerminal();
   /** Separator Line */
   memset(szLine, 0, sizeof(szLine));
@@ -344,6 +339,7 @@ void vDrawRooms() {
 void vInitRoomList() {
   gstRoomList.pstFirst = NULL;
   gstRoomList.pstLast = NULL;
+  gpstCurrentRoom = NULL;
 }
 
 void vAddRoom2List(PSTRUCT_ROOM pstRoom) {
@@ -354,11 +350,13 @@ void vAddRoom2List(PSTRUCT_ROOM pstRoom) {
   if (gstRoomList.pstFirst == NULL) {
     gstRoomList.pstFirst = pstRoom;
     gstRoomList.pstLast = pstRoom;
+    pstLast = &gstRoomList.pstLast;
   } else { /* Ja existe alguem na lista */
     pstLast = &gstRoomList.pstLast;
     (*pstLast)->pstNextRoom = pstRoom;
-    (*pstLast) = pstRoom;
+    pstLast = pstLast->pstNextRoom;
   }
+  (*pstLast)->pstNextRoom = NULL;
 }
 
 PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom) {
@@ -441,9 +439,8 @@ int iGetServerRoom() {
     return -1;  
   }
 #endif
-  vInitRoomList(); 
-  vInitPlayerList();
-
+  vClearAll();
+  
   memset(&stPlayer, 0, sizeof(STRUCT_PLAYER));
 
   if ( iParseResult(szRsl, sizeof(szRsl), NULL) ) 
@@ -555,7 +552,7 @@ PSTRUCT_ROOM pstCreateServerRoom(char *pszRoomName, char *pszPlayerName, int iRo
     
   if ( (pstRoom = pstFindRoom(stRoom.iRoomId)) == NULL )
     return NULL;
-  
+
   return pstRoom;
 }
 
@@ -580,8 +577,10 @@ int iNewPlayerRoom() {
   
   pstRoom = pstCreateServerRoom(szRoomName, szPlayerName, iCapacity, iDifficulty, szPassword);
   
-  if (pstRoom == NULL)
+  gpstCurrentRoom = pstRoom;
+  if ( pstRoom == NULL || (gpstCurrentPlayer = pstFindRoomPlayerOwner(pstRoom)) == NULL )
     return -1;
+  
 
   vAddRoom2List(pstRoom);
   
@@ -652,6 +651,10 @@ int iJoinRoom() {
     return -1;
   }
 
+  gpstCurrentRoom = pstRoom;
+  if ( pstRoom == NULL || (gpstCurrentPlayer = pstFindRoomPlayerByName(pstRoom, szPlayerName)) == NULL )
+    return -1;
+
   return 0;
 }
 
@@ -672,6 +675,8 @@ int iLeaveRoom(int iPlayerId) {
     return -1;
   }
 
+  vClearAll();
+
   return 0;
 }
 
@@ -689,21 +694,38 @@ int iDestroyRoom(int iRoomId) {
 
     return -1;
   }
-
+  
+  vClearAll();
+  
   return 0;
+}
+
+void vClearAll() {
+  vClearPlayerList();
+  vClearRoomList();
+  vInitRoomList();
+  vInitPlayerList();
 }
 
 void vClearRoomRoleList(PSTRUCT_ROOM pstRoom) {
   PSTRUCT_ROOM_ROLES pstCurrent;
   PSTRUCT_ROOM_ROLES pstLast;
+  int  iRoom = 0;
+
+  if ( pstRoom == NULL ) return;
 
   pstCurrent = pstRoom->pstNextRole;
+  iRoom = pstRoom->iRoomId;
+
+  vTraceVarArgsFn("vClearRoomRoleList - Clearing roles from Room=%d", iRoom);
 
   while (pstCurrent != NULL) {
     pstLast = pstCurrent;
     pstCurrent = pstCurrent->pstNext;
     free(pstLast);
   }
+  
+  vTraceVarArgsFn("vClearRoomRoleList - Roles of Room=%d were cleared", iRoom);
 }
 
 void vClearRoomList() {
@@ -711,6 +733,8 @@ void vClearRoomList() {
   PSTRUCT_ROOM pstLast;
 
   pstCurrent = gstRoomList.pstFirst;
+
+  vTraceVarArgsFn("vClearRoomList Begin");
 
   while (pstCurrent != NULL) {
     vClearRoomRoleList(pstCurrent);
@@ -721,6 +745,8 @@ void vClearRoomList() {
 
   gstRoomList.pstFirst = NULL;
   gstRoomList.pstLast = NULL;
+  
+  vTraceVarArgsFn("vClearRoomList OK");
 }
 
 PSTRUCT_ROOM pstFindRoom(int iId) {
@@ -824,8 +850,7 @@ int iGetReadyStatus(PSTRUCT_PLAYER pstPlayer) {
 }
 
 void vCreateDummyRooms() {
-  vInitRoomList();
-  vInitPlayerList();
+  vClearAll();
 
   iNewPlayer(1, "owner1");
   iNewRoom(101, "Sala1", ROOM_CREATED, 5, EASY);
@@ -850,4 +875,30 @@ int iGetTotalRoomCt() {
     iRoomCt++;
 
   return iRoomCt;
+}
+
+PSTRUCT_PLAYER pstFindRoomPlayerOwner(PSTRUCT_ROOM pstRoom) {
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+
+  for (pstRoomRoles = pstRoom->pstNextRole; pstRoomRoles != NULL; pstRoomRoles = pstRoomRoles->pstNext){
+    if ( pstRoomRoles->iPlayerRole == ROLE_OWNER )
+      return pstRoomRoles->pstPlayer;
+  }
+  return NULL;
+}
+
+PSTRUCT_PLAYER pstFindRoomPlayerByName(PSTRUCT_ROOM pstRoom, char *pszName){
+  PSTRUCT_ROOM_ROLES pstRoomRoles;
+  PSTRUCT_PLAYER pstPlayer;
+  
+  if ( bStrIsEmpty(pszName) )
+    return NULL;
+  
+  for (pstRoomRoles = pstRoom->pstNextRole; pstRoomRoles != NULL; pstRoomRoles = pstRoomRoles->pstNext){
+    pstPlayer = pstRoomRoles->pstPlayer;
+    if ( !strcmp(pstPlayer->szPlayerName, pszName) )
+      return pstPlayer;
+  }
+  
+  return NULL;
 }

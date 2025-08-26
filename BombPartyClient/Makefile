@@ -57,10 +57,10 @@ OBJS = \
 	$(OBJ_DIR)/sys_interface.o \
 	$(OBJ_DIR)/terminal_utils.o \
 	$(OBJ_DIR)/singleplayer.o \
-	$(OBJ_DIR)/player.o \
 	$(OBJ_DIR)/multiplayer.o \
 	$(OBJ_DIR)/parse_api.o \
 	$(OBJ_DIR)/room.o \
+	$(OBJ_DIR)/player.o \
 	$(OBJ_DIR)/trace.o \
 	$(OBJ_DIR)/hud.o \
 	$(OBJ_DIR)/command.o
@@ -79,7 +79,7 @@ clean:
 directories:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
 
-# Target para gerar ícone a partir do WEBP
+# Target para gerar ícone a partir da imagem
 icon: $(ICON_PATH)/icon.webp $(ICON_PATH)/icon.rc
 	$(IMAGEMAGICK) $< -resize 512x512 $(ICON_PATH)/icon.png
 	$(IMAGEMAGICK) $(ICON_PATH)/icon.png -define icon:auto-resize=256,128,64,48,32,16 $(ICON_PATH)/icon.ico
@@ -90,7 +90,7 @@ icon: $(ICON_PATH)/icon.webp $(ICON_PATH)/icon.rc
 $(OBJ_DIR)/icon.o: $(ICON_PATH)/icon.rc $(ICON_PATH)/icon.ico
 	$(WINDRES) $(ICON_PATH)/icon.rc -O coff -o $@
 
-$(BIN_DIR)/$(BOMB_EXEC): $(OBJS)
+$(BIN_DIR)/$(BOMB_EXEC): directories $(OBJS)
 	$(CC) $(LDOPT) $(INC_DIR) -o $@ $(OBJS) $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_PATH)/%.c

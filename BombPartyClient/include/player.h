@@ -13,12 +13,14 @@
   } STRUCT_PLAYER_LIST, *PSTRUCT_PLAYER_LIST;
 
   extern STRUCT_PLAYER_LIST gstPlayerList;
-  PSTRUCT_PLAYER pstFindPlayer(int iId);
-  PSTRUCT_PLAYER pstCreatePlayer(PSTRUCT_PLAYER pstPlayer);
+  extern PSTRUCT_PLAYER     gpstCurrentPlayer;
+  
   int iNewPlayer(int iId, char *pszName);
   void vInitPlayerList();
   void vAddPlayer2List(PSTRUCT_PLAYER pstPlayer);
   void vClearPlayerList();
   void vLogPlayerList();
   void vLogPlayer(PSTRUCT_PLAYER pstPlayer);
+  PSTRUCT_PLAYER pstFindPlayer(int iId);
+  PSTRUCT_PLAYER pstCreatePlayer(PSTRUCT_PLAYER pstPlayer);
 #endif

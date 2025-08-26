@@ -6,10 +6,12 @@
 #include <string.h>
 
 STRUCT_PLAYER_LIST gstPlayerList;
-
+PSTRUCT_PLAYER gpstCurrentPlayer;
+  
 void vInitPlayerList() {
   gstPlayerList.pstFirst = NULL;
   gstPlayerList.pstLast = NULL;
+  gpstCurrentPlayer = NULL;
 }
 
 void vAddPlayer2List(PSTRUCT_PLAYER pstPlayer) {
@@ -20,11 +22,13 @@ void vAddPlayer2List(PSTRUCT_PLAYER pstPlayer) {
   if (gstPlayerList.pstFirst == NULL) {
     gstPlayerList.pstFirst = pstPlayer;
     gstPlayerList.pstLast = pstPlayer;
+    pstLast = &gstPlayerList.pstLast;
   } else { /* Ja existe alguem na lista */
     pstLast = &gstPlayerList.pstLast;
     (*pstLast)->pstNext = pstPlayer;
     (*pstLast) = pstPlayer;
   }
+  (*pstLast)->pstNext = NULL;
 }
 
 PSTRUCT_PLAYER pstCreatePlayer(PSTRUCT_PLAYER pstPlayer) {
@@ -108,6 +112,8 @@ void vClearPlayerList() {
 
   gstPlayerList.pstFirst = NULL;
   gstPlayerList.pstLast = NULL;
+  
+  vTraceVarArgsFn("VClearPlayerList OK");
 }
 
 PSTRUCT_PLAYER pstFindPlayer(int iId) {

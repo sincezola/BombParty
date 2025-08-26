@@ -2,20 +2,26 @@
 #include <input.h>
 #include <terminal_utils.h>
 #include <hud.h>
+#include <player.h>
 
 int iRunMultiplayerMode() {
   while ( TRUE ) {
     int iAction = 0;
     
-    vDrawRooms();
-
     #ifdef FAKE
-      vDrawHud(pstFindRoom(103), pstFindPlayer(3));// owner
-      // vDrawHud(pstFindRoom(103), pstFindPlayer(4));    //guest
-      // vDrawHud(gstRoomList.pstFirst, gstPlayerList.pstFirst);
-
+      vTraceVarArgsFn("vDrawRooms Dummy Rooms");
+      vCreateDummyRooms();
+      vDrawFakeHud();
       return 0;
     #endif
+  
+    vDrawRooms();
+
+    if ( gpstCurrentRoom != NULL && gpstCurrentPlayer != NULL ){
+      vDrawHud(gpstCurrentRoom, gpstCurrentPlayer);
+      if ( gpstCurrentRoom != NULL && gpstCurrentPlayer != NULL )
+        continue;
+    }
 
     if ( !(iAction = iReadMultiplayerAction()) ) continue;
 

@@ -14,7 +14,7 @@
   #define CAPACITY_FLD_SIZE   14
   #define STATUS_FLD_SIZE     10
   #define PASSWORD_FLD_SIZE   12
-  #define ROOM_MAX_CHARS      NAME_FLD_SIZE+DIFFICULTY_FLD_SIZE+CAPACITY_FLD_SIZE+STATUS_FLD_SIZE+PASSWORD_FLD_SIZE
+  #define ROOM_MAX_CHARS      NAME_FLD_SIZE + DIFFICULTY_FLD_SIZE + CAPACITY_FLD_SIZE + STATUS_FLD_SIZE + PASSWORD_FLD_SIZE
   #define STATUS_NOT_READY    0
   #define STATUS_READY        1
   #define PASSWORD_YES          'S'
@@ -54,6 +54,7 @@
   } STRUCT_ROOM_LIST, *PSTRUCT_ROOM_LIST;
 
   extern STRUCT_ROOM_LIST gstRoomList;
+  extern PSTRUCT_ROOM gpstCurrentRoom;
 
   int iGetReadyStatus(PSTRUCT_PLAYER pstPlayer);
   int iDestroyRoom(int iRoomId);
@@ -74,6 +75,7 @@
   void vDrawRooms();
   void vInitServerGame(PSTRUCT_ROOM pstRoom);
   void vInitRoomList();
+  void vClearAll();
   void vClearRoomList();
   void vCreateDummyRooms();
   void vLogRoomList();
@@ -85,4 +87,6 @@
   PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom);
   PSTRUCT_ROOM pstFindPlayerRoom(PSTRUCT_PLAYER pstPlayer);
   PSTRUCT_ROOM_ROLES pstFindPlayerRole(PSTRUCT_PLAYER pstPlayer);
+  PSTRUCT_PLAYER pstFindRoomPlayerOwner(PSTRUCT_ROOM pstRoom);
+  PSTRUCT_PLAYER pstFindRoomPlayerByName(PSTRUCT_ROOM pstRoom, char *pszName);
 #endif

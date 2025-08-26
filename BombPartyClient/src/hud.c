@@ -10,7 +10,6 @@ void vDrawHud(PSTRUCT_ROOM pstCurrentRoom, PSTRUCT_PLAYER pstPlayer) {
   char szDivLine[HUD_MAX_CHAR];
   char cOption;
   char szLine[1024];
-  char szInput[1024];
   char szContents[1024];
   int ii;
   int iRole;
@@ -45,7 +44,7 @@ void vDrawHud(PSTRUCT_ROOM pstCurrentRoom, PSTRUCT_PLAYER pstPlayer) {
     if ( iRoomReadyCt(pstCurrentRoom) == (pstCurrentRoom->iRoomCapacity - 1) )
       strcpy(szFieldReady, "Iniciar Jogo");
 
-    sprintf(szContents, "  1 -> %s 2 -> Editar Sala 3 -> Remover Jogador 4 -> Destruir Sala\n", szFieldReady);
+    sprintf(szContents, "| 1 -> %s | 2 -> Editar Sala | 3 -> Remover Jogador | 4 -> Destruir Sala |\n", szFieldReady);
   }
   else {
     char szFieldReady[64];
@@ -57,6 +56,7 @@ void vDrawHud(PSTRUCT_ROOM pstCurrentRoom, PSTRUCT_PLAYER pstPlayer) {
 
     sprintf(szContents, "  1-> %s 2-> Sair da sala\n", szFieldReady);
   }
+  
   vPrintLine(szContents, NO_NEW_LINE);
   szDivLine[0] = ' ';
   szDivLine[strlen(szDivLine) - 1] = ' ';
@@ -116,3 +116,11 @@ void vDrawHud(PSTRUCT_ROOM pstCurrentRoom, PSTRUCT_PLAYER pstPlayer) {
       break;
   }
 }
+
+#ifdef FAKE
+  void vDrawFakeHud(){
+      vDrawHud((gpstCurrentRoom=pstFindRoom(103)), (gpstCurrentPlayer=pstFindPlayer(3))); // owner
+      // vDrawHud(pstFindRoom(103), pstFindPlayer(4)); //guest
+      // vDrawHud(gstRoomList.pstFirst, gstPlayerList.pstFirst);
+  }
+#endif
