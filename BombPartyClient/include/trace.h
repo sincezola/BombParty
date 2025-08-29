@@ -15,20 +15,24 @@
  *                                 Includes                                   *
  *                                                                            *
  ******************************************************************************/ 
-  #include <time.h>
   #include <errno.h>
   #include <stdarg.h>
   #include <config.h>
   #include <stdio.h>
-  
+
   #ifdef _WIN32
+    /* Winsock2 deve vir antes de windows.h e antes de time.h */
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <windows.h>
     #include <process.h>
-  #elif LINUX
+    #include <time.h>
+  #elif defined(LINUX)
     #include <unistd.h>
     #include <sys/time.h>
+    #include <time.h>
+  #else
+    #include <time.h>
   #endif
   
 /******************************************************************************
@@ -79,12 +83,6 @@
 
   #define TOKEN_MISMATCH -1
   #define ROOT_PATH_FROM_BIN ".."
- 
-  /******************************************************************************
-   *                                                                            *
-   *                     Global variables and constants                         *
-   *                                                                            *
-   ******************************************************************************/
 
   extern char *szTokenName[];
 #endif /* _TRACE_H */

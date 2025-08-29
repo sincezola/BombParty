@@ -30,6 +30,7 @@ ifdef _WIN32
   CCOPT += -D_WIN32
   ICON_OBJ = $(OBJ_DIR)/icon.o
   LIBS  += -lws2_32
+  LIBS  += -lwinmm
 endif
 
 ifdef LINUX
@@ -63,15 +64,29 @@ OBJS = \
 	$(OBJ_DIR)/player.o \
 	$(OBJ_DIR)/trace.o \
 	$(OBJ_DIR)/hud.o \
-	$(OBJ_DIR)/command.o
+	$(OBJ_DIR)/command.o \
+	$(OBJ_DIR)/media.o
 
 ifneq ("$(wildcard $(OBJ_DIR)/icon.o)","")
   OBJS += $(OBJ_DIR)/icon.o
 endif
 
-all: clean directories $(BIN_DIR)/$(BOMB_EXEC)
+check_deps:
+ifeq ($(OS),Windows_NT)
+	@echo ">> Verificando dependências no Windows..."
+	@where $(WINDRES) >nul 2>&1 || (echo "ERRO: windres não encontrado!" && exit 1)
+	@where $(IMAGEMAGICK) >nul 2>&1 || (echo "ERRO: ImageMagick (magick) não encontrado!" && exit 1)
+	@echo "OK: Dependências básicas presentes no Windows."
+else
+	@echo ">> Verificando dependências no Linux..."
+	@command -v ffplay >/dev/null 2>&1 || (echo "ERRO: ffplay (do pacote ffmpeg) não encontrado!" && exit 1)
+	@command -v magick >/dev/null 2>&1 || echo "AVISO: ImageMagick não encontrado (ícones podem não compilar)."
+	@echo "OK: Dependências básicas presentes no Linux."
+endif
 
-with_icon: icon directories $(BIN_DIR)/$(BOMB_EXEC)
+all: check_deps clean directories $(BIN_DIR)/$(BOMB_EXEC)
+
+with_icon: check_deps icon directories $(BIN_DIR)/$(BOMB_EXEC)
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR) $(LOG_DIR) $(ICON_PATH)/icon.png $(ICON_PATH)/icon.ico $(HTML_DIR) $(LATEX_DIR)
@@ -79,14 +94,12 @@ clean:
 directories:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
 
-# Target para gerar ícone a partir da imagem
 icon: $(ICON_PATH)/icon.webp $(ICON_PATH)/icon.rc
 	$(IMAGEMAGICK) $< -resize 512x512 $(ICON_PATH)/icon.png
 	$(IMAGEMAGICK) $(ICON_PATH)/icon.png -define icon:auto-resize=256,128,64,48,32,16 $(ICON_PATH)/icon.ico
 	$(WINDRES) $(ICON_PATH)/icon.rc -O coff -o $(OBJ_DIR)/icon.o
 	@echo "Ícone atualizado com sucesso!"
 
-# Compilar recurso no Windows
 $(OBJ_DIR)/icon.o: $(ICON_PATH)/icon.rc $(ICON_PATH)/icon.ico
 	$(WINDRES) $(ICON_PATH)/icon.rc -O coff -o $@
 
@@ -101,4 +114,4 @@ $(OBJ_DIR)/%.o: $(API_PATH)/%.c
 
 distclean: clean
 
-.PHONY: all clean distclean directories icon
+.PHONY: all clean distclean directories icon check_deps

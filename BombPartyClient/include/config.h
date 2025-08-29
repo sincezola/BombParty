@@ -5,8 +5,15 @@
 
   extern int giDifficulty;
 
+  // Globais para argumentos do programa
+  extern int giArgc;
+  extern char **gapszArgv;
+  extern char *gkpszProgramName;
+
   // Bool definition
-  typedef int bool;
+  #ifndef _WIN32
+    typedef int bool;
+  #endif
 
   #define FALSE 0
   #define TRUE  1
@@ -22,9 +29,10 @@
   #define ROOM_CLOSED  3
 
   #define PATH_TO_DB    "db"
-#ifndef _MAX_PATH
-  #define _MAX_PATH     256
-#endif
+  #ifndef _MAX_PATH
+    #define _MAX_PATH     256
+  #endif
   #define MAX_WORD_LEN  128
   #define DIFICULTY_LEN   8 
-#endif
+
+#endif /* CONFIG_H */

@@ -343,20 +343,20 @@ void vInitRoomList() {
 }
 
 void vAddRoom2List(PSTRUCT_ROOM pstRoom) {
-  PSTRUCT_ROOM *pstLast;
+  PSTRUCT_ROOM pstLast;
   if (pstRoom == NULL)
     return;
 
   if (gstRoomList.pstFirst == NULL) {
     gstRoomList.pstFirst = pstRoom;
     gstRoomList.pstLast = pstRoom;
-    pstLast = &gstRoomList.pstLast;
-  } else { /* Ja existe alguem na lista */
-    pstLast = &gstRoomList.pstLast;
-    (*pstLast)->pstNextRoom = pstRoom;
-    pstLast = pstLast->pstNextRoom;
+    pstLast = gstRoomList.pstLast;
+  } else {
+    pstLast = gstRoomList.pstLast;
+    pstLast->pstNextRoom = pstRoom;
+    pstLast = pstRoom;
   }
-  (*pstLast)->pstNextRoom = NULL;
+  pstLast->pstNextRoom = NULL;
 }
 
 PSTRUCT_ROOM pstCreateRoom(PSTRUCT_ROOM pstRoom) {

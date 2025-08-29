@@ -5,21 +5,23 @@
 #include <room.h>
 #include <input.h>
 #include <trace.h>
+#include <config.h>
 
 int giDifficulty = 0;
-char *gkpszProgramName;
-int *giArgc;
-char **gapszArgv;
+int giArgc = 0;
+char **gapszArgv = NULL;
+char *gkpszProgramName = NULL;
 
 int main(int argc, char *argv[]) { 
   int iRsl; 
   
   gkpszProgramName = argv[0];
-  giArgc = &argc;
+  giArgc = argc;
   gapszArgv = argv;
+
   vInitLogs();
 
-  if ( iInitSockets(argc, argv) < 0 )
+  if ( iInitSockets() < 0 )
     return -1;
 
   switch ( iReadGameMode() ) {

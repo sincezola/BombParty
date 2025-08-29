@@ -11,14 +11,14 @@
 #include <trace.h>
 #include <sys_interface.h>
 #include <bombparty.h>
+#include <unistd.h>
 
 #ifdef LINUX
   #include <sys/time.h>
   #include <sys/types.h>
-  #include <unistd.h>
 #else
   #include <windows.h>
-
+  #include <process.h>
   struct timeval {
     long tv_sec;
     long tv_usec;

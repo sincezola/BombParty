@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys_interface.h>
 #include <trace.h>
+#include <config.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -325,14 +326,18 @@ int iSendCommandToProcessor(int iSockClient, int iCmdId, const char *pszParam,
   return 0;
 }
 
-int iInitSockets() {
+
+int iInitSockets(void) {
   memset(gszSocketIP, 0, sizeof(gszSocketIP));
   strcpy(gszSocketIP, DEFAULT_SOCK_IP);
-  if (*giArgc > 1) {
+
+  if (giArgc > 1) {
     strcpy(gszSocketIP, gapszArgv[1]);
   }
+
   giSocketPort = DEFAULT_SOCK_PORT;
-  if (*giArgc > 2) {
+
+  if (giArgc > 2) {
     int iSrvPort = atoi(gapszArgv[2]);
     if (iSrvPort > 0)
       giSocketPort = iSrvPort;
@@ -345,10 +350,10 @@ int iInitSockets() {
     return -1;
   }
 #endif
-  iConnectToProcessor();
 
-  return 0;
+  return iConnectToProcessor();
 }
+
 
 void vCloseConnection() {
 #ifdef _WIN32

@@ -5,6 +5,7 @@
 
 #ifdef _WIN32
   #include <stdint.h> /** Para intptr_t */
+  #include <stdlib.h>
   #include <windows.h>
   static HANDLE ghBombThread = NULL; /** Handle global para thread da bomba */
 #else
