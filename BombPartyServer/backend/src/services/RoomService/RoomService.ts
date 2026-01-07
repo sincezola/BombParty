@@ -84,6 +84,8 @@ class RoomService implements RoomServiceProtocol {
         };
       }
 
+      receivedRoom.room_capacity 
+
       return {
         statusCode: HttpStatusCode.OK,
         body: new Room(receivedRoom),
@@ -160,6 +162,13 @@ class RoomService implements RoomServiceProtocol {
         };
       }
 
+      if (receivedRoom.body.room_capacity >= receivedRoom.body.players.length) {
+        return {
+          statusCode: HttpStatusCode.FORBIDDEN,
+          body: { message: `Room is already full.` },
+        };
+      }
+      
       const receivedPlayer = await this.playerService.createPlayer(player_name); // Create the player to enter the room
 
       if (!(receivedPlayer.body instanceof Player)) return this.handleError();
