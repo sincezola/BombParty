@@ -162,7 +162,7 @@ class RoomService implements RoomServiceProtocol {
         };
       }
 
-      if (receivedRoom.body.room_capacity >= receivedRoom.body.players.length) {
+      if (receivedRoom.body.room_capacity <= receivedRoom.body.players.length) {
         return {
           statusCode: HttpStatusCode.FORBIDDEN,
           body: { message: `Room is already full.` },
