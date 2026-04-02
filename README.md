@@ -1,75 +1,104 @@
-# BombParty
+# 💣 BombParty
 
-**BombParty** is a multiplayer game where players must type words that contain a randomly chosen **substring** before the "bomb" explodes.  
-The project consists of three main modules:
+A multiplayer **word-reaction game** where players must type a valid word containing a required substring before the bomb explodes.
 
-- **BombParty** – Client in **C** (player).
-- **BombProcessor** – Intermediate socket server in **C**.
-- **BombServer** – Backend in **TypeScript** with **Prisma** (API and persistence).
+This repository contains the full stack of the game, split into three services:
+
+- **BombPartyClient** → terminal game client in **C**
+- **BombProcessor** → socket gateway/server in **C**
+- **BombPartyServer** → REST backend in **TypeScript + Express + Prisma**
 
 ---
 
-## Architecture
+## ✨ Overview
 
+BombParty is designed as a layered architecture:
+
+```text
++-------------------+      TCP      +-------------------+      HTTP      +------------------------+
+| BombPartyClient   | <-----------> | BombProcessor     | <-----------> | BombPartyServer        |
+| Terminal UI (C)   |               | Socket Gateway(C) |               | API + DB (TS/Prisma)   |
++-------------------+               +-------------------+               +------------------------+
 ```
-+-----------------+        +-------------------+        +-----------------------+
-|   BombParty     | <----> |  BombProcessor    | <----> |    BombPartyServer    |
-| (Client - C)    |        | (Socket Server C) |        |   (API TS + Prisma)   |
-+-----------------+        +-------------------+        +-----------------------+
+
+### What each module does
+
+#### 1) BombPartyClient (C)
+- Runs the terminal UI/game flow.
+- Lets players create/join rooms and play rounds.
+- Supports multiplayer mode and local/singleplayer mode hooks.
+
+#### 2) BombProcessor (C)
+- Accepts client TCP connections.
+- Parses command protocol messages (`CMD|...`).
+- Calls backend API endpoints and returns normalized responses to clients.
+
+#### 3) BombPartyServer (TypeScript)
+- Exposes room/player APIs.
+- Persists data with Prisma ORM.
+- Stores game room/player relations in PostgreSQL.
+
+---
+
+## 🧱 Repository Structure
+
+```text
+.
+├── BombPartyClient/      # Terminal client (C)
+├── BombProcessor/        # Socket processor/gateway (C)
+├── BombPartyServer/      # Backend API (TypeScript + Prisma)
+├── LICENSE
+└── README.md
 ```
 
-- **BombParty (Client):**  
-  Playable interface (terminal), connecting to BombProcessor to join rooms.
+---
 
-- **BombProcessor (Socket Server):**  
-  Responsible for managing rooms and communication between multiple clients.  
-  Interacts with BombServer to register matches and players.
+## ✅ Prerequisites
 
-- **BombServer (Backend):**  
-  Developed in **TypeScript**, with **Prisma** for database access.  
-  Provides routes for room creation, player registration, and match management.
+## 1) For BombPartyClient and BombProcessor (C)
+- GCC or Clang
+- Make
+- `libcurl`
+- `pthread`
+- Optional: ImageMagick (if using icon-related build targets)
+
+### 2) For BombPartyServer (TypeScript)
+- Node.js **18+**
+- npm
+- PostgreSQL
 
 ---
 
-## Requirements
+## 🚀 Quick Start (Full Stack)
 
-### Client and Processor (C):
+> Recommended run order: **Backend → Processor → Client**
 
-- **GCC** or **Clang**
-- **Make**
-- **Libraries:**
-  - `libcurl` (HTTP requests).
-  - `pthread` (multithreading).
-  - `imagemagick` (_Optional_ compilation that generates the executable icon).
-
-### Server (Backend):
-
-- **Node.js** (>= 18)
-- **npm** or **yarn**
-- **Database:** PostgreSQL | MySql
-
----
-
-## Installation
-
-### 1. Backend (BombServer)
+### Step 1 — Start BombPartyServer
 
 ```bash
 cd BombPartyServer
 npm install
+```
+
+Create `.env` file:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/bombparty"
+PORT=8080
+```
+
+Then run migrations and start server:
+
+```bash
 npx prisma migrate dev
 npm run start
 ```
 
-Create a `.env` file in the `bombserver` folder (check `.env.example`) with:
-
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/bombparty"
-```
-
 ---
 
-### 2. Socket Server (BombProcessor)
+### Step 2 — Start BombProcessor
+
+In a new terminal:
 
 ```bash
 cd BombProcessor
@@ -77,67 +106,155 @@ make
 ./bin/BombProcessor
 ```
 
-The socket server will start and wait for client connections.
+Optional args:
+
+```bash
+./bin/BombProcessor <port> <api_base_url>
+```
+
+Example:
+
+```bash
+./bin/BombProcessor 5050 http://localhost
+```
 
 ---
 
-### 3. Client (BombParty)
+### Step 3 — Start BombPartyClient
+
+In another terminal:
 
 ```bash
-cd BombParty
+cd BombPartyClient
 make
 ./bin/BombParty
 ```
 
-Connect to the server, create or join a room, and start playing.
+Follow the in-game prompts to:
+- choose mode
+- create/join rooms
+- play rounds before the timer runs out
 
 ---
 
-## How to Play
+## 🕹️ How to Play
 
-1. Start the **BombServer** (backend).
-2. Start the **BombProcessor** (room server).
-3. Open **BombParty** (client) and connect.
-4. Join or create a room.
-5. In each round, a **substring** will be randomly selected.
-6. Type a valid word containing it before time runs out.
+1. Start backend, processor, and client.
+2. Create or join a room.
+3. Each round presents a substring (e.g. `"str"`).
+4. Type a valid word containing it before the bomb explodes.
+5. Last surviving player wins the room match.
 
 ---
 
-## Folder Structure
+## 🔌 Protocol (Client ↔ Processor)
 
-```
-/BombParty        # Client in C
-    ├─ src/
-    ├─ include/
-    └─ Makefile
+The processor expects a pipe-delimited protocol:
 
-/BombProcessor    # Intermediate server in C
-    ├─ src/
-    ├─ include/
-    └─ Makefile
-
-/BombPartyServer  # Backend in TypeScript
-    ├─ src/
-    ├─ prisma/
-    └─ package.json
+```text
+CMD|<ID>|<ARG1>|<ARG2>|...
 ```
 
----
+Known command IDs include:
+- `001` → Create room
+- `002` → Join room
+- `003` → Delete room
+- `004` → Leave room / disconnect flow
+- `005` → Patch room
+- `006` → Get room info
 
-## Next Steps
-
-- Implement **ranking** and match history.
-
----
-
-## Contribution
-
-Want to help improve BombParty?  
-Open an **issue** or send a **pull request**.
+Reference: `BombProcessor/doc/client_server_protocol.txt`
 
 ---
 
-## License
+## 🧪 Development Commands
 
-Project distributed under the **MIT** license.
+### Backend
+
+```bash
+cd BombPartyServer
+npm run dev         # watch mode
+npm run start       # normal start
+npm run studio-dev  # prisma studio with .env
+```
+
+### Client docs
+
+```bash
+cd BombPartyClient
+doxygen Doxyfile
+```
+
+### Client icon build (optional)
+
+```bash
+cd BombPartyClient
+make with_icon
+```
+
+---
+
+## 🗄️ Data Model (Backend)
+
+Main Prisma entities:
+- `Room`
+- `Player`
+- `RoomPlayer`
+
+Lookup tables:
+- `StatusType`
+- `LevelType`
+- `RoomPlayerType`
+
+Schema file:
+- `BombPartyServer/prisma/schema.prisma`
+
+---
+
+## 🛠️ Troubleshooting
+
+### Processor starts but room actions fail
+- Verify backend is running.
+- Check processor API base URL/port args.
+- Confirm backend `PORT` and processor endpoint config match.
+
+### Backend DB errors
+- Confirm PostgreSQL is up.
+- Verify `DATABASE_URL`.
+- Run:
+  ```bash
+  npx prisma migrate dev
+  ```
+
+### Client cannot connect
+- Ensure processor is listening on expected port.
+- Confirm no firewall/network restriction on local port.
+
+---
+
+## 🧭 Roadmap Ideas
+
+- Ranking/leaderboard
+- Match history
+- Replay/analytics
+- Better bot/singleplayer tuning
+- CI pipeline (C build + TS lint/typecheck/test)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome.
+
+Suggested flow:
+1. Fork repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a pull request with context and testing notes
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+See [`LICENSE`](./LICENSE).
